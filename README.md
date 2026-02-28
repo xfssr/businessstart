@@ -79,8 +79,9 @@ npm run start
 2. In Vercel, click `Add New Project` and import `businessstart`.
 3. Framework preset: `Next.js` (auto-detected).
 4. Build command: `npm run build` (default).
-5. Output: `.next` (handled automatically by Vercel for Next.js).
-6. Deploy.
+5. Output Directory: leave empty (do not set `dist`).
+6. If Vercel still expects `dist`, open `Project Settings -> Build and Output Settings` and clear `Output Directory`, then redeploy.
+7. Deploy.
 
 Optional Vercel CLI deploy:
 
