@@ -1,46 +1,180 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`RTL layout > keeps rtl as default and matches the header snapshot 1`] = `
-<header
-  class="sticky top-0 z-30 border-b border-border-subtle bg-surface-base/90 backdrop-blur-md"
+<section
+  class="py-14 sm:py-20 pt-14 sm:pt-20"
+  id="home"
 >
   <div
-    class="mx-auto w-full max-w-[1160px] px-5 sm:px-8 flex items-center gap-3 py-4 sm:py-5"
+    class="mx-auto w-full max-w-[1160px] px-5 sm:px-8"
   >
     <div
-      class="space-y-1"
+      class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end"
     >
-      <p
-        class="text-[0.62rem] font-semibold tracking-[0.25em] text-text-muted uppercase"
+      <div>
+        <span
+          class="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-surface-overlay px-3 py-1 text-xs font-semibold tracking-[0.18em] text-text-muted uppercase"
+        >
+          <span
+            aria-hidden="true"
+            class="h-1.5 w-1.5 rounded-full bg-accent"
+          />
+          תוכן. אריזה דיגיטלית. פרסום. פניות ראשונות.
+        </span>
+        <h1
+          class="mt-5 font-display text-4xl leading-tight text-text-primary sm:text-6xl"
+        >
+          עסקים צריכים תוצאה, לא רק עוד סרטון
+        </h1>
+        <p
+          class="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-xl"
+        >
+          אנחנו בונים נוכחות עסקית שמובילה לפניות: תוכן, עמוד שירות ונכסי פרסום במקום אחד.
+        </p>
+        <div
+          class="mt-8 flex flex-wrap items-center gap-3"
+        >
+          <a
+            class="inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base border border-accent bg-accent text-white shadow-panel hover:bg-accent-strong hover:border-accent-strong min-w-52"
+            href="https://wa.me/972500000000?text=%D7%94%D7%99%D7%99%2C%20%D7%A0%D7%A9%D7%9E%D7%97%20%D7%9C%D7%91%D7%A0%D7%95%D7%AA%20%D7%9C%D7%A2%D7%A1%D7%A7%20%D7%A9%D7%9C%D7%A0%D7%95%20%D7%AA%D7%95%D7%9B%D7%9F%2C%20%D7%A2%D7%9E%D7%95%D7%93%20%D7%A9%D7%99%D7%A8%D7%95%D7%AA%20%D7%95%D7%A4%D7%A8%D7%A1%D7%95%D7%9D%20%D7%A9%D7%99%D7%91%D7%99%D7%90%D7%95%20%D7%A4%D7%A0%D7%99%D7%95%D7%AA%20%D7%A8%D7%90%D7%A9%D7%95%D7%A0%D7%95%D7%AA."
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            דברו איתנו ב-WhatsApp
+          </a>
+          <a
+            class="inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base border border-border-strong bg-surface-elevated text-text-primary hover:border-accent/40 hover:text-accent min-w-44"
+            href="/he/services"
+          >
+            לראות שירותים
+          </a>
+        </div>
+        <p
+          class="mt-4 border-s-2 border-accent ps-3 text-sm text-text-muted"
+        >
+          מתאים לעסקים שרוצים השקה מהירה וברורה לשוק המקומי.
+        </p>
+      </div>
+      <article
+        class="rounded-2xl border border-border-subtle bg-surface-elevated/85 p-6 shadow-panel backdrop-blur-[1px] sm:p-7 relative overflow-hidden border-border-strong bg-surface-overlay p-7"
       >
-        CREATIVE GROWTH LABORATORY
-      </p>
-      <p
-        class="font-display text-lg leading-none text-text-primary sm:text-xl"
-      >
-        Creative Growth Laboratory
-      </p>
+        <p
+          class="text-xs font-semibold tracking-[0.2em] text-text-muted uppercase"
+        >
+          STUDIO LAB PANEL
+        </p>
+        <div
+          class="mt-5 space-y-4"
+        >
+          <div
+            class="border-b border-border-subtle pb-3 last:border-none"
+          >
+            <p
+              class="text-xs font-semibold tracking-[0.16em] text-accent"
+            >
+              01
+            </p>
+            <p
+              class="mt-1 text-sm font-semibold text-text-primary"
+            >
+              הפקת תוכן לעסק
+            </p>
+            <p
+              class="mt-1 text-xs leading-relaxed text-text-secondary"
+            >
+              צילום ויצירת תוכן מותאם לקהל ולמוצר.
+            </p>
+          </div>
+          <div
+            class="border-b border-border-subtle pb-3 last:border-none"
+          >
+            <p
+              class="text-xs font-semibold tracking-[0.16em] text-accent"
+            >
+              02
+            </p>
+            <p
+              class="mt-1 text-sm font-semibold text-text-primary"
+            >
+              רילס ותוכן לרשתות
+            </p>
+            <p
+              class="mt-1 text-xs leading-relaxed text-text-secondary"
+            >
+              וידאו קצר שמייצר חשיפה ותגובה.
+            </p>
+          </div>
+          <div
+            class="border-b border-border-subtle pb-3 last:border-none"
+          >
+            <p
+              class="text-xs font-semibold tracking-[0.16em] text-accent"
+            >
+              03
+            </p>
+            <p
+              class="mt-1 text-sm font-semibold text-text-primary"
+            >
+              צילום מוצר ואוכל
+            </p>
+            <p
+              class="mt-1 text-xs leading-relaxed text-text-secondary"
+            >
+              ויזואל נקי שמחזק אמון ורצון לקנות.
+            </p>
+          </div>
+        </div>
+      </article>
     </div>
     <div
-      aria-label="החלפת שפה"
-      class="inline-flex items-center rounded-full border border-border-subtle bg-surface-overlay/80 p-1 ms-auto"
-      role="group"
+      class="mt-10 grid gap-4 sm:grid-cols-3"
     >
-      <button
-        aria-pressed="true"
-        class="rounded-full px-3 py-2 text-xs font-semibold tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent bg-surface-elevated text-text-primary"
-        type="button"
+      <article
+        class="rounded-2xl border border-border-subtle bg-surface-elevated/85 p-6 shadow-panel backdrop-blur-[1px] sm:p-7 border-border-subtle bg-surface-elevated/70 p-5"
       >
-        עברית
-      </button>
-      <button
-        aria-pressed="false"
-        class="rounded-full px-3 py-2 text-xs font-semibold tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent text-text-muted hover:text-text-primary"
-        type="button"
+        <p
+          class="text-xs tracking-[0.16em] text-text-muted uppercase"
+        >
+          זמן השקה ממוצע
+        </p>
+        <p
+          class="mt-3 font-display text-3xl text-text-primary"
+          dir="ltr"
+        >
+          14-28 ימים
+        </p>
+      </article>
+      <article
+        class="rounded-2xl border border-border-subtle bg-surface-elevated/85 p-6 shadow-panel backdrop-blur-[1px] sm:p-7 border-border-subtle bg-surface-elevated/70 p-5"
       >
-        EN
-      </button>
+        <p
+          class="text-xs tracking-[0.16em] text-text-muted uppercase"
+        >
+          נכסי שיווק בחבילה
+        </p>
+        <p
+          class="mt-3 font-display text-3xl text-text-primary"
+          dir="ltr"
+        >
+          10+
+        </p>
+      </article>
+      <article
+        class="rounded-2xl border border-border-subtle bg-surface-elevated/85 p-6 shadow-panel backdrop-blur-[1px] sm:p-7 border-border-subtle bg-surface-elevated/70 p-5"
+      >
+        <p
+          class="text-xs tracking-[0.16em] text-text-muted uppercase"
+        >
+          מטרה עסקית
+        </p>
+        <p
+          class="mt-3 font-display text-3xl text-text-primary"
+          dir="ltr"
+        >
+          פניות ראשונות
+        </p>
+      </article>
     </div>
   </div>
-</header>
+</section>
 `;

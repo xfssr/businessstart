@@ -13,13 +13,13 @@ import {
 import {
   DEFAULT_LOCALE,
   LOCALE_STORAGE_KEY,
-  SUPPORTED_LOCALES,
   type Locale,
 } from "@/lib/constants";
-import enMessages from "@/messages/en.json";
-import heMessages from "@/messages/he.json";
-
-type Messages = typeof heMessages;
+import {
+  getDirection,
+  getMessages,
+  type Messages,
+} from "@/lib/i18n";
 
 type LocaleContextValue = {
   locale: Locale;
@@ -30,9 +30,9 @@ type LocaleContextValue = {
   setLocale: (locale: Locale) => void;
 };
 
-const catalog: Record<Locale, Messages> = {
-  en: enMessages,
-  he: heMessages,
+type LocaleProviderProps = {
+  children: ReactNode;
+  initialLocale?: Locale;
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -47,28 +47,24 @@ function resolveValue(messages: Messages, key: string) {
   }, messages);
 }
 
-function isLocale(value: string): value is Locale {
-  return (SUPPORTED_LOCALES as readonly string[]).includes(value);
-}
+export function LocaleProvider({
+  children,
+  initialLocale = DEFAULT_LOCALE,
+}: LocaleProviderProps) {
+  const [locale, setLocale] = useState<Locale>(initialLocale);
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>(() => {
-    if (typeof window === "undefined") {
-      return DEFAULT_LOCALE;
-    }
+  useEffect(() => {
+    setLocale(initialLocale);
+  }, [initialLocale]);
 
-    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-    return stored && isLocale(stored) ? stored : DEFAULT_LOCALE;
-  });
+  const messages = getMessages(locale);
+  const dir = getDirection(locale);
 
   useEffect(() => {
     window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
     document.documentElement.lang = locale;
-    document.documentElement.dir = locale === "he" ? "rtl" : "ltr";
-  }, [locale]);
-
-  const messages = catalog[locale];
-  const dir: "rtl" | "ltr" = locale === "he" ? "rtl" : "ltr";
+    document.documentElement.dir = dir;
+  }, [dir, locale]);
 
   const t = useCallback(
     (key: string) => {
