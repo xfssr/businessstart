@@ -1,0 +1,282 @@
+{
+  "meta": {
+    "title": "Creative Growth Laboratory",
+    "description": "A premium business content and launch studio helping brands build visibility and get first leads."
+  },
+  "brand": {
+    "label": "CREATIVE GROWTH LABORATORY",
+    "name": "Creative Growth Laboratory"
+  },
+  "ui": {
+    "languageToggle": "Switch language"
+  },
+  "hero": {
+    "eyebrow": "Content. Packaging. Promotion. First Leads.",
+    "title": "More than content: a creative growth system for first customer inquiries",
+    "description": "We help businesses look serious, launch properly, and build digital presence that drives trust and attention.",
+    "trust": "One studio for content, website, campaign assets, and practical launch support.",
+    "primaryCta": "Chat on WhatsApp",
+    "secondaryCta": "View Solutions",
+    "metrics": [
+      {
+        "label": "Typical Launch Window",
+        "value": "2-4 Weeks"
+      },
+      {
+        "label": "Launch Assets",
+        "value": "10+ Assets"
+      },
+      {
+        "label": "Business Focus",
+        "value": "First Leads"
+      }
+    ]
+  },
+  "whatWeDo": {
+    "eyebrow": "What We Do",
+    "title": "A complete creative growth studio, not just production",
+    "description": "We combine visibility, positioning, and launch execution into one coherent business system.",
+    "pillars": [
+      {
+        "title": "Content Production",
+        "description": "Business content aligned to audience, channels, and inquiry goals."
+      },
+      {
+        "title": "Brand Visual Packaging",
+        "description": "A consistent visual layer that makes your business look premium and reliable."
+      },
+      {
+        "title": "Website / Landing Pages",
+        "description": "Clear pages that explain your offer and turn attention into action."
+      },
+      {
+        "title": "Ad Creative & Promotion",
+        "description": "Creative assets for social, reels, and paid campaigns with performance intent."
+      },
+      {
+        "title": "First Lead Launch Support",
+        "description": "Practical launch guidance until your first relevant inquiries arrive."
+      }
+    ]
+  },
+  "process": {
+    "eyebrow": "How It Works",
+    "title": "A clear seven-step business workflow",
+    "description": "From understanding your business to generating first inquiries.",
+    "steps": [
+      {
+        "marker": "01",
+        "title": "Understand the Business",
+        "description": "Map your market, audience, and real growth challenge."
+      },
+      {
+        "marker": "02",
+        "title": "Define Offer & Goals",
+        "description": "Clarify value proposition and first-lead targets."
+      },
+      {
+        "marker": "03",
+        "title": "Create Content",
+        "description": "Produce video, photo, and social-ready content."
+      },
+      {
+        "marker": "04",
+        "title": "Visual Packaging",
+        "description": "Build a polished visual identity for trust and consistency."
+      },
+      {
+        "marker": "05",
+        "title": "Build Landing / Site",
+        "description": "Launch a page or website with clear offer logic and CTA."
+      },
+      {
+        "marker": "06",
+        "title": "Prepare Promotion Assets",
+        "description": "Create ad creatives and rollout materials for launch."
+      },
+      {
+        "marker": "07",
+        "title": "Launch & First Inquiries",
+        "description": "Go live and start receiving first relevant leads."
+      }
+    ]
+  },
+  "audience": {
+    "eyebrow": "Who It Is For",
+    "title": "Built for businesses that need visibility and action",
+    "description": "Especially SMBs that want content + website + promotion in one place.",
+    "categories": [
+      "Restaurants",
+      "Bars",
+      "Cafes",
+      "Catering",
+      "Hotels",
+      "Events",
+      "Beauty & Lifestyle",
+      "Local Services"
+    ]
+  },
+  "difference": {
+    "eyebrow": "Why This Is Different",
+    "title": "More than a photographer. More than a web freelancer.",
+    "description": "We combine creative execution with practical growth thinking.",
+    "points": [
+      "One studio for content, packaging, and launch",
+      "Business strategy behind every visual decision",
+      "Marketing-purpose content, not random production",
+      "Fast and practical for early-stage growth",
+      "Focused on trust, attention, and first leads"
+    ],
+    "callout": "We do not deliver assets only. We deliver business-ready presence."
+  },
+  "services": {
+    "eyebrow": "Services & Solutions",
+    "title": "Modular offers for real business launch needs",
+    "description": "Choose a focused block or combine into a full launch system.",
+    "items": [
+      {
+        "title": "Business Content Creation",
+        "description": "Content production tailored to your offer and audience."
+      },
+      {
+        "title": "Reels & Social Content",
+        "description": "Short-form assets designed for social discovery and response."
+      },
+      {
+        "title": "Product & Food Photography",
+        "description": "Premium product and food visuals for stronger first impression."
+      },
+      {
+        "title": "Landing Page / Website",
+        "description": "Simple digital presence that explains your value clearly."
+      },
+      {
+        "title": "Launch Visual Assets",
+        "description": "Campaign visuals and launch-ready brand materials."
+      },
+      {
+        "title": "Ad Creatives",
+        "description": "Performance-oriented creatives for paid promotion."
+      },
+      {
+        "title": "First Lead System",
+        "description": "A practical setup to start receiving early inquiries."
+      },
+      {
+        "title": "Tailored Growth Solution",
+        "description": "A custom execution plan by industry, budget, and stage."
+      }
+    ]
+  },
+  "outcomes": {
+    "eyebrow": "Results-Oriented",
+    "title": "What your business gets",
+    "description": "Clear improvements in visibility, trust, and inquiry readiness.",
+    "items": [
+      "Stronger first impression",
+      "More professional business image",
+      "Content ready for social and paid channels",
+      "A website that explains the offer clearly",
+      "Higher trust from potential customers",
+      "First inquiries, bookings, or leads"
+    ]
+  },
+  "portfolio": {
+    "eyebrow": "Portfolio",
+    "title": "Showcases across food, hospitality, events, and products",
+    "description": "Selected visual systems built for launch and visibility.",
+    "items": [
+      {
+        "title": "Helix Dining",
+        "subtitle": "Restaurant content and launch package",
+        "metric": "Restaurant Launch",
+        "visual": "/portfolio/helix.svg",
+        "alt": "Restaurant visual campaign"
+      },
+      {
+        "title": "Nera Hospitality",
+        "subtitle": "Boutique hotel seasonal content rollout",
+        "metric": "Hospitality Assets",
+        "visual": "/portfolio/nera.svg",
+        "alt": "Hospitality content package"
+      },
+      {
+        "title": "Axis Product Lab",
+        "subtitle": "Product visuals with conversion-focused landing page",
+        "metric": "Product Presence",
+        "visual": "/portfolio/axis.svg",
+        "alt": "Product launch visuals"
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Before We Start",
+    "description": "Short answers for businesses planning a focused launch.",
+    "items": [
+      {
+        "question": "Is this relevant for small businesses at early stage?",
+        "answer": "Yes. The system is designed for businesses that need visibility and first leads quickly."
+      },
+      {
+        "question": "Do you handle both website and content?",
+        "answer": "Yes. That is the core advantage: content, digital packaging, and launch flow in one place."
+      },
+      {
+        "question": "How fast can we launch?",
+        "answer": "Usually between two to four weeks depending on scope and existing materials."
+      },
+      {
+        "question": "What if we do not have clear brand direction yet?",
+        "answer": "That is a common starting point. We define message and visual direction from scratch."
+      }
+    ]
+  },
+  "cta": {
+    "eyebrow": "Next Step",
+    "title": "Ready to build a business presence that brings first leads?",
+    "description": "Start with a focused consultation and get a practical launch path.",
+    "primaryCta": "Start on WhatsApp",
+    "secondaryCta": "Check Availability"
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Let us build your launch the right way",
+    "description": "Send details or message us directly and we will respond with a clear action path.",
+    "primaryCta": "Chat on WhatsApp",
+    "secondaryCta": "View Services",
+    "channels": [
+      {
+        "label": "WhatsApp",
+        "value": "+972-50-000-0000"
+      },
+      {
+        "label": "Phone",
+        "value": "+972-50-000-0000"
+      },
+      {
+        "label": "Instagram",
+        "value": "@creativegrowth.lab"
+      },
+      {
+        "label": "Email",
+        "value": "hello@creativegrowthlab.example"
+      }
+    ],
+    "form": {
+      "title": "Quick Inquiry",
+      "nameLabel": "Full Name",
+      "phoneLabel": "Phone / WhatsApp",
+      "businessLabel": "Business Name",
+      "messageLabel": "What would you like to launch?",
+      "submit": "Send Inquiry"
+    }
+  },
+  "footer": {
+    "copyright": "© 2026 Creative Growth Laboratory",
+    "note": "Premium business content, packaging, promotion, and launch support."
+  },
+  "whatsapp": {
+    "prefill": "Hi, I want to build content, digital presence, and a launch plan that can bring first leads to my business."
+  }
+}

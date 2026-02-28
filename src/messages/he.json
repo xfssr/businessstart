@@ -1,0 +1,282 @@
+{
+  "meta": {
+    "title": "Creative Growth Laboratory | מעבדת צמיחה יצירתית לעסקים",
+    "description": "סטודיו-מעבדה פרימיום לעסקים שרוצים נראות, תוכן, נוכחות דיגיטלית ולקוחות ראשונים."
+  },
+  "brand": {
+    "label": "CREATIVE GROWTH LABORATORY",
+    "name": "Creative Growth Laboratory"
+  },
+  "ui": {
+    "languageToggle": "החלפת שפה"
+  },
+  "hero": {
+    "eyebrow": "Content. Packaging. Promotion. First Leads.",
+    "title": "יותר מתוכן: מערכת צמיחה יצירתית שמביאה פניות ראשונות",
+    "description": "אנחנו עוזרים לעסקים להיראות מקצועיים, להשיק נכון ולבנות נוכחות דיגיטלית שמייצרת אמון וביקוש.",
+    "trust": "פתרון אחד לתוכן, אתר, נכסי קמפיין והשקה עסקית ראשונה.",
+    "primaryCta": "דברו איתנו ב-WhatsApp",
+    "secondaryCta": "לראות פתרונות",
+    "metrics": [
+      {
+        "label": "זמן השקה טיפוסי",
+        "value": "2-4 Weeks"
+      },
+      {
+        "label": "נכסי השקה",
+        "value": "10+ Assets"
+      },
+      {
+        "label": "מוקד עסקי",
+        "value": "First Leads"
+      }
+    ]
+  },
+  "whatWeDo": {
+    "eyebrow": "מה אנחנו עושים",
+    "title": "סטודיו צמיחה עסקית מקצה לקצה",
+    "description": "לא רק צילום או עריכה. אנחנו בונים שכבת נראות, מסר והשקה שעובדת יחד כמערכת אחת.",
+    "pillars": [
+      {
+        "title": "Content Production",
+        "description": "תוכן עסקי מותאם לקהלים, ערוצים ויעד ברור של פניות."
+      },
+      {
+        "title": "Brand Visual Packaging",
+        "description": "שפה ויזואלית שמציגה את העסק ברמה מקצועית ואחידה."
+      },
+      {
+        "title": "Website / Landing Pages",
+        "description": "עמודים שמסבירים הצעה עסקית בצורה ברורה וממירה."
+      },
+      {
+        "title": "Ad Creative & Promotion",
+        "description": "קריאייטיב לנכסי פרסום, רילס וסושיאל עם כיוון ביצועי."
+      },
+      {
+        "title": "First Lead Launch Support",
+        "description": "ליווי השקה פרקטי עד לפניות הראשונות מהשוק."
+      }
+    ]
+  },
+  "process": {
+    "eyebrow": "איך זה עובד",
+    "title": "תהליך עבודה עסקי ופשוט",
+    "description": "שבעה שלבים ברורים מהבנת העסק ועד יצירת עניין ראשוני מלקוחות.",
+    "steps": [
+      {
+        "marker": "01",
+        "title": "Understand the Business",
+        "description": "מכירים את התחום, הקהל והאתגר המרכזי שלך."
+      },
+      {
+        "marker": "02",
+        "title": "Define Offer & Goals",
+        "description": "מחדדים הצעה, מסר ויעד לפניות ראשונות."
+      },
+      {
+        "marker": "03",
+        "title": "Create Content",
+        "description": "מפיקים תוכן וידאו/סטילס/סושיאל לפי תוכנית."
+      },
+      {
+        "marker": "04",
+        "title": "Visual Packaging",
+        "description": "בונים מעטפת ויזואלית שמעלה אמינות ותפיסה מקצועית."
+      },
+      {
+        "marker": "05",
+        "title": "Build Landing / Site",
+        "description": "מקימים עמוד נחיתה או אתר עסקי להסבר הצעה ו-CTA ברור."
+      },
+      {
+        "marker": "06",
+        "title": "Prepare Promotion Assets",
+        "description": "מכינים קריאייטיב פרסומי ונכסי השקה לערוצים רלוונטיים."
+      },
+      {
+        "marker": "07",
+        "title": "Launch & First Inquiries",
+        "description": "משיקים ומתחילים לייצר פניות ראשונות מהלקוחות הנכונים."
+      }
+    ]
+  },
+  "audience": {
+    "eyebrow": "למי זה מתאים",
+    "title": "לעסקים שרוצים נראות ותוצאה, לא רק עיצוב",
+    "description": "בדגש על עסקים מקומיים ובינוניים שצריכים תוכן, אתר והנעה לפניות במקום אחד.",
+    "categories": [
+      "Restaurants",
+      "Bars",
+      "Cafes",
+      "Catering",
+      "Hotels",
+      "Events",
+      "Beauty & Lifestyle",
+      "Local Services"
+    ]
+  },
+  "difference": {
+    "eyebrow": "למה זה שונה",
+    "title": "יותר מעריכת וידאו. יותר מבניית אתר.",
+    "description": "השירות משלב יצירה, חשיבה שיווקית והשקה מעשית תחת צוות אחד.",
+    "points": [
+      "סטודיו אחד לתוכן + מעטפת מותג + השקה",
+      "חשיבה עסקית ולא רק ביצוע קריאייטיבי",
+      "כל נכס נבנה עם מטרה שיווקית ברורה",
+      "פתרון מהיר ופרקטי לעסקים בתחילת תהליך צמיחה",
+      "מיקוד בתוצאה: אמון, עניין ופניות ראשונות"
+    ],
+    "callout": "אנחנו לא מוכרים חומרים. אנחנו בונים נוכחות שמביאה תגובה מהשוק."
+  },
+  "services": {
+    "eyebrow": "שירותים ופתרונות",
+    "title": "בלוקים מודולריים לבניית נוכחות עסקית",
+    "description": "ניתן לבחור פתרון נקודתי או מסלול מלא לפי שלב העסק.",
+    "items": [
+      {
+        "title": "Business Content Creation",
+        "description": "צילום ויצירת תוכן מותאם עסק, קהל וערוצי הפצה."
+      },
+      {
+        "title": "Reels & Social Content",
+        "description": "סרטונים קצרים לרשתות חברתיות עם מסר ברור וקריאה לפעולה."
+      },
+      {
+        "title": "Product & Food Photography",
+        "description": "ויזואל מוצר/אוכל שמגדיל תיאבון, אמון ותפיסת איכות."
+      },
+      {
+        "title": "Landing Page / Website",
+        "description": "נוכחות דיגיטלית ברורה שמציגה שירות ומייצרת פניות."
+      },
+      {
+        "title": "Launch Visual Assets",
+        "description": "נכסי השקה לקמפיין, רשתות ועמודי מכירה."
+      },
+      {
+        "title": "Ad Creatives",
+        "description": "קריאייטיב לקמפיינים ממומנים בשפה מדויקת לעסק."
+      },
+      {
+        "title": "First Lead System",
+        "description": "מערך בסיסי ליצירת פניות ראשונות מעסקאות פוטנציאליות."
+      },
+      {
+        "title": "Tailored Growth Solution",
+        "description": "פתרון משולב לפי תחום, תקציב ושלב התקדמות העסק."
+      }
+    ]
+  },
+  "outcomes": {
+    "eyebrow": "מיקוד בתוצאה",
+    "title": "מה העסק מקבל בפועל",
+    "description": "השפעה נראית לעין כבר מהחודש הראשון של הנוכחות החדשה.",
+    "items": [
+      "רושם ראשוני מקצועי וחזק יותר",
+      "שיפור בתדמית העסק מול לקוחות חדשים",
+      "תוכן מוכן לסושיאל ולפרסום ממומן",
+      "אתר/עמוד שמציג את ההצעה באופן ברור",
+      "עלייה באמון ובנכונות לפנות",
+      "יצירת פניות, הזמנות או לידים ראשונים"
+    ]
+  },
+  "portfolio": {
+    "eyebrow": "תיק עבודות",
+    "title": "דוגמאות מ-food, hospitality, events ומוצרים",
+    "description": "ויזואלים שפותחו כדי לחזק נראות ולהניע עניין עסקי.",
+    "items": [
+      {
+        "title": "Helix Dining",
+        "subtitle": "נראות מסעדה + נכסי השקה לרשת",
+        "metric": "Restaurant Launch",
+        "visual": "/portfolio/helix.svg",
+        "alt": "Restaurant visual campaign"
+      },
+      {
+        "title": "Nera Hospitality",
+        "subtitle": "סט תוכן למלון בוטיק וקמפיין עונתי",
+        "metric": "Hospitality Assets",
+        "visual": "/portfolio/nera.svg",
+        "alt": "Hospitality content package"
+      },
+      {
+        "title": "Axis Product Lab",
+        "subtitle": "הצגת מוצר + עמוד נחיתה ממוקד",
+        "metric": "Product Presence",
+        "visual": "/portfolio/axis.svg",
+        "alt": "Product launch visuals"
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "שאלות נפוצות",
+    "title": "לפני שמתחילים",
+    "description": "תשובות קצרות לבעלי עסקים שמחפשים צעד מעשי קדימה.",
+    "items": [
+      {
+        "question": "זה מתאים גם לעסק קטן בתחילת הדרך?",
+        "answer": "כן. המערכת בנויה במיוחד לעסקים שצריכים נראות מסודרת ופניות ראשונות."
+      },
+      {
+        "question": "אתם עושים גם אתר וגם תוכן?",
+        "answer": "כן. זה היתרון המרכזי שלנו: תוכן, אריזה דיגיטלית והשקה במקום אחד."
+      },
+      {
+        "question": "תוך כמה זמן אפשר להשיק?",
+        "answer": "בדרך כלל בין שבועיים לארבעה, בהתאם להיקף החבילה והחומרים הקיימים."
+      },
+      {
+        "question": "אם אין לי עדיין קריאייטיב או שפה ברורה?",
+        "answer": "זו בדיוק נקודת הפתיחה שלנו. אנחנו מגדירים את השפה והנכסים מאפס."
+      }
+    ]
+  },
+  "cta": {
+    "eyebrow": "השלב הבא",
+    "title": "רוצים לבנות נוכחות שמביאה לידים ראשונים?",
+    "description": "נתחיל בפגישת מיקוד קצרה ונציע מסלול ביצוע שמתאים לעסק שלך.",
+    "primaryCta": "התחילו ב-WhatsApp",
+    "secondaryCta": "בדיקת זמינות"
+  },
+  "contact": {
+    "eyebrow": "יצירת קשר",
+    "title": "בואו נבנה את ההשקה שלכם נכון",
+    "description": "השאירו פרטים או שלחו הודעה, ונחזור עם כיוון פעולה ברור.",
+    "primaryCta": "צ׳אט ב-WhatsApp",
+    "secondaryCta": "לראות שירותים",
+    "channels": [
+      {
+        "label": "WhatsApp",
+        "value": "+972-50-000-0000"
+      },
+      {
+        "label": "Phone",
+        "value": "+972-50-000-0000"
+      },
+      {
+        "label": "Instagram",
+        "value": "@creativegrowth.lab"
+      },
+      {
+        "label": "Email",
+        "value": "hello@creativegrowthlab.example"
+      }
+    ],
+    "form": {
+      "title": "שליחת פנייה קצרה",
+      "nameLabel": "שם מלא",
+      "phoneLabel": "טלפון / WhatsApp",
+      "businessLabel": "שם העסק",
+      "messageLabel": "מה הייתם רוצים לקדם?",
+      "submit": "שליחה"
+    }
+  },
+  "footer": {
+    "copyright": "© 2026 Creative Growth Laboratory",
+    "note": "Premium business content, packaging, promotion, and launch support."
+  },
+  "whatsapp": {
+    "prefill": "היי, אני רוצה לבנות נראות, תוכן והשקה שיביאו לעסק שלי פניות ראשונות."
+  }
+}

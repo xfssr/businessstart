@@ -1,0 +1,46 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`RTL layout > keeps rtl as default and matches the header snapshot 1`] = `
+<header
+  class="sticky top-0 z-30 border-b border-border-subtle bg-surface-base/90 backdrop-blur-md"
+>
+  <div
+    class="mx-auto w-full max-w-[1160px] px-5 sm:px-8 flex items-center gap-3 py-4 sm:py-5"
+  >
+    <div
+      class="space-y-1"
+    >
+      <p
+        class="text-[0.62rem] font-semibold tracking-[0.25em] text-text-muted uppercase"
+      >
+        CREATIVE GROWTH LABORATORY
+      </p>
+      <p
+        class="font-display text-lg leading-none text-text-primary sm:text-xl"
+      >
+        Creative Growth Laboratory
+      </p>
+    </div>
+    <div
+      aria-label="החלפת שפה"
+      class="inline-flex items-center rounded-full border border-border-subtle bg-surface-overlay/80 p-1 ms-auto"
+      role="group"
+    >
+      <button
+        aria-pressed="true"
+        class="rounded-full px-3 py-2 text-xs font-semibold tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent bg-surface-elevated text-text-primary"
+        type="button"
+      >
+        עברית
+      </button>
+      <button
+        aria-pressed="false"
+        class="rounded-full px-3 py-2 text-xs font-semibold tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent text-text-muted hover:text-text-primary"
+        type="button"
+      >
+        EN
+      </button>
+    </div>
+  </div>
+</header>
+`;

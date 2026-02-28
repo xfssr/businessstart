@@ -1,0 +1,17 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#151821"/>
+  <rect x="64" y="76" width="1072" height="648" rx="24" fill="#1C2130" stroke="#394055"/>
+  <path d="M120 612H1080" stroke="#5D6678"/>
+  <path d="M120 544H1080" stroke="#5D6678"/>
+  <path d="M120 476H1080" stroke="#5D6678"/>
+  <path d="M120 408H1080" stroke="#5D6678"/>
+  <path d="M120 340H1080" stroke="#5D6678"/>
+  <path d="M120 272H1080" stroke="#5D6678"/>
+  <path d="M240 620V180" stroke="#5D6678"/>
+  <path d="M420 620V180" stroke="#5D6678"/>
+  <path d="M600 620V180" stroke="#5D6678"/>
+  <path d="M780 620V180" stroke="#5D6678"/>
+  <path d="M960 620V180" stroke="#5D6678"/>
+  <path d="M160 530C240 510 320 450 400 420C480 390 560 420 640 390C720 360 800 280 880 250C960 220 1010 190 1040 172" stroke="#C83F3F" stroke-width="8" stroke-linecap="round"/>
+  <text x="128" y="156" fill="#C7CEDA" font-size="42" font-family="Segoe UI, sans-serif">HELIX CONTROL</text>
+</svg>

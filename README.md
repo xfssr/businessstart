@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Creative Growth Laboratory
 
-## Getting Started
+Premium bilingual (Hebrew + English) business website for a modern creative growth studio that helps businesses build visibility and get first leads.
 
-First, run the development server:
+## Website Concept
+
+This is not a simple portfolio for photo/video services.
+It is positioned as a **business growth laboratory** combining:
+
+- content production,
+- digital packaging,
+- landing page / website build,
+- ad creatives,
+- launch support for first inquiries.
+
+Core value statement: **Content. Packaging. Promotion. First Leads.**
+
+## What the Site Provides
+
+- Native Hebrew (`rtl`) experience for Israeli business clients.
+- Professional English (`ltr`) layer for international presentation.
+- Language toggle in header with persisted selection in `localStorage`.
+- WhatsApp-first conversion flow:
+  - hero primary CTA,
+  - contact primary CTA,
+  - sticky mobile CTA after scroll.
+- Premium dark visual direction (midnight/navy/graphite palette, restrained accent, cinematic gradients, subtle grid overlay).
+- Full business funnel sections:
+  - Hero,
+  - What We Do,
+  - How It Works,
+  - Who It Is For,
+  - Why This Is Different,
+  - Services & Solutions,
+  - Results-Oriented Outcomes,
+  - Portfolio,
+  - FAQ,
+  - CTA,
+  - Contact.
+- Contact channels + inquiry form UI.
+
+## Content Scope
+
+Target audiences include:
+
+- restaurants,
+- bars,
+- cafes,
+- catering,
+- hotels,
+- events,
+- beauty / lifestyle,
+- local services.
+
+Localized copy is stored in:
+
+- `src/messages/he.json`
+- `src/messages/en.json`
+
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+## Deploy to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push this repository to GitHub.
+2. In Vercel, click `Add New Project` and import `businessstart`.
+3. Framework preset: `Next.js` (auto-detected).
+4. Build command: `npm run build` (default).
+5. Output: `.next` (handled automatically by Vercel for Next.js).
+6. Deploy.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Optional Vercel CLI deploy:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm i -g vercel
+vercel
+vercel --prod
+```
 
-## Deploy on Vercel
+## Tests
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run test
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+
+- The UI is mobile-first and optimized for both `rtl` and `ltr` layouts.
+- `next-intl` is installed; locale switching uses lightweight local JSON state for instant direction/language switch.

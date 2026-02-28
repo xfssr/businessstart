@@ -1,0 +1,16 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#111522"/>
+  <rect x="88" y="96" width="560" height="608" rx="30" fill="#1B2233" stroke="#394055"/>
+  <rect x="688" y="96" width="424" height="292" rx="30" fill="#1B2233" stroke="#394055"/>
+  <rect x="688" y="412" width="424" height="292" rx="30" fill="#1B2233" stroke="#394055"/>
+  <rect x="136" y="172" width="464" height="56" rx="12" fill="#2A3348"/>
+  <rect x="136" y="250" width="400" height="24" rx="12" fill="#2A3348"/>
+  <rect x="136" y="288" width="440" height="24" rx="12" fill="#2A3348"/>
+  <rect x="136" y="326" width="280" height="24" rx="12" fill="#2A3348"/>
+  <rect x="136" y="420" width="220" height="50" rx="16" fill="#C83F3F"/>
+  <circle cx="902" cy="242" r="80" fill="#2A3348"/>
+  <circle cx="902" cy="560" r="80" fill="#2A3348"/>
+  <path d="M862 242L890 272L946 214" stroke="#C83F3F" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M862 560L890 588L946 532" stroke="#C83F3F" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="136" y="146" fill="#C7CEDA" font-size="40" font-family="Segoe UI, sans-serif">NERA CLINIC</text>
+</svg>

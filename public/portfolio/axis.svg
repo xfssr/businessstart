@@ -1,0 +1,16 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#151821"/>
+  <path d="M0 620L1200 300V800H0V620Z" fill="#1D2432"/>
+  <rect x="88" y="96" width="1024" height="608" rx="26" stroke="#394055"/>
+  <rect x="144" y="152" width="488" height="496" rx="20" fill="#202738"/>
+  <rect x="680" y="152" width="376" height="232" rx="20" fill="#202738"/>
+  <rect x="680" y="416" width="376" height="232" rx="20" fill="#202738"/>
+  <path d="M740 476H996" stroke="#5D6678" stroke-width="2"/>
+  <path d="M740 512H996" stroke="#5D6678" stroke-width="2"/>
+  <path d="M740 548H940" stroke="#5D6678" stroke-width="2"/>
+  <rect x="196" y="230" width="384" height="320" rx="16" fill="#2A3348"/>
+  <circle cx="388" cy="390" r="98" fill="#151821"/>
+  <path d="M388 324V458" stroke="#C83F3F" stroke-width="10"/>
+  <path d="M322 390H454" stroke="#C83F3F" stroke-width="10"/>
+  <text x="146" y="140" fill="#C7CEDA" font-size="40" font-family="Segoe UI, sans-serif">AXIS ATELIER</text>
+</svg>
