@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/Button";
 import { CardModule } from "@/components/CardModule";
 import { Grid } from "@/components/Grid";
 import { Section } from "@/components/Section";
@@ -9,11 +10,12 @@ type SolutionCard = {
   fit: string;
   include: string[];
   price: string;
+  slug?: string;
   title: string;
 };
 
 export function SolutionsPage() {
-  const { get, t } = useLocale();
+  const { get, locale, t } = useLocale();
   const cards = get<SolutionCard[]>("solutionsPage.cards");
 
   return (
@@ -38,6 +40,9 @@ export function SolutionsPage() {
             <p className="mt-5 border-t border-border-subtle pt-4 text-lg font-semibold text-text-primary">
               {card.price}
             </p>
+            <Button href={card.slug ? `/${locale}/solutions/${card.slug}` : undefined} variant="secondary" className="mt-4 w-full">
+              {t("servicesPage.cardCta")}
+            </Button>
           </CardModule>
         ))}
       </Grid>

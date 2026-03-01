@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PortfolioPage } from "@/components/pages/PortfolioPage";
-import { getMessages, isLocale } from "@/lib/i18n";
+import { isLocale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
+import { getLocaleMessages } from "@/lib/site-content";
 
 type PortfolioRouteProps = {
   params: Promise<{ locale: string }>;
@@ -18,7 +19,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const messages = getMessages(localeParam);
+  const messages = await getLocaleMessages(localeParam);
 
   return pageMetadata({
     locale: localeParam,

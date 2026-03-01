@@ -11,11 +11,20 @@ type ServiceCard = {
   audience: string;
   features: string[];
   price: string;
+  slug?: string;
   timeline: string;
   title: string;
 };
 
-function ServiceCardBlock({ card, cta }: { card: ServiceCard; cta: string }) {
+function ServiceCardBlock({
+  card,
+  cta,
+  href,
+}: {
+  card: ServiceCard;
+  cta: string;
+  href?: string;
+}) {
   return (
     <CardModule className="flex h-full flex-col">
       <h3 className="font-display text-2xl text-text-primary">{card.title}</h3>
@@ -32,7 +41,7 @@ function ServiceCardBlock({ card, cta }: { card: ServiceCard; cta: string }) {
         <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{card.timeline}</p>
         <p className="mt-2 text-lg font-semibold text-text-primary">{card.price}</p>
       </div>
-      <Button variant="secondary" className="mt-4 w-full">
+      <Button href={href} variant="secondary" className="mt-4 w-full">
         {cta}
       </Button>
     </CardModule>
@@ -40,7 +49,7 @@ function ServiceCardBlock({ card, cta }: { card: ServiceCard; cta: string }) {
 }
 
 export function ServicesPage() {
-  const { get, t } = useLocale();
+  const { get, locale, t } = useLocale();
   const standardCards = get<ServiceCard[]>("servicesPage.standardCards");
   const solutionCards = get<ServiceCard[]>("servicesPage.solutionCards");
 
@@ -71,7 +80,12 @@ export function ServicesPage() {
       >
         <Grid cols={4}>
           {standardCards.map((card) => (
-            <ServiceCardBlock key={card.title} card={card} cta={t("servicesPage.cardCta")} />
+            <ServiceCardBlock
+              key={card.title}
+              card={card}
+              cta={t("servicesPage.cardCta")}
+              href={card.slug ? `/${locale}/services/${card.slug}` : undefined}
+            />
           ))}
         </Grid>
       </Section>
@@ -84,7 +98,12 @@ export function ServicesPage() {
       >
         <Grid cols={4}>
           {solutionCards.map((card) => (
-            <ServiceCardBlock key={card.title} card={card} cta={t("servicesPage.cardCta")} />
+            <ServiceCardBlock
+              key={card.title}
+              card={card}
+              cta={t("servicesPage.cardCta")}
+              href={card.slug ? `/${locale}/solutions/${card.slug}` : undefined}
+            />
           ))}
         </Grid>
       </Section>

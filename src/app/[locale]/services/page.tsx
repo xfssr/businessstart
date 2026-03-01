@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 
 import { ServicesPage } from "@/components/pages/ServicesPage";
 import { pageMetadata } from "@/lib/seo";
-import { getMessages, isLocale } from "@/lib/i18n";
+import { isLocale } from "@/lib/i18n";
+import { getLocaleMessages } from "@/lib/site-content";
 
 type ServicesRouteProps = {
   params: Promise<{ locale: string }>;
@@ -18,7 +19,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const messages = getMessages(localeParam);
+  const messages = await getLocaleMessages(localeParam);
 
   return pageMetadata({
     locale: localeParam,

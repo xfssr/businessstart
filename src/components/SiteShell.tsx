@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/cn";
 
+import { Button } from "./Button";
 import { Container } from "./Container";
 import { LanguageToggle } from "./LanguageToggle";
 import { StickyWhatsAppBar } from "./StickyWhatsAppBar";
+import { WhatsAppLink } from "./WhatsAppLink";
 import { useLocale } from "./LocaleProvider";
 
 type SiteShellProps = {
@@ -31,6 +33,16 @@ export function SiteShell({ children }: SiteShellProps) {
   const { get, locale, t } = useLocale();
   const pathname = usePathname();
   const navLinks = get<NavLink[]>("nav.links");
+  const primaryCtaLabel = (get<string>("nav.primaryCta") || t("nav.stickyCta")).trim();
+  const secondaryCtaLabel = (get<string>("nav.secondaryCta") || (locale === "he" ? "בקשת הצעה" : "Get a quote")).trim();
+  const secondaryCtaHref = get<string>("nav.secondaryCtaHref") || "/contact";
+  const normalizedSecondaryHref = secondaryCtaHref.startsWith("/")
+    ? secondaryCtaHref
+    : `/${secondaryCtaHref}`;
+  const localizedSecondaryHref =
+    normalizedSecondaryHref === `/${locale}` || normalizedSecondaryHref.startsWith(`/${locale}/`)
+      ? normalizedSecondaryHref
+      : `/${locale}${normalizedSecondaryHref}`;
 
   return (
     <div className="relative min-h-screen pb-24 md:pb-0">
@@ -68,6 +80,12 @@ export function SiteShell({ children }: SiteShellProps) {
           </nav>
 
           <div className="ms-auto flex items-center gap-2">
+            <div className="hidden items-center gap-2 sm:flex">
+              <WhatsAppLink label={primaryCtaLabel} message={t("whatsapp.prefill")} variant="secondary" />
+              <Button href={localizedSecondaryHref} className="min-w-36">
+                {secondaryCtaLabel}
+              </Button>
+            </div>
             <LanguageToggle />
           </div>
         </Container>

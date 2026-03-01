@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/Button";
 import { CardModule } from "@/components/CardModule";
+import { LeadForm } from "@/components/LeadForm";
 import { Section } from "@/components/Section";
 import { WhatsAppLink } from "@/components/WhatsAppLink";
 import { useLocale } from "@/components/LocaleProvider";
@@ -36,40 +36,7 @@ export function ContactPage() {
           <div className="flex flex-wrap gap-3">
             <WhatsAppLink label={t("contact.primaryCta")} message={t("whatsapp.prefill")} className="min-w-52" />
           </div>
-          <div className="space-y-4 rounded-xl border border-border-subtle bg-surface-base/55 p-4">
-            <p className="text-xs font-semibold tracking-[0.18em] text-text-muted uppercase">{form.title}</p>
-            <form className="grid gap-3 sm:grid-cols-2" onSubmit={(event) => event.preventDefault()}>
-              <label className="text-sm text-text-secondary">
-                <span className="mb-1 block">{form.nameLabel}</span>
-                <input
-                  type="text"
-                  className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                />
-              </label>
-              <label className="text-sm text-text-secondary">
-                <span className="mb-1 block">{form.phoneLabel}</span>
-                <input
-                  type="tel"
-                  className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                />
-              </label>
-              <label className="text-sm text-text-secondary sm:col-span-2">
-                <span className="mb-1 block">{form.businessLabel}</span>
-                <input
-                  type="text"
-                  className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                />
-              </label>
-              <label className="text-sm text-text-secondary sm:col-span-2">
-                <span className="mb-1 block">{form.messageLabel}</span>
-                <textarea
-                  rows={4}
-                  className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                />
-              </label>
-              <Button className="sm:col-span-2">{form.submit}</Button>
-            </form>
-          </div>
+          <LeadForm labels={form} />
         </CardModule>
 
         <CardModule>

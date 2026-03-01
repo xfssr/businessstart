@@ -1,103 +1,102 @@
-# Creative Growth Laboratory
+# Bilingual Studio Commerce v2.0
 
-Premium bilingual (Hebrew + English) business website for a modern creative growth studio that helps businesses build visibility and get first leads.
+Next.js App Router + Sanity CMS project for a bilingual business website:
 
-## Website Concept
+- Hebrew-first (`/he`, RTL)
+- English (`/en`, LTR)
+- CMS-managed services, solutions, packages, portfolio, FAQ, navigation, and global settings
+- WhatsApp-first conversion + quote CTA
+- SEO-ready routes and metadata
 
-This is not a simple portfolio for photo/video services.
-It is positioned as a **business growth laboratory** combining:
+## Stack
 
-- content production,
-- digital packaging,
-- landing page / website build,
-- ad creatives,
-- launch support for first inquiries.
+- Next.js 16 + TypeScript
+- Tailwind CSS
+- Sanity Studio + `next-sanity`
+- Vitest + Testing Library
 
-Core value statement: **Content. Packaging. Promotion. First Leads.**
+## Setup
 
-## What the Site Provides
-
-- Native Hebrew (`rtl`) experience for Israeli business clients.
-- Professional English (`ltr`) layer for international presentation.
-- Language toggle in header with persisted selection in `localStorage`.
-- WhatsApp-first conversion flow:
-  - hero primary CTA,
-  - contact primary CTA,
-  - sticky mobile CTA after scroll.
-- Premium dark visual direction (midnight/navy/graphite palette, restrained accent, cinematic gradients, subtle grid overlay).
-- Full business funnel sections:
-  - Hero,
-  - What We Do,
-  - How It Works,
-  - Who It Is For,
-  - Why This Is Different,
-  - Services & Solutions,
-  - Results-Oriented Outcomes,
-  - Portfolio,
-  - FAQ,
-  - CTA,
-  - Contact.
-- Contact channels + inquiry form UI.
-
-## Content Scope
-
-Target audiences include:
-
-- restaurants,
-- bars,
-- cafes,
-- catering,
-- hotels,
-- events,
-- beauty / lifestyle,
-- local services.
-
-Localized copy is stored in:
-
-- `src/messages/he.json`
-- `src/messages/en.json`
-
-## Run Locally
+1. Install dependencies:
 
 ```bash
 npm install
+```
+
+2. Copy environment template:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Fill Sanity variables in `.env.local`:
+
+- `NEXT_PUBLIC_SANITY_PROJECT_ID`
+- `NEXT_PUBLIC_SANITY_DATASET`
+- `NEXT_PUBLIC_SANITY_API_VERSION`
+- `SANITY_API_WRITE_TOKEN` (optional but required for lead writes)
+
+## Run
+
+Frontend:
+
+```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
-
-## Production Build
+Sanity Studio (optional local dev):
 
 ```bash
-npm run build
-npm run start
+npm run dev:studio
 ```
 
-## Deploy to Vercel
+Studio in Next app is available at:
 
-1. Push this repository to GitHub.
-2. In Vercel, click `Add New Project` and import `businessstart`.
-3. Framework preset: `Next.js` (auto-detected).
-4. Build command: `npm run build` (default).
-5. Output Directory: leave empty (do not set `dist`).
-6. If Vercel still expects `dist`, open `Project Settings -> Build and Output Settings` and clear `Output Directory`, then redeploy.
-7. Deploy.
+- `http://localhost:3000/studio`
 
-Optional Vercel CLI deploy:
+## Build / Test
 
 ```bash
-npm i -g vercel
-vercel
-vercel --prod
-```
-
-## Tests
-
-```bash
+npm run lint
 npm run test
+npm run build
 ```
 
-## Notes
+## Routes
 
-- The UI is mobile-first and optimized for both `rtl` and `ltr` layouts.
-- `next-intl` is installed; locale switching uses lightweight local JSON state for instant direction/language switch.
+Main localized pages:
+
+- `/he`, `/en`
+- `/[locale]/services`
+- `/[locale]/solutions`
+- `/[locale]/portfolio`
+- `/[locale]/pricing`
+- `/[locale]/about`
+- `/[locale]/contact`
+
+Dynamic SEO landing pages (CMS-driven):
+
+- `/[locale]/services/[slug]`
+- `/[locale]/solutions/[slug]`
+
+## SEO Foundation
+
+- `sitemap.xml` includes `/he` and `/en` plus dynamic service/solution slugs
+- `robots.txt`
+- canonical + hreflang metadata per locale
+- OpenGraph / Twitter metadata
+- JSON-LD on key landing pages (`Service`, `Product/Offer`, `BreadcrumbList`, `FAQPage`, `LocalBusiness`)
+
+## Leads
+
+Contact forms post to:
+
+- `POST /api/leads`
+
+When `SANITY_API_WRITE_TOKEN` is configured, leads are stored as `lead` documents in Sanity.
+
+## Vercel
+
+- Framework preset: `Next.js`
+- Build command: `npm run build`
+- Output Directory: leave empty (do not set `dist`)

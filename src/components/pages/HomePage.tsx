@@ -8,6 +8,7 @@ import { Button } from "@/components/Button";
 import { CardModule } from "@/components/CardModule";
 import { Divider } from "@/components/Divider";
 import { Grid } from "@/components/Grid";
+import { LeadForm } from "@/components/LeadForm";
 import { PortfolioGallery } from "@/components/PortfolioGallery";
 import { Section } from "@/components/Section";
 import { WhatsAppLink } from "@/components/WhatsAppLink";
@@ -342,42 +343,7 @@ export function HomePage() {
             <p className="max-w-xl text-sm leading-relaxed text-text-secondary">
               {t("contact.description")}
             </p>
-            <div className="space-y-4 rounded-xl border border-border-subtle bg-surface-base/55 p-4">
-              <p className="text-xs font-semibold tracking-[0.18em] text-text-muted uppercase">
-                {contactForm.title}
-              </p>
-              <form className="grid gap-3 sm:grid-cols-2" onSubmit={(event) => event.preventDefault()}>
-                <label className="text-sm text-text-secondary">
-                  <span className="mb-1 block">{contactForm.nameLabel}</span>
-                  <input
-                    type="text"
-                    className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                  />
-                </label>
-                <label className="text-sm text-text-secondary">
-                  <span className="mb-1 block">{contactForm.phoneLabel}</span>
-                  <input
-                    type="tel"
-                    className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                  />
-                </label>
-                <label className="text-sm text-text-secondary sm:col-span-2">
-                  <span className="mb-1 block">{contactForm.businessLabel}</span>
-                  <input
-                    type="text"
-                    className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                  />
-                </label>
-                <label className="text-sm text-text-secondary sm:col-span-2">
-                  <span className="mb-1 block">{contactForm.messageLabel}</span>
-                  <textarea
-                    rows={4}
-                    className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                  />
-                </label>
-                <Button className="sm:col-span-2">{contactForm.submit}</Button>
-              </form>
-            </div>
+            <LeadForm labels={contactForm} />
           </CardModule>
           <CardModule>
             <ul className="space-y-4">

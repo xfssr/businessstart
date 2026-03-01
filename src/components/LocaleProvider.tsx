@@ -10,16 +10,8 @@ import {
   type ReactNode,
 } from "react";
 
-import {
-  DEFAULT_LOCALE,
-  LOCALE_STORAGE_KEY,
-  type Locale,
-} from "@/lib/constants";
-import {
-  getDirection,
-  getMessages,
-  type Messages,
-} from "@/lib/i18n";
+import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, type Locale } from "@/lib/constants";
+import { getDirection, getMessages, type Messages } from "@/lib/i18n";
 
 type LocaleContextValue = {
   locale: Locale;
@@ -33,6 +25,7 @@ type LocaleContextValue = {
 type LocaleProviderProps = {
   children: ReactNode;
   initialLocale?: Locale;
+  initialMessages?: Messages;
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -50,14 +43,16 @@ function resolveValue(messages: Messages, key: string) {
 export function LocaleProvider({
   children,
   initialLocale = DEFAULT_LOCALE,
+  initialMessages,
 }: LocaleProviderProps) {
   const [locale, setLocale] = useState<Locale>(initialLocale);
+  const [messages, setMessages] = useState<Messages>(initialMessages ?? getMessages(initialLocale));
 
   useEffect(() => {
     setLocale(initialLocale);
-  }, [initialLocale]);
+    setMessages(initialMessages ?? getMessages(initialLocale));
+  }, [initialLocale, initialMessages]);
 
-  const messages = getMessages(locale);
   const dir = getDirection(locale);
 
   useEffect(() => {

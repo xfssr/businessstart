@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { SiteShell } from "@/components/SiteShell";
 import { DEFAULT_SITE_URL, type Locale, SUPPORTED_LOCALES } from "@/lib/constants";
-import { getDirection, getMessages, isLocale } from "@/lib/i18n";
+import { getDirection, isLocale } from "@/lib/i18n";
+import { getLocaleMessages } from "@/lib/site-content";
 
 type LocaleLayoutProps = {
   children: React.ReactNode;
@@ -15,9 +16,7 @@ export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({
-  params,
-}: LocaleLayoutProps): Promise<Metadata> {
+export async function generateMetadata({ params }: LocaleLayoutProps): Promise<Metadata> {
   const { locale: localeParam } = await params;
 
   if (!isLocale(localeParam)) {
@@ -25,7 +24,7 @@ export async function generateMetadata({
   }
 
   const locale = localeParam as Locale;
-  const messages = getMessages(locale);
+  const messages = await getLocaleMessages(locale);
   const altLocale = locale === "he" ? "en" : "he";
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL;
 
@@ -65,9 +64,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   const locale = localeParam as Locale;
   const dir = getDirection(locale);
+  const messages = await getLocaleMessages(locale);
 
   return (
-    <LocaleProvider initialLocale={locale}>
+    <LocaleProvider initialLocale={locale} initialMessages={messages}>
       <div lang={locale} dir={dir}>
         <SiteShell>{children}</SiteShell>
       </div>
