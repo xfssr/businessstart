@@ -4,6 +4,7 @@ import { CardModule } from "./CardModule";
 
 type PortfolioItem = {
   alt: string;
+  mediaType?: "image" | "video";
   metric: string;
   subtitle: string;
   title: string;
@@ -20,13 +21,23 @@ export function PortfolioGallery({ items }: PortfolioGalleryProps) {
       {items.map((item) => (
         <CardModule key={item.title} className="overflow-hidden p-0">
           <div className="relative border-b border-border-subtle bg-surface-overlay/70">
-            <Image
-              src={item.visual}
-              alt={item.alt}
-              width={720}
-              height={480}
-              className="h-52 w-full object-cover"
-            />
+            {item.mediaType === "video" || item.visual.toLowerCase().includes(".mp4") ? (
+              <video
+                src={item.visual}
+                className="h-52 w-full object-cover"
+                controls
+                muted
+                playsInline
+              />
+            ) : (
+              <Image
+                src={item.visual}
+                alt={item.alt}
+                width={720}
+                height={480}
+                className="h-52 w-full object-cover"
+              />
+            )}
           </div>
           <div className="space-y-3 p-5">
             <p className="text-xs font-semibold tracking-[0.2em] text-text-muted uppercase">
