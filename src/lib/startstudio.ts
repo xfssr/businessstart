@@ -4,12 +4,16 @@ import { list, put } from "@vercel/blob";
 
 import { type Locale } from "@/lib/constants";
 
+type BlobAccess = "public" | "private";
+
 export type StartStudioMediaItem = {
   id: string;
   locale: Locale;
   type: "image" | "video";
   title: string;
   url: string;
+  rawUrl?: string;
+  pathname?: string;
   createdAt: string;
 };
 
@@ -42,6 +46,20 @@ function hasBlobToken() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
+function getBlobAccess(): BlobAccess {
+  return process.env.STARTSTUDIO_BLOB_ACCESS === "public" ? "public" : "private";
+}
+
+function getBlobFetchHeaders() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return undefined;
+  }
+
+  return {
+    Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+  };
+}
+
 async function findContentUrl() {
   if (!hasBlobToken()) {
     return process.env.NEXT_PUBLIC_STARTSTUDIO_CONTENT_URL ?? null;
@@ -58,7 +76,10 @@ export async function getStartStudioContent(): Promise<StartStudioContent | null
       return null;
     }
 
-    const response = await fetch(url, { cache: "no-store" });
+    const response = await fetch(url, {
+      cache: "no-store",
+      headers: getBlobFetchHeaders(),
+    });
     if (!response.ok) {
       return null;
     }
@@ -85,7 +106,7 @@ export async function saveStartStudioContent(content: StartStudioContent) {
   );
 
   const result = await put(CONTENT_PATH, payload, {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: "application/json; charset=utf-8",
@@ -126,20 +147,28 @@ export async function uploadStartStudioMedia({
   const safeExtension = extension ? `.${extension}` : "";
   const type = file.type.startsWith("video/") ? "video" : "image";
   const pathname = `${MEDIA_PREFIX}/${locale}/${Date.now()}-${crypto.randomUUID()}${safeExtension}`;
+  const access = getBlobAccess();
 
   const upload = await put(pathname, file, {
-    access: "public",
+    access,
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: file.type || undefined,
   });
+
+  const url =
+    access === "private"
+      ? `/api/startstudio/media?pathname=${encodeURIComponent(upload.pathname)}`
+      : upload.url;
 
   const mediaItem: StartStudioMediaItem = {
     id: crypto.randomUUID(),
     locale,
     type,
     title: title?.trim() || file.name,
-    url: upload.url,
+    url,
+    rawUrl: upload.url,
+    pathname: upload.pathname,
     createdAt: new Date().toISOString(),
   };
 
