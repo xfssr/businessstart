@@ -374,12 +374,13 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
       }));
   }
 
-  content.nav.primaryCta = pickLocalized(snapshot.navigation?.primaryCtaLabel, locale) || "WhatsApp";
-  content.nav.primaryCtaHref = pickLocalized(snapshot.navigation?.primaryCtaHref, locale) || "";
-  content.nav.secondaryCta =
+  const nav = content.nav as typeof content.nav & Record<string, string>;
+  nav.primaryCta = pickLocalized(snapshot.navigation?.primaryCtaLabel, locale) || "WhatsApp";
+  nav.primaryCtaHref = pickLocalized(snapshot.navigation?.primaryCtaHref, locale) || "";
+  nav.secondaryCta =
     pickLocalized(snapshot.navigation?.secondaryCtaLabel, locale) ||
     (locale === "he" ? "בקשת הצעה" : "Get a quote");
-  content.nav.secondaryCtaHref = pickLocalized(snapshot.navigation?.secondaryCtaHref, locale) || "/contact";
+  nav.secondaryCtaHref = pickLocalized(snapshot.navigation?.secondaryCtaHref, locale) || "/contact";
 
   if (snapshot.home) {
     content.hero.eyebrow = pickLocalized(snapshot.home.heroEyebrow, locale) || content.hero.eyebrow;
@@ -493,7 +494,8 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
     { label: locale === "he" ? "טלפון" : "Phone", value: snapshot.global?.phone || "" },
     { label: "Email", value: snapshot.global?.email || "" },
   ].filter((channel) => channel.value);
-  content.global = { whatsappNumber: snapshot.global?.whatsappNumber };
+  const withGlobal = content as Messages & { global?: { whatsappNumber?: string } };
+  withGlobal.global = { whatsappNumber: snapshot.global?.whatsappNumber };
 
   if (pageServices) {
     content.servicesPage.metaTitle =

@@ -46,12 +46,7 @@ export function LocaleProvider({
   initialMessages,
 }: LocaleProviderProps) {
   const [locale, setLocale] = useState<Locale>(initialLocale);
-  const [messages, setMessages] = useState<Messages>(initialMessages ?? getMessages(initialLocale));
-
-  useEffect(() => {
-    setLocale(initialLocale);
-    setMessages(initialMessages ?? getMessages(initialLocale));
-  }, [initialLocale, initialMessages]);
+  const messages = initialMessages ?? getMessages(initialLocale);
 
   const dir = getDirection(locale);
 

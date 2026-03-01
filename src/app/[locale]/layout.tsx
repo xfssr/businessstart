@@ -67,7 +67,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const messages = await getLocaleMessages(locale);
 
   return (
-    <LocaleProvider initialLocale={locale} initialMessages={messages}>
+    <LocaleProvider key={locale} initialLocale={locale} initialMessages={messages}>
       <div lang={locale} dir={dir}>
         <SiteShell>{children}</SiteShell>
       </div>

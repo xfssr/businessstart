@@ -49,10 +49,7 @@ Sanity Studio (optional local dev):
 ```bash
 npm run dev:studio
 ```
-
-Studio in Next app is available at:
-
-- `http://localhost:3000/studio`
+Studio runs on its own local URL shown in terminal (usually `http://localhost:3333`).
 
 ## Build / Test
 
