@@ -32,6 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he">
+      <head>
+        <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async />
+      </head>
       <body
         className={`${uiFont.variable} ${headingFont.variable} min-h-screen bg-surface-base font-sans text-text-primary antialiased`}
       >
