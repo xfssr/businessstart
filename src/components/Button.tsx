@@ -1,9 +1,9 @@
-import { cn } from "@/lib/cn";
+import { PremiumButton } from "@/components/ui/PremiumButton";
 
 type ButtonBaseProps = {
   children: React.ReactNode;
   className?: string;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "ghost";
 };
 
 type LinkButtonProps = ButtonBaseProps & {
@@ -16,14 +16,6 @@ type ActionButtonProps = ButtonBaseProps & {
 
 type ButtonProps = ActionButtonProps | LinkButtonProps;
 
-function buttonClasses(variant: "primary" | "secondary") {
-  if (variant === "secondary") {
-    return "border border-border-strong bg-surface-elevated text-text-primary hover:border-accent/40 hover:text-accent";
-  }
-
-  return "border border-accent bg-accent text-white shadow-panel hover:bg-accent-strong hover:border-accent-strong";
-}
-
 export function Button({
   children,
   className,
@@ -31,31 +23,26 @@ export function Button({
   variant = "primary",
   ...rest
 }: ButtonProps) {
-  const classes = cn(
-    "inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base",
-    buttonClasses(variant),
-    className,
-  );
-
   if (href) {
     return (
-      <a
+      <PremiumButton
         href={href}
+        variant={variant}
+        className={className}
         {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
-        className={classes}
       >
         {children}
-      </a>
+      </PremiumButton>
     );
   }
 
   return (
-    <button
-      type="button"
+    <PremiumButton
+      variant={variant}
+      className={className}
       {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
-      className={classes}
     >
       {children}
-    </button>
+    </PremiumButton>
   );
 }

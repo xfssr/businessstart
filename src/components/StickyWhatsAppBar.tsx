@@ -27,7 +27,7 @@ export function StickyWhatsAppBar({ label, message }: StickyWhatsAppBarProps) {
   return (
     <div
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 border-t border-border-subtle bg-surface-overlay/95 py-3 backdrop-blur-sm transition-transform duration-300 md:hidden",
+        "glass-surface-strong fixed inset-x-0 bottom-0 z-40 border-t border-border-subtle bg-surface-overlay/92 py-3 backdrop-blur-sm transition-transform duration-300 md:hidden",
         visible ? "translate-y-0" : "translate-y-full",
       )}
       aria-hidden={!visible}

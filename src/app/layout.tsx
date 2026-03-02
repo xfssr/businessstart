@@ -1,8 +1,22 @@
 import type { Metadata } from "next";
+import { Rubik, Suez_One } from "next/font/google";
 
 import { DEFAULT_SITE_URL } from "@/lib/constants";
 
 import "./globals.css";
+
+const uiFont = Rubik({
+  subsets: ["latin", "hebrew"],
+  variable: "--font-ui",
+  display: "swap",
+});
+
+const headingFont = Suez_One({
+  weight: "400",
+  subsets: ["latin", "hebrew"],
+  variable: "--font-heading",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL),
@@ -18,7 +32,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he">
-      <body className="min-h-screen bg-surface-base font-sans text-text-primary antialiased">{children}</body>
+      <body
+        className={`${uiFont.variable} ${headingFont.variable} min-h-screen bg-surface-base font-sans text-text-primary antialiased`}
+      >
+        {children}
+      </body>
     </html>
   );
 }

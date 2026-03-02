@@ -1,29 +1,13 @@
 @config "../../tailwind.config.mjs";
 @import "tailwindcss";
-
-:root {
-  --graphite: #0a1020;
-  --charcoal: #121a2d;
-  --midnight: #060b18;
-  --smoked-steel: #6f7e9a;
-  --muted-silver: #c9d2e4;
-  --accent: #6ea8ff;
-  --accent-strong: #4b8df4;
-  --surface-base: #060a15;
-  --surface-elevated: #0f172a;
-  --surface-overlay: #0b1426;
-  --text-primary: #f2f6ff;
-  --text-secondary: #c4cee2;
-  --text-muted: #8d9ab6;
-  --border-subtle: #9aaccb2b;
-  --border-strong: #a7b8d140;
-}
+@import "../styles/tokens.css";
+@import "../styles/utilities.css";
 
 @theme inline {
   --font-sans:
-    "Assistant", "Rubik", "Noto Sans Hebrew", "Segoe UI", "Tahoma", sans-serif;
+    var(--font-ui), "Rubik", "Noto Sans Hebrew", "Segoe UI", "Tahoma", sans-serif;
   --font-display:
-    "Suez One", "Frank Ruhl Libre", "Times New Roman", serif;
+    var(--font-heading), "Suez One", "Frank Ruhl Libre", serif;
   --color-graphite: var(--graphite);
   --color-charcoal: var(--charcoal);
   --color-midnight: var(--midnight);
@@ -31,15 +15,18 @@
   --color-muted-silver: var(--muted-silver);
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-cyan: var(--accent-cyan);
   --color-surface-base: var(--surface-base);
   --color-surface-elevated: var(--surface-elevated);
   --color-surface-overlay: var(--surface-overlay);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+  --color-text-label: var(--text-label);
   --color-border-subtle: var(--border-subtle);
   --color-border-strong: var(--border-strong);
-  --shadow-panel: 0 28px 70px -38px rgb(3 6 14 / 0.75);
+  --shadow-panel: var(--glow-soft);
 }
 
 * {
@@ -57,24 +44,10 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(circle at 12% 10%, rgb(110 168 255 / 0.2), transparent 44%),
-    radial-gradient(circle at 85% 6%, rgb(102 85 255 / 0.14), transparent 36%),
-    linear-gradient(180deg, #060a15 0%, #070d1c 58%, #060915 100%);
+  background: var(--gradient-page);
   color: var(--text-primary);
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to bottom, rgb(164 182 213 / 0.09) 1px, transparent 1px),
-    linear-gradient(to right, rgb(164 182 213 / 0.08) 1px, transparent 1px);
-  background-size: 100% 74px, 74px 100%;
-  opacity: 0.38;
+  font-variant-ligatures: common-ligatures;
+  text-rendering: geometricPrecision;
 }
 
 a {

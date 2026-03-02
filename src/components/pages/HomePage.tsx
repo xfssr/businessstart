@@ -13,6 +13,7 @@ import { Grid } from "@/components/Grid";
 import { LeadForm } from "@/components/LeadForm";
 import { PortfolioGallery } from "@/components/PortfolioGallery";
 import { Section } from "@/components/Section";
+import { HeroBackdrop } from "@/components/visual/HeroBackdrop";
 import { WhatsAppLink } from "@/components/WhatsAppLink";
 import { useLocale } from "@/components/LocaleProvider";
 import { DEFAULT_SITE_URL } from "@/lib/constants";
@@ -209,55 +210,57 @@ export function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-      <Section id="home" className="pt-14 sm:pt-20">
-        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-          <div>
-            <Badge>{t("hero.eyebrow")}</Badge>
-            <h1 className="mt-5 font-display text-4xl leading-tight text-text-primary sm:text-6xl">
-              {t("hero.title")}
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-xl">
-              {t("hero.description")}
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <WhatsAppLink
-                label={t("hero.primaryCta")}
-                message={t("whatsapp.prefill")}
-                className="min-w-52"
-              />
-              <Button href={`/${locale}/services`} variant="secondary" className="min-w-44">
-                {t("hero.secondaryCta")}
-              </Button>
+      <Section id="home" className="pt-14 sm:pt-20" size="large">
+        <HeroBackdrop className="p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+            <div>
+              <Badge>{t("hero.eyebrow")}</Badge>
+              <h1 className="mt-5 font-display text-4xl leading-tight text-text-primary sm:text-6xl">
+                {t("hero.title")}
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-xl">
+                {t("hero.description")}
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <WhatsAppLink
+                  label={t("hero.primaryCta")}
+                  message={t("whatsapp.prefill")}
+                  className="min-w-52"
+                />
+                <Button href={`/${locale}/services`} variant="secondary" className="min-w-44">
+                  {t("hero.secondaryCta")}
+                </Button>
+              </div>
+              <p className="mt-4 border-s-2 border-accent ps-3 text-sm text-text-muted">{t("hero.trust")}</p>
             </div>
-            <p className="mt-4 border-s-2 border-accent ps-3 text-sm text-text-muted">{t("hero.trust")}</p>
+
+            <CardModule className="relative overflow-hidden border-border-strong bg-surface-overlay p-7">
+              <p className="text-xs font-semibold tracking-[0.2em] text-text-muted uppercase">
+                {t("hero.panelLabel")}
+              </p>
+              <div className="mt-5 space-y-4">
+                {whatWeDoPillars.slice(0, 3).map((pillar, index) => (
+                  <div key={pillar.title} className="border-b border-border-subtle pb-3 last:border-none">
+                    <p className="text-xs font-semibold tracking-[0.16em] text-accent">{`0${index + 1}`}</p>
+                    <p className="mt-1 text-sm font-semibold text-text-primary">{pillar.title}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-text-secondary">{pillar.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardModule>
           </div>
 
-          <CardModule className="relative overflow-hidden border-border-strong bg-surface-overlay p-7">
-            <p className="text-xs font-semibold tracking-[0.2em] text-text-muted uppercase">
-              {t("hero.panelLabel")}
-            </p>
-            <div className="mt-5 space-y-4">
-              {whatWeDoPillars.slice(0, 3).map((pillar, index) => (
-                <div key={pillar.title} className="border-b border-border-subtle pb-3 last:border-none">
-                  <p className="text-xs font-semibold tracking-[0.16em] text-accent">{`0${index + 1}`}</p>
-                  <p className="mt-1 text-sm font-semibold text-text-primary">{pillar.title}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-text-secondary">{pillar.description}</p>
-                </div>
-              ))}
-            </div>
-          </CardModule>
-        </div>
-
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          {metrics.map((metric) => (
-            <CardModule key={metric.label} className="border-border-subtle bg-surface-elevated/70 p-5">
-              <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{metric.label}</p>
-              <p dir="ltr" className="mt-3 font-display text-3xl text-text-primary">
-                {metric.value}
-              </p>
-            </CardModule>
-          ))}
-        </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {metrics.map((metric) => (
+              <CardModule key={metric.label} className="border-border-subtle bg-surface-elevated/70 p-5">
+                <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{metric.label}</p>
+                <p dir="ltr" className="mt-3 font-display text-3xl text-text-primary">
+                  {metric.value}
+                </p>
+              </CardModule>
+            ))}
+          </div>
+        </HeroBackdrop>
       </Section>
 
       <Divider />

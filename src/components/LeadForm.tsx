@@ -68,8 +68,8 @@ export function LeadForm({ labels }: LeadFormProps) {
         : "";
 
   return (
-    <div className="space-y-4 rounded-xl border border-border-subtle bg-surface-base/55 p-4" id="lead-form">
-      <p className="text-xs font-semibold tracking-[0.18em] text-text-muted uppercase">{labels.title}</p>
+    <div className="glass-surface space-y-4 rounded-[var(--radius-lg)] p-4" id="lead-form">
+      <p className="eyebrow-label font-semibold">{labels.title}</p>
       <form className="grid gap-3 sm:grid-cols-2" onSubmit={onSubmit}>
         <label className="text-sm text-text-secondary">
           <span className="mb-1 block">{labels.nameLabel}</span>
@@ -77,7 +77,7 @@ export function LeadForm({ labels }: LeadFormProps) {
             name="name"
             required
             type="text"
-            className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
+            className="w-full rounded-[var(--radius-sm)] border border-border-subtle bg-surface-overlay/85 px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
           />
         </label>
         <label className="text-sm text-text-secondary">
@@ -86,7 +86,7 @@ export function LeadForm({ labels }: LeadFormProps) {
             name="phone"
             required
             type="tel"
-            className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
+            className="w-full rounded-[var(--radius-sm)] border border-border-subtle bg-surface-overlay/85 px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
           />
         </label>
         <label className="text-sm text-text-secondary sm:col-span-2">
@@ -94,7 +94,7 @@ export function LeadForm({ labels }: LeadFormProps) {
           <input
             name="business"
             type="text"
-            className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
+            className="w-full rounded-[var(--radius-sm)] border border-border-subtle bg-surface-overlay/85 px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
           />
         </label>
         <label className="text-sm text-text-secondary sm:col-span-2">
@@ -103,7 +103,7 @@ export function LeadForm({ labels }: LeadFormProps) {
             name="message"
             required
             rows={4}
-            className="w-full rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
+            className="w-full rounded-[var(--radius-sm)] border border-border-subtle bg-surface-overlay/85 px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-accent"
           />
         </label>
         <Button className="sm:col-span-2" type="submit" disabled={status === "submitting"}>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { CardModule } from "./CardModule";
+import { MediaGlowFrame } from "./visual/MediaGlowFrame";
 
 export type ExamplesGalleryItem = {
   title: string;
@@ -38,7 +39,7 @@ export function ExamplesGallery({ categoryLabels, items }: ExamplesGalleryProps)
           {categories.map((category) => (
             <span
               key={category}
-              className="rounded-full border border-border-subtle bg-surface-elevated px-3 py-1 text-xs font-semibold tracking-[0.12em] text-text-muted uppercase"
+              className="glass-surface rounded-full px-3 py-1 text-xs font-semibold tracking-[0.12em] text-text-muted uppercase"
             >
               {categoryLabels?.[category] || category}
             </span>
@@ -50,7 +51,7 @@ export function ExamplesGallery({ categoryLabels, items }: ExamplesGalleryProps)
         {items.map((item, index) => {
           const cardContent = (
             <>
-              <div className="relative border-b border-border-subtle bg-surface-overlay/70">
+              <MediaGlowFrame className="rounded-none border-x-0 border-t-0">
                 {item.mediaType === "video" || item.src.toLowerCase().includes(".mp4") ? (
                   <>
                     <video
@@ -79,11 +80,11 @@ export function ExamplesGallery({ categoryLabels, items }: ExamplesGalleryProps)
                     className="h-52 w-full object-cover"
                   />
                 )}
-              </div>
+              </MediaGlowFrame>
 
               <div className="space-y-2 p-5">
                 {item.category ? (
-                  <p className="text-xs font-semibold tracking-[0.18em] text-text-muted uppercase">
+                  <p className="product-meta-label font-semibold">
                     {categoryLabels?.[item.category] || item.category}
                   </p>
                 ) : null}
@@ -96,7 +97,7 @@ export function ExamplesGallery({ categoryLabels, items }: ExamplesGalleryProps)
           return (
             <CardModule key={`${item.title}-${index}`} className="overflow-hidden p-0">
               {item.link ? (
-                <Link href={item.link} className="block transition-opacity hover:opacity-95">
+                <Link href={item.link} className="block transition-all duration-300 hover:opacity-95">
                   {cardContent}
                 </Link>
               ) : (

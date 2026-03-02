@@ -8,7 +8,7 @@ export function Divider({ className }: DividerProps) {
   return (
     <div
       className={cn(
-        "mx-auto h-px w-full max-w-[1160px] bg-gradient-to-r from-transparent via-border-subtle to-transparent",
+        "mx-auto h-px w-full max-w-[1160px] bg-gradient-to-r from-transparent via-border-strong/70 to-transparent",
         className,
       )}
       aria-hidden

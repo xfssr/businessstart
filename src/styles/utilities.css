@@ -1,0 +1,91 @@
+.premium-page-bg {
+  position: relative;
+  isolation: isolate;
+}
+
+.premium-page-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to bottom, rgb(191 218 247 / 0.065) 1px, transparent 1px),
+    linear-gradient(to right, rgb(191 218 247 / 0.05) 1px, transparent 1px);
+  background-size: 100% 86px, 86px 100%;
+  opacity: 0.28;
+}
+
+.premium-page-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 52% 7%, rgb(85 166 255 / 0.2), transparent 44%),
+    radial-gradient(circle at 88% 22%, rgb(79 226 255 / 0.14), transparent 38%);
+  mix-blend-mode: screen;
+  opacity: 0.58;
+}
+
+.glass-surface {
+  border: 1px solid var(--glass-border);
+  background:
+    var(--gradient-surface),
+    var(--glass-bg);
+  box-shadow: var(--glow-soft);
+  backdrop-filter: blur(var(--blur-soft)) saturate(1.18);
+}
+
+.glass-surface-strong {
+  border: 1px solid var(--glass-border-strong);
+  background:
+    var(--gradient-surface),
+    var(--glass-bg-strong);
+  box-shadow: var(--glow-edge);
+  backdrop-filter: blur(var(--blur-strong)) saturate(1.16);
+}
+
+.glow-accent {
+  box-shadow: var(--glow-button);
+}
+
+.vignette-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 24%, rgb(0 0 0 / 0.35) 100%);
+}
+
+.grain-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  mix-blend-mode: soft-light;
+  background-image: url("/images/textures/grain.svg");
+  background-size: 320px 320px;
+}
+
+.section-shell {
+  padding-block: var(--space-section-y);
+}
+
+.section-shell-lg {
+  padding-block: var(--space-section-y-lg);
+}
+
+.eyebrow-label {
+  font-size: var(--font-size-label);
+  letter-spacing: var(--tracking-label);
+  color: var(--text-label);
+  text-transform: uppercase;
+}
+
+.product-meta-label {
+  font-size: var(--font-size-caption);
+  letter-spacing: var(--tracking-meta);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}

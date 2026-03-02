@@ -35,6 +35,8 @@ export function ServicesPage() {
         eyebrow={t("servicesPage.eyebrow")}
         title={t("servicesPage.title")}
         description={t("servicesPage.description")}
+        size="large"
+        withGlowAccent
       >
         <div className="flex flex-wrap gap-3">
           <WhatsAppLink
@@ -75,7 +77,7 @@ export function ServicesPage() {
                   ))}
                 </ul>
                 <div className="mt-5 border-t border-border-subtle pt-4">
-                  <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{card.timeline}</p>
+                  <p className="product-meta-label">{card.timeline}</p>
                   <p className="mt-2 text-lg font-semibold text-text-primary">{card.price}</p>
                 </div>
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -108,7 +110,7 @@ export function ServicesPage() {
               ))}
             </ul>
             <div className="border-t border-border-subtle pt-4">
-              <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{activeCard.timeline}</p>
+              <p className="product-meta-label">{activeCard.timeline}</p>
               <p className="mt-2 text-base font-semibold text-text-primary">{activeCard.price}</p>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { Button } from "./Button";
 import { Container } from "./Container";
 import { LanguageToggle } from "./LanguageToggle";
+import { GlowBackground } from "./visual/GlowBackground";
 import { StickyWhatsAppBar } from "./StickyWhatsAppBar";
 import { WhatsAppLink } from "./WhatsAppLink";
 import { useLocale } from "./LocaleProvider";
@@ -61,8 +62,10 @@ export function SiteShell({ children }: SiteShellProps) {
       : `/${locale}${normalizedSecondaryHref}`;
 
   return (
-    <div className="relative min-h-screen pb-24 md:pb-0">
-      <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-base/85 backdrop-blur-md">
+    <div className="premium-page-bg relative min-h-screen pb-24 md:pb-0">
+      <GlowBackground className="fixed inset-0 -z-10" />
+
+      <header className="glass-surface-strong sticky top-0 z-30 border-b border-border-subtle bg-surface-base/65 backdrop-blur-md">
         <Container className="flex items-center gap-3 py-4 sm:py-5">
           <Link href={`/${locale}`} className="flex items-center gap-2">
             <BrandMark />
@@ -79,10 +82,10 @@ export function SiteShell({ children }: SiteShellProps) {
                   key={link.path}
                   href={href}
                   className={cn(
-                    "rounded-full px-3 py-2 text-xs font-semibold tracking-wide transition-colors",
+                    "rounded-full px-3 py-2 text-xs font-semibold tracking-wide transition-colors duration-300",
                     active
-                      ? "bg-surface-overlay text-text-primary"
-                      : "text-text-muted hover:text-text-primary",
+                      ? "glass-surface text-text-primary"
+                      : "text-text-muted hover:text-text-primary hover:bg-white/5",
                   )}
                 >
                   {link.label}
@@ -105,7 +108,7 @@ export function SiteShell({ children }: SiteShellProps) {
 
       <main>{children}</main>
 
-      <footer className="border-t border-border-subtle py-8">
+      <footer className="mt-6 border-t border-border-subtle/70 py-8">
         <Container className="flex flex-col gap-2 text-sm text-text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>{t("footer.copyright")}</p>
           <p>{t("footer.note")}</p>

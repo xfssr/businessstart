@@ -4,27 +4,16 @@ const config = {
   theme: {
     extend: {
       borderRadius: {
-        xl: "0.9rem",
-        "2xl": "1.1rem",
+        xl: "var(--radius-lg)",
+        "2xl": "var(--radius-xl)",
       },
       boxShadow: {
-        panel: "var(--shadow-panel)",
+        panel: "var(--glow-soft)",
+        hero: "var(--glow-hero)",
       },
       fontFamily: {
-        display: [
-          "Suez One",
-          "Frank Ruhl Libre",
-          "Times New Roman",
-          "serif",
-        ],
-        sans: [
-          "Assistant",
-          "Rubik",
-          "Noto Sans Hebrew",
-          "Segoe UI",
-          "Tahoma",
-          "sans-serif",
-        ],
+        display: ["var(--font-heading)", "Suez One", "Frank Ruhl Libre", "serif"],
+        sans: ["var(--font-ui)", "Rubik", "Noto Sans Hebrew", "sans-serif"],
       },
       letterSpacing: {
         executive: "0.22em",

@@ -44,13 +44,13 @@ export function CatalogDetailsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/80 px-4 py-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/82 px-4 py-6 backdrop-blur-md"
       onClick={onClose}
       role="presentation"
     >
       <div
         className={cn(
-          "w-full max-w-2xl rounded-2xl border border-border-strong bg-surface-base p-6 shadow-panel sm:p-7",
+          "glass-surface-strong w-full max-w-2xl rounded-[var(--radius-xl)] p-6 sm:p-7",
           className,
         )}
         role="dialog"
@@ -63,7 +63,7 @@ export function CatalogDetailsModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-border-subtle px-3 py-2 text-xs font-semibold tracking-wide text-text-muted uppercase hover:text-text-primary"
+            className="rounded-[var(--radius-sm)] border border-border-subtle px-3 py-2 text-xs font-semibold tracking-wide text-text-muted uppercase transition-colors hover:text-text-primary"
           >
             {closeLabel}
           </button>
