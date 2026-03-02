@@ -18,3 +18,5 @@ vi.mock("next/image", () => ({
     return <img {...rest} src={resolvedSrc} alt={alt ?? ""} />;
   },
 }));
+
+vi.mock("server-only", () => ({}));

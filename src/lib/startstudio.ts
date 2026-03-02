@@ -4,8 +4,6 @@ import { list, put } from "@vercel/blob";
 
 import { type Locale } from "@/lib/constants";
 
-type BlobAccess = "public" | "private";
-
 export type StartStudioMediaItem = {
   id: string;
   locale: Locale;
@@ -46,8 +44,15 @@ function hasBlobToken() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
-function getBlobAccess(): BlobAccess {
-  return process.env.STARTSTUDIO_BLOB_ACCESS === "public" ? "public" : "private";
+export function assertPrivateBlobAccessPolicy() {
+  const configuredAccess = process.env.STARTSTUDIO_BLOB_ACCESS;
+  if (!configuredAccess) return;
+
+  if (configuredAccess !== "private") {
+    throw new Error(
+      "STARTSTUDIO_BLOB_ACCESS must be 'private'. This project serves Blob media via /api/startstudio/media.",
+    );
+  }
 }
 
 function getBlobFetchHeaders() {
@@ -143,23 +148,21 @@ export async function uploadStartStudioMedia({
     throw new Error("BLOB_READ_WRITE_TOKEN is missing");
   }
 
+  assertPrivateBlobAccessPolicy();
+
   const extension = file.name.includes(".") ? file.name.split(".").pop() : "";
   const safeExtension = extension ? `.${extension}` : "";
   const type = file.type.startsWith("video/") ? "video" : "image";
   const pathname = `${MEDIA_PREFIX}/${locale}/${Date.now()}-${crypto.randomUUID()}${safeExtension}`;
-  const access = getBlobAccess();
 
   const upload = await put(pathname, file, {
-    access,
+    access: "private",
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: file.type || undefined,
   });
 
-  const url =
-    access === "private"
-      ? `/api/startstudio/media?pathname=${encodeURIComponent(upload.pathname)}`
-      : upload.url;
+  const url = `/api/startstudio/media?pathname=${encodeURIComponent(upload.pathname)}`;
 
   const mediaItem: StartStudioMediaItem = {
     id: crypto.randomUUID(),

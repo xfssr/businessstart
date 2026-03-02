@@ -6,9 +6,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL),
-  title: "Creative Growth Laboratory | Business Start Studio",
+  title: "Business Start Studio",
   description:
-    "Premium bilingual business launch studio for content, digital packaging, and first leads.",
+    "Premium bilingual business studio for content, digital packaging, and inquiry growth.",
 };
 
 export default function RootLayout({

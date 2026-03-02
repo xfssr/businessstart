@@ -109,6 +109,11 @@ type CmsSnapshot = {
     answer?: LocalizedValue;
     displayOrder?: number;
   }>;
+  startStudioLocales?: Array<{
+    locale?: string;
+    messagesJson?: string;
+    updatedAt?: string;
+  }>;
 };
 
 export type LandingPageData = {
@@ -135,7 +140,8 @@ const CMS_QUERY = groq`{
   "solutions": *[_type == "solution"] | order(order asc, _createdAt asc),
   "packages": *[_type == "package"] | order(displayOrder asc, _createdAt asc),
   "portfolio": *[_type == "portfolioProject"] | order(displayOrder asc, _createdAt asc),
-  "faq": *[_type == "faqItem"] | order(displayOrder asc, _createdAt asc)
+  "faq": *[_type == "faqItem"] | order(displayOrder asc, _createdAt asc),
+  "startStudioLocales": *[_type == "startStudioLocale"] | order(updatedAt desc, _updatedAt desc)
 }`;
 
 const fallbackLandingPages: Record<Locale, LandingPageData[]> = {
@@ -296,6 +302,21 @@ function findPage(snapshot: CmsSnapshot, pageKey: string) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function parseCmsStartStudioPatch(snapshot: CmsSnapshot, locale: Locale): Record<string, unknown> | null {
+  const localeDoc =
+    snapshot.startStudioLocales?.find((item) => item.locale === locale) ??
+    snapshot.startStudioLocales?.find((item) => item.locale === DEFAULT_LOCALE);
+  const raw = localeDoc?.messagesJson;
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return isRecord(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
 }
 
 function mergeDeep(target: Record<string, unknown>, patch: Record<string, unknown>) {
@@ -469,17 +490,25 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
     withGlobal.global = { whatsappNumber: snapshot.global?.whatsappNumber };
   }
 
-  const startStudioPatch = startStudio?.locales?.[locale]?.messages;
-  if (isRecord(startStudioPatch)) {
-    Object.assign(content, mergeDeep(content as Record<string, unknown>, startStudioPatch));
+  const cmsStartStudioPatch = snapshot ? parseCmsStartStudioPatch(snapshot, locale) : null;
+  if (cmsStartStudioPatch) {
+    Object.assign(content, mergeDeep(content as Record<string, unknown>, cmsStartStudioPatch));
   }
 
-  if (startStudio?.global?.whatsappNumber) {
-    const withGlobal = content as Messages & { global?: { whatsappNumber?: string } };
-    withGlobal.global = {
-      ...(withGlobal.global ?? {}),
-      whatsappNumber: startStudio.global.whatsappNumber,
-    };
+  // Legacy Blob fallback only when Sanity snapshot is unavailable.
+  if (!snapshot) {
+    const legacyPatch = startStudio?.locales?.[locale]?.messages;
+    if (isRecord(legacyPatch)) {
+      Object.assign(content, mergeDeep(content as Record<string, unknown>, legacyPatch));
+    }
+
+    if (startStudio?.global?.whatsappNumber) {
+      const withGlobal = content as Messages & { global?: { whatsappNumber?: string } };
+      withGlobal.global = {
+        ...(withGlobal.global ?? {}),
+        whatsappNumber: startStudio.global.whatsappNumber,
+      };
+    }
   }
 
   return content;

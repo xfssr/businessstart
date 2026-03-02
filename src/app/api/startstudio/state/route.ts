@@ -22,7 +22,6 @@ export async function GET(request: Request) {
     ensureStartStudioContent(),
   ]);
 
-  const patch = content.locales[locale]?.messages ?? {};
   const mediaLibrary = content.mediaLibrary
     .filter((item) => item.locale === locale)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -30,7 +29,8 @@ export async function GET(request: Request) {
   return NextResponse.json({
     locale,
     messages,
-    patch,
+    source: "sanity",
+    legacyPatch: content.locales[locale]?.messages ?? null,
     mediaLibrary,
     updatedAt: content.updatedAt,
   });

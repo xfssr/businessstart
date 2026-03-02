@@ -280,6 +280,37 @@ const lead = defineType({
   ],
 });
 
+const startStudioLocale = defineType({
+  name: "startStudioLocale",
+  title: "StartStudio Locale Override",
+  type: "document",
+  fields: [
+    defineField({
+      name: "locale",
+      type: "string",
+      options: {
+        list: [
+          { title: "Hebrew (he)", value: "he" },
+          { title: "English (en)", value: "en" },
+        ],
+      },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "messagesJson",
+      type: "text",
+      rows: 24,
+      description: "JSON patch merged into locale messages at runtime.",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "updatedAt",
+      type: "datetime",
+      initialValue: () => new Date().toISOString(),
+    }),
+  ],
+});
+
 export const schemaTypes = [
   localizedString,
   localizedText,
@@ -297,4 +328,5 @@ export const schemaTypes = [
   testimonial,
   faqItem,
   lead,
+  startStudioLocale,
 ];

@@ -136,7 +136,7 @@ export function HomePage() {
 
           <CardModule className="relative overflow-hidden border-border-strong bg-surface-overlay p-7">
             <p className="text-xs font-semibold tracking-[0.2em] text-text-muted uppercase">
-              STUDIO LAB PANEL
+              {t("hero.panelLabel")}
             </p>
             <div className="mt-5 space-y-4">
               {whatWeDoPillars.slice(0, 3).map((pillar, index) => (

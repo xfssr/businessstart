@@ -13,7 +13,7 @@ Next.js App Router + Sanity CMS project for a bilingual business website:
 - Next.js 16 + TypeScript
 - Tailwind CSS
 - Sanity Studio + `next-sanity`
-- Vercel Blob (`@vercel/blob`) for StartStudio admin content/media
+- Vercel Blob (`@vercel/blob`) for StartStudio media uploads (private + proxy)
 - Vitest + Testing Library
 
 ## Setup
@@ -36,8 +36,8 @@ cp .env.example .env.local
 - `NEXT_PUBLIC_SANITY_DATASET`
 - `NEXT_PUBLIC_SANITY_API_VERSION`
 - `SANITY_API_WRITE_TOKEN` (optional but required for lead writes)
-- `BLOB_READ_WRITE_TOKEN` (required for StartStudio admin save/upload)
-- `STARTSTUDIO_BLOB_ACCESS=private` for private stores (`public` only for public stores)
+- `BLOB_READ_WRITE_TOKEN` (required for StartStudio media upload + media index)
+- `STARTSTUDIO_BLOB_ACCESS=private` (required; this project enforces private access)
 - `STARTSTUDIO_ADMIN_KEY` (recommended to protect admin API/page)
 
 ## Run
@@ -82,7 +82,7 @@ Dynamic SEO landing pages (CMS-driven):
 
 Admin:
 
-- `/startstudio` (edit descriptions/prices and upload media to Vercel Blob)
+- `/startstudio` (edit bilingual content/prices/SEO snippets and upload media)
 
 ## SEO Foundation
 
@@ -105,12 +105,13 @@ When `SANITY_API_WRITE_TOKEN` is configured, leads are stored as `lead` document
 - Admin UI route: `/startstudio`
 - API routes:
   - `GET /api/startstudio/state?locale=he|en`
-  - `PUT /api/startstudio/content`
+  - `PUT /api/startstudio/content` (writes locale patch to Sanity document `startStudioLocale.*`)
+  - `POST /api/startstudio/migrate` (one-time import from legacy Blob content JSON to Sanity)
   - `POST /api/startstudio/upload`
   - `GET /api/startstudio/media?pathname=...` (proxy for private Blob media)
 - Auth header: `x-startstudio-key` (checked against `STARTSTUDIO_ADMIN_KEY` if set)
 - Uploaded image/video files are stored in Vercel Blob under `startstudio/media/...`
-- Content overrides are stored in Vercel Blob JSON: `startstudio/content.json`
+- StartStudio content is Sanity-first. Legacy Blob JSON is kept only as fallback/migration source.
 
 ## Vercel
 

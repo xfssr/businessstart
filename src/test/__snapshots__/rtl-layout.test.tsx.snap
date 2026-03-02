@@ -61,7 +61,7 @@ exports[`RTL layout > keeps rtl as default and matches the header snapshot 1`] =
         <p
           class="text-xs font-semibold tracking-[0.2em] text-text-muted uppercase"
         >
-          STUDIO LAB PANEL
+          Studio Focus
         </p>
         <div
           class="mt-5 space-y-4"

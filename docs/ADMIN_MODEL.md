@@ -2,6 +2,11 @@
 
 This project is structured for a headless CMS integration (Sanity / Payload / Strapi).
 
+Current implementation:
+- `StartStudio` (`/startstudio`) is an admin layer that writes locale message patches into Sanity (`startStudioLocale` docs).
+- Uploaded media is stored in private Vercel Blob and served via `/api/startstudio/media`.
+- Legacy Blob JSON content can be imported once via `POST /api/startstudio/migrate`.
+
 ## Editable Collections
 
 1. `global_settings`
