@@ -26,6 +26,8 @@ type CmsService = {
   deliverables?: LocalizedValue[];
   deliveryTime?: LocalizedValue;
   priceFrom?: string;
+  galleryItems?: Array<{ _ref?: string }>;
+  gallery?: Array<{ asset?: { url?: string } }>;
   isHidden?: boolean;
   isFeatured?: boolean;
   seo?: {
@@ -46,6 +48,8 @@ type CmsSolution = {
   includedItems?: LocalizedValue[];
   deliveryTime?: LocalizedValue;
   priceFrom?: string;
+  galleryItems?: Array<{ _ref?: string }>;
+  visuals?: Array<{ asset?: { url?: string } }>;
   whatWeDo?: LocalizedValue;
   isHidden?: boolean;
   isFeatured?: boolean;
@@ -94,6 +98,15 @@ type CmsSnapshot = {
     heroDescription?: LocalizedValue;
     heroPrimaryCta?: LocalizedValue;
     heroSecondaryCta?: LocalizedValue;
+    examplesGalleryEyebrow?: LocalizedValue;
+    examplesGalleryTitle?: LocalizedValue;
+    examplesGalleryDescription?: LocalizedValue;
+    examplesGalleryItems?: Array<{ _ref?: string }>;
+    solutionsPromptEyebrow?: LocalizedValue;
+    solutionsPromptTitle?: LocalizedValue;
+    solutionsPromptDescription?: LocalizedValue;
+    solutionsPromptCta?: LocalizedValue;
+    solutionsPromptItems?: Array<{ _ref?: string }>;
   };
   pages?: Array<{
     pageKey?: string;
@@ -124,6 +137,7 @@ type CmsSnapshot = {
     category?: string;
     clientType?: LocalizedValue;
     shortDescription?: LocalizedValue;
+    galleryItems?: Array<{ _ref?: string }>;
     media?: Array<{ asset?: { url?: string } }>;
     displayOrder?: number;
     order?: number;
@@ -139,6 +153,22 @@ type CmsSnapshot = {
     visible?: boolean;
   }>;
   testimonials?: CmsTestimonial[];
+  mediaAssets?: Array<{
+    _id: string;
+    title?: string;
+    caption?: string;
+    category?: string;
+    locale?: string;
+    mediaType?: "image" | "video";
+    alt?: string;
+    order?: number;
+    isFeatured?: boolean;
+    isHidden?: boolean;
+    linkUrl?: string;
+    imageFile?: { asset?: { url?: string } };
+    videoFile?: { asset?: { url?: string } };
+    videoPoster?: { asset?: { url?: string } };
+  }>;
   startStudioLocales?: Array<{
     locale?: string;
     messagesJson?: string;
@@ -153,8 +183,22 @@ type TestimonialMessageItem = {
   rating: number;
 };
 
-type MutableMessages = Messages &
+type MutableMessages = Omit<Messages, "examplesGallery" | "solutionsPrompt" | "testimonials" | "mediaCategories"> &
   Record<string, unknown> & {
+    mediaCategories?: Record<string, string>;
+    examplesGallery?: {
+      eyebrow?: string;
+      title?: string;
+      description?: string;
+      items?: HomeExamplesGalleryItem[];
+    };
+    solutionsPrompt?: {
+      eyebrow?: string;
+      title?: string;
+      description?: string;
+      cta?: string;
+      cards?: SolutionsPromptCard[];
+    };
     testimonials?: {
       eyebrow?: string;
       title?: string;
@@ -176,6 +220,26 @@ export type LandingPageData = {
   seoDescription: string;
   noindex?: boolean;
   ogImage?: string;
+  galleryItems?: HomeExamplesGalleryItem[];
+};
+
+export type HomeExamplesGalleryItem = {
+  title: string;
+  subtitle: string;
+  category: string;
+  mediaType: "image" | "video";
+  src: string;
+  poster?: string;
+  alt: string;
+  order?: number;
+  link?: string;
+};
+
+export type SolutionsPromptCard = {
+  title: string;
+  problem: string;
+  outcome: string;
+  slug: string;
 };
 
 const CMS_QUERY = groq`{
@@ -189,6 +253,12 @@ const CMS_QUERY = groq`{
   "portfolio": *[_type == "portfolioProject"] | order(displayOrder asc, _createdAt asc),
   "faq": *[_type == "faqItem"] | order(displayOrder asc, _createdAt asc),
   "testimonials": *[_type == "testimonial"] | order(displayOrder asc, _createdAt asc),
+  "mediaAssets": *[_type == "mediaAsset"] | order(order asc, _createdAt asc){
+    _id, title, caption, category, locale, mediaType, alt, order, isFeatured, isHidden, linkUrl,
+    "imageFile": imageFile{asset->{url}},
+    "videoFile": videoFile{asset->{url}},
+    "videoPoster": videoPoster{asset->{url}}
+  },
   "startStudioLocales": *[_type == "startStudioLocale"] | order(updatedAt desc, _updatedAt desc)
 }`;
 
@@ -391,6 +461,104 @@ function pickFeatured<T extends { isFeatured?: boolean }>(items: T[], limit: num
   return source.slice(0, limit);
 }
 
+export type ResolvedMediaAsset = {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: string;
+  locale: string;
+  mediaType: "image" | "video";
+  src: string;
+  poster?: string;
+  alt: string;
+  order: number;
+  isFeatured: boolean;
+  isHidden: boolean;
+  link?: string;
+};
+
+function resolveMediaAsset(asset: NonNullable<CmsSnapshot["mediaAssets"]>[number]): ResolvedMediaAsset | null {
+  const mediaType = asset.mediaType === "video" ? "video" : "image";
+  const src = mediaType === "video" ? asset.videoFile?.asset?.url || "" : asset.imageFile?.asset?.url || "";
+  if (!src) return null;
+
+  return {
+    id: asset._id,
+    title: asset.title || "",
+    subtitle: asset.caption || "",
+    category: asset.category || "general",
+    locale: asset.locale || "all",
+    mediaType,
+    src,
+    poster: asset.videoPoster?.asset?.url || "",
+    alt: asset.alt || asset.title || "",
+    order: asset.order ?? 100,
+    isFeatured: Boolean(asset.isFeatured),
+    isHidden: Boolean(asset.isHidden),
+    link: asset.linkUrl || "",
+  };
+}
+
+function isMediaAllowedForLocale(locale: Locale, mediaLocale: string) {
+  if (!mediaLocale || mediaLocale === "all") return true;
+  return mediaLocale === locale;
+}
+
+function mapMediaRefsToGalleryItems({
+  refs,
+  mediaMap,
+  locale,
+}: {
+  refs: Array<{ _ref?: string }> | undefined;
+  mediaMap: Map<string, ResolvedMediaAsset>;
+  locale: Locale;
+}): HomeExamplesGalleryItem[] {
+  return (refs ?? [])
+    .map((ref) => (ref._ref ? mediaMap.get(ref._ref) : undefined))
+    .filter((item): item is ResolvedMediaAsset => Boolean(item))
+    .filter((item) => !item.isHidden && isMediaAllowedForLocale(locale, item.locale))
+    .sort(byOrder)
+    .map((item) => ({
+      title: item.title,
+      subtitle: item.subtitle,
+      category: item.category,
+      mediaType: item.mediaType,
+      src: item.src,
+      poster: item.poster || undefined,
+      alt: item.alt,
+      order: item.order,
+      link: item.link || undefined,
+    }));
+}
+
+function mapLegacyGalleryItems(
+  urls: string[] | undefined,
+  title: string,
+): HomeExamplesGalleryItem[] {
+  const items: HomeExamplesGalleryItem[] = [];
+  for (const [index, src] of (urls ?? []).entries()) {
+    const normalized = src?.trim() || "";
+    if (!normalized) continue;
+    items.push({
+      title,
+      subtitle: "",
+      category: "general",
+      mediaType: normalized.toLowerCase().includes(".mp4") ? "video" : "image",
+      src: normalized,
+      alt: title,
+      order: index + 1,
+    });
+  }
+  return items;
+}
+
+function buildResolvedMediaMap(snapshot: CmsSnapshot | null) {
+  const resolvedMediaAssets = (snapshot?.mediaAssets ?? [])
+    .map((asset) => resolveMediaAsset(asset))
+    .filter((item): item is ResolvedMediaAsset => Boolean(item));
+  return new Map(resolvedMediaAssets.map((item) => [item.id, item]));
+}
+
 const getCmsSnapshot = cache(async (): Promise<CmsSnapshot | null> => {
   if (!isSanityConfigured()) return null;
   try {
@@ -429,6 +597,32 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
         pickLocalized(snapshot.home.heroSecondaryCta, locale) || content.hero.secondaryCta;
     }
 
+    const mediaMap = buildResolvedMediaMap(snapshot);
+
+    const homeGalleryFromSanity = mapMediaRefsToGalleryItems({
+      refs: snapshot.home?.examplesGalleryItems,
+      mediaMap,
+      locale,
+    });
+    if (homeGalleryFromSanity.length) {
+      const examples = content.examplesGallery ?? {};
+      content.examplesGallery = {
+        ...examples,
+        eyebrow: pickLocalized(snapshot.home?.examplesGalleryEyebrow, locale) || examples.eyebrow,
+        title: pickLocalized(snapshot.home?.examplesGalleryTitle, locale) || examples.title,
+        description: pickLocalized(snapshot.home?.examplesGalleryDescription, locale) || examples.description,
+        items: homeGalleryFromSanity,
+      };
+    } else if (snapshot.home) {
+      const examples = content.examplesGallery ?? {};
+      content.examplesGallery = {
+        ...examples,
+        eyebrow: pickLocalized(snapshot.home.examplesGalleryEyebrow, locale) || examples.eyebrow,
+        title: pickLocalized(snapshot.home.examplesGalleryTitle, locale) || examples.title,
+        description: pickLocalized(snapshot.home.examplesGalleryDescription, locale) || examples.description,
+      };
+    }
+
     const services = (snapshot.services ?? [])
       .filter((service) => !service.isHidden && service.cardType !== "solution")
       .sort(byOrder)
@@ -465,6 +659,7 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
       .filter((solution) => !solution.isHidden)
       .sort(byOrder)
       .map((solution) => ({
+        id: solution._id,
         title: pickLocalized(solution.title, locale),
         problem: pickLocalized(solution.problem ?? solution.fit, locale),
         whatWeDo: pickLocalized(solution.whatWeDo, locale),
@@ -499,6 +694,37 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
       }));
     }
 
+    const promptCardsFromSanity = (snapshot.home?.solutionsPromptItems ?? [])
+      .map((item) => (item._ref ? solutions.find((solution) => solution.id === item._ref) : undefined))
+      .filter((item): item is (typeof solutions)[number] => Boolean(item))
+      .slice(0, 5)
+      .map((item) => ({
+        title: item.title,
+        problem: item.problem,
+        outcome: item.outcome,
+        slug: item.slug,
+      }));
+
+    if (snapshot.home || promptCardsFromSanity.length) {
+      const existingPrompt = content.solutionsPrompt ?? {};
+      const fallbackPromptCards = existingPrompt.cards ?? solutions.slice(0, 5).map((item) => ({
+        title: item.title,
+        problem: item.problem,
+        outcome: item.outcome,
+        slug: item.slug,
+      }));
+
+      content.solutionsPrompt = {
+        ...existingPrompt,
+        eyebrow: pickLocalized(snapshot.home?.solutionsPromptEyebrow, locale) || existingPrompt.eyebrow,
+        title: pickLocalized(snapshot.home?.solutionsPromptTitle, locale) || existingPrompt.title,
+        description:
+          pickLocalized(snapshot.home?.solutionsPromptDescription, locale) || existingPrompt.description,
+        cta: pickLocalized(snapshot.home?.solutionsPromptCta, locale) || existingPrompt.cta,
+        cards: promptCardsFromSanity.length ? promptCardsFromSanity : fallbackPromptCards,
+      };
+    }
+
     const packages = (snapshot.packages ?? [])
       .filter((item) => item.active !== false && !item.isHidden)
       .sort(byOrder)
@@ -519,14 +745,24 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
       .filter((item) => !item.isHidden)
       .sort(byOrder)
       .map((item, index) => {
-        const visual = item.media?.[0]?.asset?.url || fallbackVisuals[index % fallbackVisuals.length];
+        const galleryItems = mapMediaRefsToGalleryItems({
+          refs: item.galleryItems,
+          mediaMap,
+          locale,
+        });
+        const visual =
+          galleryItems[0]?.src ||
+          item.media?.[0]?.asset?.url ||
+          fallbackVisuals[index % fallbackVisuals.length];
         return {
           title: pickLocalized(item.title, locale),
           subtitle: pickLocalized(item.shortDescription, locale) || pickLocalized(item.clientType, locale),
           metric: item.category || "Case",
           alt: pickLocalized(item.title, locale),
           visual,
-          mediaType: visual.toLowerCase().includes(".mp4") ? "video" : "image",
+          mediaType:
+            galleryItems[0]?.mediaType ||
+            (visual.toLowerCase().includes(".mp4") ? "video" : "image"),
           isFeatured: item.isFeatured,
         };
       })
@@ -654,7 +890,7 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
     }
   }
 
-  return content;
+  return content as Messages;
 });
 
 export async function getServiceLanding(locale: Locale, slug: string): Promise<LandingPageData | null> {
@@ -664,6 +900,17 @@ export async function getServiceLanding(locale: Locale, slug: string): Promise<L
   if (match) {
     const title = pickLocalized(match.title, locale);
     const description = pickLocalized(match.fullDescription, locale) || pickLocalized(match.shortDescription, locale);
+    const mediaMap = buildResolvedMediaMap(snapshot);
+    const galleryItemsFromSanity = mapMediaRefsToGalleryItems({
+      refs: match.galleryItems,
+      mediaMap,
+      locale,
+    });
+    const legacyUrls = (match.gallery ?? []).map((item) => item.asset?.url || "");
+    const galleryItems = galleryItemsFromSanity.length
+      ? galleryItemsFromSanity
+      : mapLegacyGalleryItems(legacyUrls, title);
+
     return {
       id: match._id,
       type: "service",
@@ -677,6 +924,7 @@ export async function getServiceLanding(locale: Locale, slug: string): Promise<L
       seoDescription: pickLocalized(match.seo?.description, locale) || description,
       noindex: match.seo?.noindex,
       ogImage: match.seo?.ogImage?.asset?.url,
+      galleryItems,
     };
   }
 
@@ -699,6 +947,17 @@ export async function getSolutionLanding(locale: Locale, slug: string): Promise<
       pickLocalized(match.whatWeDo, locale),
       pickLocalized(match.outcome, locale),
     ].filter(Boolean);
+    const mediaMap = buildResolvedMediaMap(snapshot);
+    const galleryItemsFromSanity = mapMediaRefsToGalleryItems({
+      refs: match.galleryItems,
+      mediaMap,
+      locale,
+    });
+    const legacyUrls = (match.visuals ?? []).map((item) => item.asset?.url || "");
+    const galleryItems = galleryItemsFromSanity.length
+      ? galleryItemsFromSanity
+      : mapLegacyGalleryItems(legacyUrls, title);
+
     return {
       id: match._id,
       type: "solution",
@@ -712,6 +971,7 @@ export async function getSolutionLanding(locale: Locale, slug: string): Promise<
       seoDescription: pickLocalized(match.seo?.description, locale) || description,
       noindex: match.seo?.noindex,
       ogImage: match.seo?.ogImage?.asset?.url,
+      galleryItems,
     };
   }
 

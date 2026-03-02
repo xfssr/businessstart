@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/Button";
 import { CardModule } from "@/components/CardModule";
 import { Container } from "@/components/Container";
+import { ExamplesGallery } from "@/components/ExamplesGallery";
 import { WhatsAppLink } from "@/components/WhatsAppLink";
 import { type Locale } from "@/lib/constants";
 import { isLocale } from "@/lib/i18n";
@@ -140,6 +141,26 @@ export default async function SolutionLandingPage({ params }: RouteProps) {
               <p className="mt-3 text-2xl font-semibold text-text-primary">{landing.price}</p>
             </CardModule>
           </div>
+
+          {landing.galleryItems?.length ? (
+            <div className="mt-12">
+              <p className="mb-3 text-[0.66rem] font-semibold tracking-[0.26em] text-text-muted uppercase">
+                {messages.examplesGallery.eyebrow}
+              </p>
+              <h2 className="font-display text-3xl leading-tight text-text-primary sm:text-4xl">
+                {messages.examplesGallery.title}
+              </h2>
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-text-secondary sm:text-lg">
+                {messages.examplesGallery.description}
+              </p>
+              <div className="mt-6">
+                <ExamplesGallery
+                  items={landing.galleryItems}
+                  categoryLabels={messages.mediaCategories}
+                />
+              </div>
+            </div>
+          ) : null}
         </Container>
       </section>
     </>

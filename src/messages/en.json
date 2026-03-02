@@ -741,5 +741,102 @@
     "title": "Client Testimonials",
     "description": "Testimonials are shown only when visible CMS entries exist.",
     "items": []
+  },
+  "examplesGallery": {
+    "eyebrow": "Examples",
+    "title": "Photos and videos that show the work",
+    "description": "See real examples of content, visuals, and business-facing creative work.",
+    "items": [
+      {
+        "title": "Local restaurant launch",
+        "subtitle": "Menu visuals and launch content before opening",
+        "category": "restaurant",
+        "mediaType": "image",
+        "src": "/portfolio/helix.svg",
+        "alt": "Restaurant launch visual",
+        "order": 1,
+        "link": "/portfolio"
+      },
+      {
+        "title": "Hospitality social presence",
+        "subtitle": "Visual content set for ongoing promotion",
+        "category": "socialContent",
+        "mediaType": "video",
+        "src": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+        "poster": "/portfolio/nera.svg",
+        "alt": "Video example for social content",
+        "order": 2
+      },
+      {
+        "title": "Hospitality content assets",
+        "subtitle": "Consistent visual language for business identity",
+        "category": "bar",
+        "mediaType": "image",
+        "src": "/portfolio/nera.svg",
+        "alt": "Hospitality content assets",
+        "order": 3,
+        "link": "/portfolio"
+      },
+      {
+        "title": "Product and branding visuals",
+        "subtitle": "Product assets for page, ads, and social",
+        "category": "product",
+        "mediaType": "image",
+        "src": "/portfolio/axis.svg",
+        "alt": "Product visibility example",
+        "order": 4,
+        "link": "/portfolio"
+      }
+    ]
+  },
+  "solutionsPrompt": {
+    "eyebrow": "Solutions",
+    "title": "Need more than just content?",
+    "description": "If you need a clearer path to inquiries, explore the solution that can fit your business.",
+    "cta": "View all solutions",
+    "cards": [
+      {
+        "title": "QR Menu + Mini Site",
+        "problem": "Guests do not get a fast ordering path from table to action.",
+        "outcome": "Faster responses and more direct order inquiries.",
+        "slug": "qr-menu-mini-site"
+      },
+      {
+        "title": "Content + WhatsApp Funnel",
+        "problem": "Traffic exists but inquiry flow is unstable.",
+        "outcome": "Higher inquiry volume with better intent quality.",
+        "slug": "content-whatsapp-funnel"
+      },
+      {
+        "title": "Business Launch Setup",
+        "problem": "New offers launch without clear messaging or execution assets.",
+        "outcome": "Clean launch flow with conversion-ready communication.",
+        "slug": "business-launch-setup"
+      },
+      {
+        "title": "Beauty Booking Flow",
+        "problem": "Views do not convert into appointment requests.",
+        "outcome": "More qualified bookings and fewer low-fit leads.",
+        "slug": "beauty-booking-flow"
+      },
+      {
+        "title": "Quick Start System",
+        "problem": "Early-stage businesses lack a practical marketing base.",
+        "outcome": "Fast market entry with active inquiry path.",
+        "slug": "quick-start-system"
+      }
+    ]
+  },
+  "mediaCategories": {
+    "restaurant": "Restaurants",
+    "bar": "Bars & Hospitality",
+    "food": "Food",
+    "beauty": "Beauty",
+    "product": "Products",
+    "realEstate": "Real Estate",
+    "localService": "Local Services",
+    "branding": "Branding",
+    "socialContent": "Social Content",
+    "general": "General"
   }
 }

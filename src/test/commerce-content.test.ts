@@ -90,4 +90,25 @@ describe("commerce content integrity", () => {
       expect(locale.whatsapp.solutionCardTemplate).toContain("{outcome}");
     }
   });
+
+  it("includes localized examples gallery and solutions prompt fallback blocks", () => {
+    for (const locale of [he, en]) {
+      expect(locale.examplesGallery.eyebrow).toBeTruthy();
+      expect(locale.examplesGallery.title).toBeTruthy();
+      expect(locale.examplesGallery.description).toBeTruthy();
+      expect(Array.isArray(locale.examplesGallery.items)).toBe(true);
+      expect(locale.examplesGallery.items.length).toBeGreaterThanOrEqual(3);
+      expect(locale.examplesGallery.items.some((item) => item.mediaType === "video")).toBe(true);
+
+      expect(locale.solutionsPrompt.eyebrow).toBeTruthy();
+      expect(locale.solutionsPrompt.title).toBeTruthy();
+      expect(locale.solutionsPrompt.description).toBeTruthy();
+      expect(locale.solutionsPrompt.cta).toBeTruthy();
+      expect(locale.solutionsPrompt.cards.length).toBeGreaterThanOrEqual(3);
+      expect(locale.solutionsPrompt.cards.length).toBeLessThanOrEqual(5);
+    }
+
+    expect(he.solutionsPrompt.title).toBe("צריכים יותר מתוכן?");
+    expect(JSON.stringify(he.examplesGallery)).not.toContain("Need more than just content?");
+  });
 });

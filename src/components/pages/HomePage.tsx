@@ -8,6 +8,7 @@ import { Button } from "@/components/Button";
 import { CardModule } from "@/components/CardModule";
 import { CatalogDetailsModal } from "@/components/CatalogDetailsModal";
 import { Divider } from "@/components/Divider";
+import { type ExamplesGalleryItem, ExamplesGallery } from "@/components/ExamplesGallery";
 import { Grid } from "@/components/Grid";
 import { LeadForm } from "@/components/LeadForm";
 import { PortfolioGallery } from "@/components/PortfolioGallery";
@@ -93,6 +94,28 @@ type GlobalContact = {
   whatsappNumber?: string;
 };
 
+type SolutionsPromptCard = {
+  outcome: string;
+  problem: string;
+  slug: string;
+  title: string;
+};
+
+type SolutionsPromptSection = {
+  cards?: SolutionsPromptCard[];
+  cta?: string;
+  description?: string;
+  eyebrow?: string;
+  title?: string;
+};
+
+type ExamplesGallerySection = {
+  description?: string;
+  eyebrow?: string;
+  items?: ExamplesGalleryItem[];
+  title?: string;
+};
+
 function interpolateTemplate(template: string, values: Record<string, string>) {
   return template.replace(/\{(\w+)\}/g, (_, key: string) => values[key] || "");
 }
@@ -127,9 +150,19 @@ export function HomePage() {
   const solutions = get<SolutionCard[]>("solutionsPage.cards").slice(0, 5);
   const testimonials = (get<TestimonialItem[]>("testimonials.items") || []).filter((item) => item.quote);
   const globalContact = get<GlobalContact>("global");
+  const examplesGallery = get<ExamplesGallerySection>("examplesGallery");
+  const mediaCategories = get<Record<string, string>>("mediaCategories") || {};
+  const solutionsPrompt = get<SolutionsPromptSection>("solutionsPrompt");
+
+  const examplesGalleryItems = (examplesGallery?.items ?? [])
+    .filter((item) => item.src)
+    .sort((left, right) => (left.order ?? 100) - (right.order ?? 100));
 
   const serviceTemplate = get<string>("whatsapp.serviceCardTemplate") || t("whatsapp.prefill");
   const solutionTemplate = get<string>("whatsapp.solutionCardTemplate") || t("whatsapp.prefill");
+  const promptCards = (solutionsPrompt?.cards ?? solutions)
+    .filter((item) => item.slug)
+    .slice(0, 5);
 
   const faqSchema = useMemo(
     () => ({
@@ -246,6 +279,47 @@ export function HomePage() {
       </Section>
 
       <Divider />
+
+      {examplesGalleryItems.length ? (
+        <>
+          <Section
+            id="examples-gallery"
+            eyebrow={examplesGallery?.eyebrow || t("examplesGallery.eyebrow")}
+            title={examplesGallery?.title || t("examplesGallery.title")}
+            description={examplesGallery?.description || t("examplesGallery.description")}
+          >
+            <ExamplesGallery items={examplesGalleryItems} categoryLabels={mediaCategories} />
+          </Section>
+          <Divider />
+        </>
+      ) : null}
+
+      {promptCards.length ? (
+        <>
+          <Section
+            id="solutions-prompt"
+            eyebrow={solutionsPrompt?.eyebrow || t("solutionsPrompt.eyebrow")}
+            title={solutionsPrompt?.title || t("solutionsPrompt.title")}
+            description={solutionsPrompt?.description || t("solutionsPrompt.description")}
+          >
+            <Grid cols={3}>
+              {promptCards.map((card) => (
+                <CardModule key={card.slug}>
+                  <h3 className="font-display text-2xl text-text-primary">{card.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-text-secondary">{card.problem}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-secondary">{card.outcome}</p>
+                </CardModule>
+              ))}
+            </Grid>
+            <div className="mt-6">
+              <Button href={`/${locale}/solutions`} className="min-w-48">
+                {solutionsPrompt?.cta || t("solutionsPrompt.cta")}
+              </Button>
+            </div>
+          </Section>
+          <Divider />
+        </>
+      ) : null}
 
       <Section
         id="process"

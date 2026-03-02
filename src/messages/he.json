@@ -731,5 +731,102 @@
     "title": "מה אומרים אלינו",
     "description": "קטעים קצרים מעסקים שעבדו איתנו.",
     "items": []
+  },
+  "examplesGallery": {
+    "eyebrow": "דוגמאות",
+    "title": "תמונות וסרטונים שממחישים את העבודה",
+    "description": "לפני שמתחילים, אפשר לראות דוגמאות אמיתיות של תוכן, צילום ופתרונות ויזואליים לעסקים.",
+    "items": [
+      {
+        "title": "השקת מסעדה מקומית",
+        "subtitle": "צילום ותוכן תפריט לקראת פתיחה",
+        "category": "restaurant",
+        "mediaType": "image",
+        "src": "/portfolio/helix.svg",
+        "alt": "ויזואל להשקת מסעדה",
+        "order": 1,
+        "link": "/portfolio"
+      },
+      {
+        "title": "נראות אירוח ברשתות",
+        "subtitle": "סדרת תוכן ויזואלי לשיווק שוטף",
+        "category": "socialContent",
+        "mediaType": "video",
+        "src": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+        "poster": "/portfolio/nera.svg",
+        "alt": "דוגמת וידאו לתוכן ברשתות",
+        "order": 2
+      },
+      {
+        "title": "תוכן למלונאות ואירוח",
+        "subtitle": "שפה ויזואלית אחידה לנראות עסקית",
+        "category": "bar",
+        "mediaType": "image",
+        "src": "/portfolio/nera.svg",
+        "alt": "נכסי תוכן לעסקי אירוח",
+        "order": 3,
+        "link": "/portfolio"
+      },
+      {
+        "title": "צילום מוצר ומיתוג",
+        "subtitle": "תמונות מוצר לשירות, פרסום ודף נחיתה",
+        "category": "product",
+        "mediaType": "image",
+        "src": "/portfolio/axis.svg",
+        "alt": "נראות מוצר לדוגמה",
+        "order": 4,
+        "link": "/portfolio"
+      }
+    ]
+  },
+  "solutionsPrompt": {
+    "eyebrow": "פתרונות לעסק",
+    "title": "צריכים יותר מתוכן?",
+    "description": "אם אתם מחפשים לא רק צילום אלא גם מסלול ברור לפניות, יכול להיות שאחד מהפתרונות שלנו יתאים לכם.",
+    "cta": "לכל הפתרונות",
+    "cards": [
+      {
+        "title": "תפריט QR + מיני-אתר",
+        "problem": "לעסקים שרוצים להזיז תנועה להזמנות.",
+        "outcome": "עמוד שירות",
+        "slug": "qr-menu-mini-site"
+      },
+      {
+        "title": "תוכן + משפך WhatsApp",
+        "problem": "לעסקים שרוצים פניות איכותיות באזור שלהם.",
+        "outcome": "קמפיין בסיס",
+        "slug": "content-whatsapp-funnel"
+      },
+      {
+        "title": "סט השקת עסק",
+        "problem": "למותגים עם מוצר חדש.",
+        "outcome": "באנרים לרשת",
+        "slug": "business-launch-setup"
+      },
+      {
+        "title": "מערך הזמנות לביוטי",
+        "problem": "להגדלת הזמנות ותיאום תורים.",
+        "outcome": "סט מודעות",
+        "slug": "beauty-booking-flow"
+      },
+      {
+        "title": "מערכת התחלה מהירה",
+        "problem": "לשפים שרוצים נראות מקצועית.",
+        "outcome": "ערכת רילס",
+        "slug": "quick-start-system"
+      }
+    ]
+  },
+  "mediaCategories": {
+    "restaurant": "מסעדות",
+    "bar": "ברים ואירוח",
+    "food": "אוכל",
+    "beauty": "ביוטי",
+    "product": "מוצרים",
+    "realEstate": "נדל\"ן",
+    "localService": "שירותים מקומיים",
+    "branding": "מיתוג",
+    "socialContent": "תוכן לרשתות",
+    "general": "כללי"
   }
 }

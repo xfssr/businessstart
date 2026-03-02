@@ -55,6 +55,73 @@ type ApiStateResponse = {
   mediaLibrary: MediaItem[];
 };
 
+type LibraryMediaItem = {
+  id: string;
+  title: string;
+  caption: string;
+  category: string;
+  locale: Locale | "all";
+  mediaType: "image" | "video";
+  url: string;
+  imageUrl: string;
+  videoUrl: string;
+  posterUrl: string;
+  alt: string;
+  order: number;
+  isFeatured: boolean;
+  isHidden: boolean;
+  linkUrl: string;
+  linkedTo: string[];
+  assignments: {
+    home: boolean;
+    serviceIds: string[];
+    solutionIds: string[];
+    portfolioIds: string[];
+  };
+};
+
+type MediaLibraryTargets = {
+  homePageId: string | null;
+  services: Array<{ id: string; title: string; slug?: string }>;
+  solutions: Array<{ id: string; title: string; slug?: string }>;
+  portfolios: Array<{ id: string; title: string; slug?: string }>;
+};
+
+type MediaLibraryResponse = {
+  media: LibraryMediaItem[];
+  targets: MediaLibraryTargets;
+};
+
+type MediaFormState = {
+  title: string;
+  type: "image" | "video";
+  category: string;
+  locale: Locale | "all";
+  caption: string;
+  alt: string;
+  featured: boolean;
+  hidden: boolean;
+  order: number;
+  linkUrl: string;
+  includeHome: boolean;
+  serviceIdsText: string;
+  solutionIdsText: string;
+  portfolioIdsText: string;
+};
+
+const MEDIA_CATEGORY_OPTIONS = [
+  "restaurant",
+  "bar",
+  "food",
+  "beauty",
+  "product",
+  "realEstate",
+  "localService",
+  "branding",
+  "socialContent",
+  "general",
+] as const;
+
 type SeoFields = {
   servicesMetaTitle: string;
   servicesMetaDescription: string;
@@ -151,6 +218,32 @@ function parseTripleLines(input: string) {
       };
     })
     .filter((item) => item.first && item.second);
+}
+
+function parseIdList(input: string) {
+  return input
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function createInitialMediaForm(locale: Locale): MediaFormState {
+  return {
+    title: "",
+    type: "image",
+    category: "general",
+    locale,
+    caption: "",
+    alt: "",
+    featured: false,
+    hidden: false,
+    order: 100,
+    linkUrl: "",
+    includeHome: true,
+    serviceIdsText: "",
+    solutionIdsText: "",
+    portfolioIdsText: "",
+  };
 }
 
 function createInitialState(messages: Record<string, unknown>): AdminState {
@@ -389,13 +482,53 @@ export function StartStudioAdmin() {
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [loadingMedia, setLoadingMedia] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   const [migrating, setMigrating] = useState(false);
   const [state, setState] = useState<AdminState | null>(null);
-  const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>([]);
+  const [legacyMediaLibrary, setLegacyMediaLibrary] = useState<MediaItem[]>([]);
+  const [mediaLibrary, setMediaLibrary] = useState<LibraryMediaItem[]>([]);
+  const [mediaTargets, setMediaTargets] = useState<MediaLibraryTargets>({
+    homePageId: null,
+    services: [],
+    solutions: [],
+    portfolios: [],
+  });
+  const [mediaForm, setMediaForm] = useState<MediaFormState>(() => createInitialMediaForm(locale));
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPosterFile, setMediaPosterFile] = useState<File | null>(null);
   const [status, setStatus] = useState("");
 
   const localeLabel = useMemo(() => (locale === "he" ? "עברית" : "English"), [locale]);
+
+  async function loadMediaLibrary(nextLocale: Locale, key: string) {
+    setLoadingMedia(true);
+    try {
+      const response = await fetch(`/api/startstudio/media-library?locale=${nextLocale}`, {
+        headers: {
+          "x-startstudio-key": key,
+        },
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error || "Failed loading media library");
+      }
+
+      const data = (await response.json()) as MediaLibraryResponse;
+      setMediaLibrary(data.media ?? []);
+      setMediaTargets(
+        data.targets ?? {
+          homePageId: null,
+          services: [],
+          solutions: [],
+          portfolios: [],
+        },
+      );
+    } finally {
+      setLoadingMedia(false);
+    }
+  }
 
   async function loadState(nextLocale: Locale, keyOverride?: string) {
     const key = keyOverride ?? secretKey;
@@ -415,7 +548,11 @@ export function StartStudioAdmin() {
 
       const data = (await response.json()) as ApiStateResponse;
       setState(createInitialState(data.messages));
-      setMediaLibrary(data.mediaLibrary ?? []);
+      setLegacyMediaLibrary(data.mediaLibrary ?? []);
+      await loadMediaLibrary(nextLocale, key);
+      setMediaForm(createInitialMediaForm(nextLocale));
+      setMediaFile(null);
+      setMediaPosterFile(null);
       setConnected(true);
       setStatus("Loaded from Sanity");
     } catch (error) {
@@ -489,17 +626,49 @@ export function StartStudioAdmin() {
     }
   }
 
-  async function uploadMedia(file: File) {
-    setUploading(true);
+  async function createMediaAsset() {
+    if (!mediaFile) {
+      setStatus("Select a media file first");
+      return;
+    }
+
+    setUploadingMedia(true);
     setStatus("");
 
     try {
-      const formData = new FormData();
-      formData.append("locale", locale);
-      formData.append("title", file.name);
-      formData.append("file", file);
+      const serviceIds = parseIdList(mediaForm.serviceIdsText);
+      const solutionIds = parseIdList(mediaForm.solutionIdsText);
+      const portfolioIds = parseIdList(mediaForm.portfolioIdsText);
 
-      const response = await fetch("/api/startstudio/upload", {
+      const linkedTo = new Set<string>();
+      if (mediaForm.includeHome) linkedTo.add("home");
+      if (serviceIds.length) linkedTo.add("service");
+      if (solutionIds.length) linkedTo.add("solution");
+      if (portfolioIds.length) linkedTo.add("portfolio");
+      if (!linkedTo.size) linkedTo.add("general");
+
+      const formData = new FormData();
+      formData.append("title", mediaForm.title || mediaFile.name);
+      formData.append("mediaType", mediaForm.type);
+      formData.append("category", mediaForm.category);
+      formData.append("locale", mediaForm.locale);
+      formData.append("caption", mediaForm.caption);
+      formData.append("alt", mediaForm.alt);
+      formData.append("order", String(mediaForm.order));
+      formData.append("isFeatured", String(mediaForm.featured));
+      formData.append("isHidden", String(mediaForm.hidden));
+      formData.append("linkUrl", mediaForm.linkUrl);
+      formData.append("linkedTo", JSON.stringify(Array.from(linkedTo)));
+      formData.append("includeHome", String(mediaForm.includeHome));
+      formData.append("serviceIds", serviceIds.join(","));
+      formData.append("solutionIds", solutionIds.join(","));
+      formData.append("portfolioIds", portfolioIds.join(","));
+      formData.append("file", mediaFile);
+      if (mediaPosterFile) {
+        formData.append("posterFile", mediaPosterFile);
+      }
+
+      const response = await fetch("/api/startstudio/media-library", {
         method: "POST",
         headers: {
           "x-startstudio-key": secretKey,
@@ -509,17 +678,67 @@ export function StartStudioAdmin() {
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(payload?.error || "Upload failed");
+        throw new Error(payload?.error || "Media upload failed");
       }
 
-      const data = (await response.json()) as { mediaItem: MediaItem };
-      setMediaLibrary((prev) => [data.mediaItem, ...prev]);
-      setStatus("Uploaded");
+      await loadMediaLibrary(locale, secretKey);
+      setMediaForm(createInitialMediaForm(locale));
+      setMediaFile(null);
+      setMediaPosterFile(null);
+      setStatus("Media asset created");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Upload failed";
+      const message = error instanceof Error ? error.message : "Media upload failed";
       setStatus(message);
     } finally {
-      setUploading(false);
+      setUploadingMedia(false);
+    }
+  }
+
+  async function patchMediaAsset(
+    id: string,
+    patch: {
+      title?: string;
+      caption?: string;
+      category?: string;
+      locale?: string;
+      alt?: string;
+      order?: number;
+      isFeatured?: boolean;
+      isHidden?: boolean;
+      linkUrl?: string;
+      linkedTo?: string[];
+      placement?: {
+        includeHome?: boolean;
+        serviceIds?: string[];
+        solutionIds?: string[];
+        portfolioIds?: string[];
+      };
+    },
+  ) {
+    setStatus("");
+    try {
+      const response = await fetch("/api/startstudio/media-library", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-startstudio-key": secretKey,
+        },
+        body: JSON.stringify({
+          id,
+          ...patch,
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error || "Media update failed");
+      }
+
+      await loadMediaLibrary(locale, secretKey);
+      setStatus("Media library updated");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Media update failed";
+      setStatus(message);
     }
   }
 
@@ -557,7 +776,7 @@ export function StartStudioAdmin() {
     <div className="mx-auto max-w-6xl space-y-6 px-5 py-10 text-text-primary sm:px-8">
       <h1 className="font-display text-4xl">StartStudio Admin v2</h1>
       <p className="text-sm text-text-secondary">
-        Sanity-first editor for copy, product cards, pricing, SEO snippets, and Blob media.
+        Sanity-first editor for copy, product cards, pricing, SEO snippets, and media library assets.
       </p>
 
       <div className="rounded-xl border border-border-subtle bg-surface-elevated p-4">
@@ -799,38 +1018,233 @@ export function StartStudioAdmin() {
           </section>
 
           <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
-            <h2 className="font-display text-2xl">Portfolio / Media Upload</h2>
+            <h2 className="font-display text-2xl">Portfolio</h2>
             {state.portfolioItems.map((item, index) => (
               <div key={`${item.title}-${index}`} className="grid gap-2 rounded-lg border border-border-subtle p-3">
                 <input value={item.title} onChange={(event) => updatePortfolioItem(index, "title", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Title" />
                 <input value={item.visual} onChange={(event) => updatePortfolioItem(index, "visual", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Media URL" />
               </div>
             ))}
-            <input
-              type="file"
-              accept="image/*,video/*"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void uploadMedia(file);
-              }}
-              className="block w-full text-sm text-text-secondary"
-            />
+          </section>
+
+          <section className="space-y-4 rounded-xl border border-border-subtle bg-surface-elevated p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-display text-2xl">Media Library</h2>
+              <button
+                type="button"
+                onClick={() => loadMediaLibrary(locale, secretKey)}
+                disabled={!connected || loadingMedia}
+                className="rounded border border-border-subtle px-3 py-1 text-xs font-semibold"
+              >
+                {loadingMedia ? "Refreshing..." : "Refresh"}
+              </button>
+            </div>
+            <p className="text-sm text-text-secondary">
+              Sanity-first media management with locale/category metadata and placement assignments.
+            </p>
+
+            <div className="grid gap-3 rounded-lg border border-border-subtle bg-surface-base p-3 sm:grid-cols-2">
+              <input
+                value={mediaForm.title}
+                onChange={(event) => setMediaForm({ ...mediaForm, title: event.target.value })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+                placeholder="Title"
+              />
+              <select
+                value={mediaForm.type}
+                onChange={(event) =>
+                  setMediaForm({ ...mediaForm, type: event.target.value as "image" | "video" })
+                }
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+              >
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+              </select>
+              <select
+                value={mediaForm.category}
+                onChange={(event) => setMediaForm({ ...mediaForm, category: event.target.value })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+              >
+                {MEDIA_CATEGORY_OPTIONS.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={mediaForm.locale}
+                onChange={(event) => setMediaForm({ ...mediaForm, locale: event.target.value as Locale | "all" })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+              >
+                <option value="all">all</option>
+                <option value="he">he</option>
+                <option value="en">en</option>
+              </select>
+              <input
+                value={mediaForm.caption}
+                onChange={(event) => setMediaForm({ ...mediaForm, caption: event.target.value })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+                placeholder="Caption"
+              />
+              <input
+                value={mediaForm.alt}
+                onChange={(event) => setMediaForm({ ...mediaForm, alt: event.target.value })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+                placeholder="Alt text"
+              />
+              <input
+                value={mediaForm.linkUrl}
+                onChange={(event) => setMediaForm({ ...mediaForm, linkUrl: event.target.value })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+                placeholder="Optional link URL"
+              />
+              <input
+                value={mediaForm.order}
+                onChange={(event) => setMediaForm({ ...mediaForm, order: Number(event.target.value) || 100 })}
+                type="number"
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+                placeholder="Order"
+              />
+              <label className="flex items-center gap-2 text-sm text-text-secondary">
+                <input
+                  type="checkbox"
+                  checked={mediaForm.featured}
+                  onChange={(event) => setMediaForm({ ...mediaForm, featured: event.target.checked })}
+                />
+                Featured
+              </label>
+              <label className="flex items-center gap-2 text-sm text-text-secondary">
+                <input
+                  type="checkbox"
+                  checked={mediaForm.hidden}
+                  onChange={(event) => setMediaForm({ ...mediaForm, hidden: event.target.checked })}
+                />
+                Hidden
+              </label>
+              <label className="flex items-center gap-2 text-sm text-text-secondary">
+                <input
+                  type="checkbox"
+                  checked={mediaForm.includeHome}
+                  onChange={(event) => setMediaForm({ ...mediaForm, includeHome: event.target.checked })}
+                />
+                Place in Home gallery
+              </label>
+              <div />
+              <input
+                value={mediaForm.serviceIdsText}
+                onChange={(event) => setMediaForm({ ...mediaForm, serviceIdsText: event.target.value })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+                placeholder="Service IDs (comma-separated)"
+              />
+              <input
+                value={mediaForm.solutionIdsText}
+                onChange={(event) => setMediaForm({ ...mediaForm, solutionIdsText: event.target.value })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+                placeholder="Solution IDs (comma-separated)"
+              />
+              <input
+                value={mediaForm.portfolioIdsText}
+                onChange={(event) => setMediaForm({ ...mediaForm, portfolioIdsText: event.target.value })}
+                className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
+                placeholder="Portfolio IDs (comma-separated)"
+              />
+              <div />
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={(event) => setMediaFile(event.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-text-secondary"
+              />
+              {mediaForm.type === "video" ? (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => setMediaPosterFile(event.target.files?.[0] ?? null)}
+                  className="block w-full text-sm text-text-secondary"
+                />
+              ) : (
+                <div />
+              )}
+              <button
+                type="button"
+                onClick={createMediaAsset}
+                disabled={!connected || uploadingMedia}
+                className="rounded border border-accent bg-accent px-4 py-2 text-sm font-semibold text-white"
+              >
+                {uploadingMedia ? "Uploading..." : "Create media asset"}
+              </button>
+            </div>
+
+            <details className="rounded border border-border-subtle bg-surface-base p-3 text-xs text-text-muted">
+              <summary className="cursor-pointer font-semibold">Available target IDs</summary>
+              <div className="mt-2 space-y-1">
+                <p>Services: {mediaTargets.services.map((item) => `${item.id} (${item.slug || "no-slug"})`).join(", ") || "-"}</p>
+                <p>Solutions: {mediaTargets.solutions.map((item) => `${item.id} (${item.slug || "no-slug"})`).join(", ") || "-"}</p>
+                <p>Portfolio: {mediaTargets.portfolios.map((item) => item.id).join(", ") || "-"}</p>
+              </div>
+            </details>
+
             <div className="grid gap-2">
               {mediaLibrary.map((asset) => (
-                <div key={asset.id} className="flex items-center gap-2 rounded border border-border-subtle bg-surface-base p-2">
-                  <span className="text-xs uppercase text-text-muted">{asset.type}</span>
-                  <p className="truncate text-sm text-text-primary">{asset.title}</p>
+                <div key={asset.id} className="grid gap-2 rounded border border-border-subtle bg-surface-base p-3 sm:grid-cols-[1fr_auto_auto_auto] sm:items-center">
+                  <div>
+                    <p className="truncate text-sm font-semibold text-text-primary">{asset.title || asset.id}</p>
+                    <p className="text-xs text-text-muted">
+                      {asset.mediaType} | {asset.category} | {asset.locale} | order {asset.order}
+                    </p>
+                    <p className="truncate text-xs text-text-muted">
+                      linked: {asset.linkedTo.join(", ") || "general"}
+                    </p>
+                  </div>
+                  <input
+                    type="number"
+                    defaultValue={asset.order}
+                    className="w-20 rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                    onBlur={(event) => {
+                      const nextOrder = Number(event.target.value);
+                      if (Number.isFinite(nextOrder) && nextOrder !== asset.order) {
+                        void patchMediaAsset(asset.id, { order: nextOrder });
+                      }
+                    }}
+                  />
                   <button
                     type="button"
-                    onClick={() => navigator.clipboard?.writeText(asset.url)}
-                    className="ms-auto rounded border border-border-subtle px-2 py-1 text-xs"
-                    disabled={uploading}
+                    onClick={() => patchMediaAsset(asset.id, { isFeatured: !asset.isFeatured })}
+                    className="rounded border border-border-subtle px-2 py-1 text-xs"
+                  >
+                    {asset.isFeatured ? "Unfeature" : "Feature"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => patchMediaAsset(asset.id, { isHidden: !asset.isHidden })}
+                    className="rounded border border-border-subtle px-2 py-1 text-xs"
+                  >
+                    {asset.isHidden ? "Unhide" : "Hide"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard?.writeText(asset.url || asset.imageUrl || asset.videoUrl)}
+                    className="rounded border border-border-subtle px-2 py-1 text-xs sm:col-span-4 sm:justify-self-start"
+                    disabled={uploadingMedia}
                   >
                     Copy URL
                   </button>
                 </div>
               ))}
             </div>
+
+            {legacyMediaLibrary.length ? (
+              <details className="rounded border border-border-subtle bg-surface-base p-3 text-xs text-text-muted">
+                <summary className="cursor-pointer font-semibold">Legacy Blob media (read-only)</summary>
+                <div className="mt-2 grid gap-1">
+                  {legacyMediaLibrary.map((asset) => (
+                    <p key={asset.id}>
+                      {asset.type} | {asset.title} | {asset.url}
+                    </p>
+                  ))}
+                </div>
+              </details>
+            ) : null}
           </section>
         </>
       ) : null}

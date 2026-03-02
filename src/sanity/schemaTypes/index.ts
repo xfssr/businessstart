@@ -1,5 +1,26 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
+const mediaCategoryOptions = [
+  { title: "Restaurants", value: "restaurant" },
+  { title: "Bars", value: "bar" },
+  { title: "Food", value: "food" },
+  { title: "Beauty", value: "beauty" },
+  { title: "Products", value: "product" },
+  { title: "Real Estate", value: "realEstate" },
+  { title: "Local Services", value: "localService" },
+  { title: "Branding", value: "branding" },
+  { title: "Social Content", value: "socialContent" },
+  { title: "General", value: "general" },
+];
+
+const mediaLinkedToOptions = [
+  { title: "Home Gallery", value: "home" },
+  { title: "Service", value: "service" },
+  { title: "Solution", value: "solution" },
+  { title: "Portfolio", value: "portfolio" },
+  { title: "General", value: "general" },
+];
+
 const localizedString = defineType({
   name: "localizedString",
   title: "Localized String",
@@ -119,8 +140,82 @@ const homePage = defineType({
     defineField({ name: "howDescription", type: "localizedText" }),
     defineField({ name: "benefitsTitle", type: "localizedString" }),
     defineField({ name: "benefitsDescription", type: "localizedText" }),
+    defineField({ name: "examplesGalleryEyebrow", type: "localizedString" }),
+    defineField({ name: "examplesGalleryTitle", type: "localizedString" }),
+    defineField({ name: "examplesGalleryDescription", type: "localizedText" }),
+    defineField({
+      name: "examplesGalleryItems",
+      type: "array",
+      of: [defineArrayMember({ type: "reference", to: [{ type: "mediaAsset" }] })],
+    }),
+    defineField({ name: "solutionsPromptEyebrow", type: "localizedString" }),
+    defineField({ name: "solutionsPromptTitle", type: "localizedString" }),
+    defineField({ name: "solutionsPromptDescription", type: "localizedText" }),
+    defineField({ name: "solutionsPromptCta", type: "localizedString" }),
+    defineField({
+      name: "solutionsPromptItems",
+      type: "array",
+      of: [defineArrayMember({ type: "reference", to: [{ type: "solution" }] })],
+    }),
     defineField({ name: "ctaTitle", type: "localizedString" }),
     defineField({ name: "ctaDescription", type: "localizedText" }),
+  ],
+});
+
+const mediaAsset = defineType({
+  name: "mediaAsset",
+  title: "Media Asset",
+  type: "document",
+  fields: [
+    defineField({ name: "title", type: "string", validation: (rule) => rule.required() }),
+    defineField({ name: "caption", type: "string" }),
+    defineField({
+      name: "category",
+      type: "string",
+      options: {
+        list: mediaCategoryOptions,
+      },
+      initialValue: "general",
+    }),
+    defineField({
+      name: "locale",
+      type: "string",
+      options: {
+        list: [
+          { title: "Hebrew (he)", value: "he" },
+          { title: "English (en)", value: "en" },
+          { title: "All", value: "all" },
+        ],
+      },
+      initialValue: "all",
+    }),
+    defineField({
+      name: "mediaType",
+      type: "string",
+      options: {
+        list: [
+          { title: "Image", value: "image" },
+          { title: "Video", value: "video" },
+        ],
+      },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({ name: "imageFile", type: "image" }),
+    defineField({ name: "videoFile", type: "file" }),
+    defineField({ name: "videoPoster", type: "image" }),
+    defineField({ name: "alt", type: "string" }),
+    defineField({ name: "linkUrl", type: "url" }),
+    defineField({ name: "order", type: "number", initialValue: 100 }),
+    defineField({ name: "isFeatured", type: "boolean", initialValue: false }),
+    defineField({ name: "isHidden", type: "boolean", initialValue: false }),
+    defineField({
+      name: "linkedTo",
+      type: "array",
+      of: [defineArrayMember({ type: "string" })],
+      options: {
+        list: mediaLinkedToOptions,
+      },
+    }),
   ],
 });
 
@@ -177,6 +272,11 @@ const service = defineType({
     defineField({ name: "deliveryTime", type: "localizedString" }),
     defineField({ name: "priceFrom", type: "string" }),
     defineField({ name: "featuredImage", type: "image" }),
+    defineField({
+      name: "galleryItems",
+      type: "array",
+      of: [defineArrayMember({ type: "reference", to: [{ type: "mediaAsset" }] })],
+    }),
     defineField({ name: "gallery", type: "array", of: [defineArrayMember({ type: "image" })] }),
     defineField({ name: "faq", type: "array", of: [defineArrayMember({ type: "reference", to: [{ type: "faqItem" }] })] }),
     defineField({ name: "seo", type: "localizedSeo" }),
@@ -199,6 +299,11 @@ const solution = defineType({
     defineField({ name: "includedItems", type: "array", of: [defineArrayMember({ type: "localizedString" })] }),
     defineField({ name: "deliveryTime", type: "localizedString" }),
     defineField({ name: "priceFrom", type: "string" }),
+    defineField({
+      name: "galleryItems",
+      type: "array",
+      of: [defineArrayMember({ type: "reference", to: [{ type: "mediaAsset" }] })],
+    }),
     defineField({ name: "visuals", type: "array", of: [defineArrayMember({ type: "image" })] }),
     defineField({ name: "seo", type: "localizedSeo" }),
     defineField({ name: "isFeatured", type: "boolean", initialValue: false }),
@@ -240,6 +345,11 @@ const portfolioProject = defineType({
       name: "media",
       type: "array",
       of: [defineArrayMember({ type: "image" }), defineArrayMember({ type: "file" })],
+    }),
+    defineField({
+      name: "galleryItems",
+      type: "array",
+      of: [defineArrayMember({ type: "reference", to: [{ type: "mediaAsset" }] })],
     }),
     defineField({ name: "shortDescription", type: "localizedText" }),
     defineField({ name: "tags", type: "array", of: [defineArrayMember({ type: "localizedString" })] }),
@@ -337,6 +447,7 @@ export const schemaTypes = [
   globalSettings,
   navigation,
   homePage,
+  mediaAsset,
   pageContent,
   service,
   solution,
