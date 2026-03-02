@@ -26,6 +26,8 @@ type CmsService = {
   deliverables?: LocalizedValue[];
   deliveryTime?: LocalizedValue;
   priceFrom?: string;
+  isHidden?: boolean;
+  isFeatured?: boolean;
   seo?: {
     title?: LocalizedValue;
     description?: LocalizedValue;
@@ -44,6 +46,11 @@ type CmsSolution = {
   includedItems?: LocalizedValue[];
   deliveryTime?: LocalizedValue;
   priceFrom?: string;
+  whatWeDo?: LocalizedValue;
+  isHidden?: boolean;
+  isFeatured?: boolean;
+  fit?: LocalizedValue;
+  include?: LocalizedValue[];
   seo?: {
     title?: LocalizedValue;
     description?: LocalizedValue;
@@ -53,11 +60,24 @@ type CmsSolution = {
   order?: number;
 };
 
+type CmsTestimonial = {
+  name?: string;
+  business?: string;
+  quote?: LocalizedValue;
+  rating?: number;
+  visible?: boolean;
+  isHidden?: boolean;
+  displayOrder?: number;
+  order?: number;
+};
+
 type CmsSnapshot = {
   global?: {
     whatsappNumber?: string;
     phone?: string;
     email?: string;
+    instagram?: string;
+    socialLinks?: Array<{ platform?: string; url?: string }>;
   };
   navigation?: {
     items?: Array<{
@@ -94,7 +114,10 @@ type CmsSnapshot = {
     features?: LocalizedValue[];
     price?: string;
     active?: boolean;
+    isHidden?: boolean;
+    isFeatured?: boolean;
     displayOrder?: number;
+    order?: number;
   }>;
   portfolio?: Array<{
     title?: LocalizedValue;
@@ -103,18 +126,42 @@ type CmsSnapshot = {
     shortDescription?: LocalizedValue;
     media?: Array<{ asset?: { url?: string } }>;
     displayOrder?: number;
+    order?: number;
+    isHidden?: boolean;
+    isFeatured?: boolean;
   }>;
   faq?: Array<{
     question?: LocalizedValue;
     answer?: LocalizedValue;
     displayOrder?: number;
+    order?: number;
+    isHidden?: boolean;
+    visible?: boolean;
   }>;
+  testimonials?: CmsTestimonial[];
   startStudioLocales?: Array<{
     locale?: string;
     messagesJson?: string;
     updatedAt?: string;
   }>;
 };
+
+type TestimonialMessageItem = {
+  name: string;
+  business: string;
+  quote: string;
+  rating: number;
+};
+
+type MutableMessages = Messages &
+  Record<string, unknown> & {
+    testimonials?: {
+      eyebrow?: string;
+      title?: string;
+      description?: string;
+      items?: TestimonialMessageItem[];
+    };
+  };
 
 export type LandingPageData = {
   id: string;
@@ -141,135 +188,123 @@ const CMS_QUERY = groq`{
   "packages": *[_type == "package"] | order(displayOrder asc, _createdAt asc),
   "portfolio": *[_type == "portfolioProject"] | order(displayOrder asc, _createdAt asc),
   "faq": *[_type == "faqItem"] | order(displayOrder asc, _createdAt asc),
+  "testimonials": *[_type == "testimonial"] | order(displayOrder asc, _createdAt asc),
   "startStudioLocales": *[_type == "startStudioLocale"] | order(updatedAt desc, _updatedAt desc)
 }`;
 
-const fallbackLandingPages: Record<Locale, LandingPageData[]> = {
-  he: [
-    {
-      id: "svc-food",
-      type: "service",
-      slug: "food-photography",
-      alternateSlug: "food-photography",
-      title: "צילום אוכל לעסק",
-      description: "צילום מנות ומוצרים למסעדות ועסקי אוכל.",
-      bullets: ["צילום מקצועי", "עריכה לרשת", "קבצים לאתר ורשתות"],
-      price: "החל מ-1,800 ₪",
-      seoTitle: "צילום אוכל לעסקים | Business Start Studio",
-      seoDescription: "שירות צילום אוכל ומוצר לעסקים שרוצים נראות מקצועית.",
-    },
-    {
-      id: "svc-reels",
-      type: "service",
-      slug: "reels-content",
-      alternateSlug: "reels-content",
-      title: "תוכן רילס לעסקים",
-      description: "וידאו קצר לחשיפה ולפניות ראשונות.",
-      bullets: ["יום צילום", "עריכה", "גרסאות לפלטפורמות"],
-      price: "החל מ-1,500 ₪",
-      seoTitle: "תוכן רילס לעסקים | Business Start Studio",
-      seoDescription: "חבילת תוכן רילס לעסקים עם מיקוד בתוצאות.",
-    },
-    {
-      id: "svc-mini",
-      type: "service",
-      slug: "mini-site-for-business",
-      alternateSlug: "mini-site-for-business",
-      title: "מיני-אתר לעסק",
-      description: "עמוד שירות ברור עם WhatsApp לפניות.",
-      bullets: ["עמוד מותאם מובייל", "מסר שירות", "CTA ברור"],
-      price: "החל מ-2,200 ₪",
-      seoTitle: "מיני-אתר לעסקים | Business Start Studio",
-      seoDescription: "בניית מיני-אתר/עמוד שירות לעסקים מקומיים.",
-    },
-    {
-      id: "sol-qr",
-      type: "solution",
-      slug: "qr-menu",
-      alternateSlug: "qr-menu",
-      title: "QR Menu + Mini Site",
-      description: "פתרון למסעדות עם תפריט QR ועמוד פעולה.",
-      bullets: ["קישור QR", "עמוד שירות", "WhatsApp"],
-      price: "החל מ-2,500 ₪",
-      seoTitle: "QR Menu פתרון למסעדות | Business Start Studio",
-      seoDescription: "מערכת QR ותפריט דיגיטלי למסעדות וקפה.",
-    },
-    {
-      id: "sol-beauty",
-      type: "solution",
-      slug: "beauty-booking",
-      alternateSlug: "beauty-booking",
-      title: "Beauty Booking Setup",
-      description: "פתרון תוכן והזמנות לעסקי ביוטי.",
-      bullets: ["תוכן לפני/אחרי", "עמוד הזמנה", "קידום"],
-      price: "החל מ-2,800 ₪",
-      seoTitle: "Beauty Booking לעסקי ביוטי | Business Start Studio",
-      seoDescription: "פתרון הזמנות וקידום לעסקים בתחום הביוטי.",
-    },
-  ],
-  en: [
-    {
-      id: "svc-food",
-      type: "service",
-      slug: "food-photography",
-      alternateSlug: "food-photography",
-      title: "Food photography for business",
-      description: "Food and product visuals for hospitality businesses.",
-      bullets: ["Professional shoot", "Social edits", "Web-ready files"],
-      price: "From 1,800 ILS",
-      seoTitle: "Food Photography Services | Business Start Studio",
-      seoDescription: "Food and product photography for businesses.",
-    },
-    {
-      id: "svc-reels",
-      type: "service",
-      slug: "reels-content",
-      alternateSlug: "reels-content",
-      title: "Reels content for businesses",
-      description: "Short-form video for visibility and inquiry flow.",
-      bullets: ["Content day", "Editing", "Platform formats"],
-      price: "From 1,500 ILS",
-      seoTitle: "Reels Content Services | Business Start Studio",
-      seoDescription: "Short-form social content built for outcomes.",
-    },
-    {
-      id: "svc-mini",
-      type: "service",
-      slug: "mini-site-for-business",
-      alternateSlug: "mini-site-for-business",
-      title: "Mini site for business",
-      description: "Clear service page with WhatsApp CTA.",
-      bullets: ["Mobile-first page", "Offer messaging", "Clear CTA"],
-      price: "From 2,200 ILS",
-      seoTitle: "Mini Site for Business | Business Start Studio",
-      seoDescription: "Mini site setup for local businesses.",
-    },
-    {
-      id: "sol-qr",
-      type: "solution",
-      slug: "qr-menu",
-      alternateSlug: "qr-menu",
-      title: "QR Menu + Mini Site",
-      description: "Hospitality setup with QR menu and action page.",
-      bullets: ["QR routing", "Service page", "WhatsApp action"],
-      price: "From 2,500 ILS",
-      seoTitle: "QR Menu Solution | Business Start Studio",
-      seoDescription: "QR menu and mini-site setup for restaurants.",
-    },
-    {
-      id: "sol-beauty",
-      type: "solution",
-      slug: "beauty-booking",
-      alternateSlug: "beauty-booking",
-      title: "Beauty booking setup",
-      description: "Content and booking flow for beauty services.",
-      bullets: ["Before/after visuals", "Booking page", "Ad assets"],
-      price: "From 2,800 ILS",
-      seoTitle: "Beauty Booking Flow | Business Start Studio",
-      seoDescription: "Booking solution for clinics and beauty providers.",
-    },
-  ],
+type MessageServiceCard = {
+  title?: string;
+  audience?: string;
+  features?: string[];
+  timeline?: string;
+  price?: string;
+  slug?: string;
 };
+
+type MessageSolutionCard = {
+  title?: string;
+  problem?: string;
+  whatWeDo?: string;
+  outcome?: string;
+  timeline?: string;
+  price?: string;
+  slug?: string;
+};
+
+function buildFallbackLandingPages(): Record<Locale, LandingPageData[]> {
+  const heMessages = messageCatalog.he;
+  const enMessages = messageCatalog.en;
+
+  const heServices = (heMessages.servicesPage.standardCards ?? []) as MessageServiceCard[];
+  const enServices = (enMessages.servicesPage.standardCards ?? []) as MessageServiceCard[];
+  const heSolutions = (heMessages.solutionsPage.cards ?? []) as MessageSolutionCard[];
+  const enSolutions = (enMessages.solutionsPage.cards ?? []) as MessageSolutionCard[];
+
+  const heServiceItems = heServices
+    .filter((card) => card.title && card.slug)
+    .map((card, index) => {
+      const alt = enServices[index] ?? card;
+      const description = card.audience || card.features?.[0] || card.title || "";
+      return {
+        id: `svc-${card.slug}`,
+        type: "service" as const,
+        slug: card.slug || "",
+        alternateSlug: alt.slug || card.slug || "",
+        title: card.title || "",
+        description,
+        bullets: (card.features ?? []).slice(0, 6),
+        price: card.price || "",
+        seoTitle: card.title || "",
+        seoDescription: description,
+      };
+    });
+
+  const enServiceItems = enServices
+    .filter((card) => card.title && card.slug)
+    .map((card, index) => {
+      const alt = heServices[index] ?? card;
+      const description = card.audience || card.features?.[0] || card.title || "";
+      return {
+        id: `svc-${card.slug}`,
+        type: "service" as const,
+        slug: card.slug || "",
+        alternateSlug: alt.slug || card.slug || "",
+        title: card.title || "",
+        description,
+        bullets: (card.features ?? []).slice(0, 6),
+        price: card.price || "",
+        seoTitle: card.title || "",
+        seoDescription: description,
+      };
+    });
+
+  const heSolutionItems = heSolutions
+    .filter((card) => card.title && card.slug)
+    .map((card, index) => {
+      const alt = enSolutions[index] ?? card;
+      const description = card.outcome || card.whatWeDo || card.problem || card.title || "";
+      const bullets = [card.problem, card.whatWeDo, card.outcome].filter(Boolean) as string[];
+      return {
+        id: `sol-${card.slug}`,
+        type: "solution" as const,
+        slug: card.slug || "",
+        alternateSlug: alt.slug || card.slug || "",
+        title: card.title || "",
+        description,
+        bullets,
+        price: card.price || "",
+        seoTitle: card.title || "",
+        seoDescription: description,
+      };
+    });
+
+  const enSolutionItems = enSolutions
+    .filter((card) => card.title && card.slug)
+    .map((card, index) => {
+      const alt = heSolutions[index] ?? card;
+      const description = card.outcome || card.whatWeDo || card.problem || card.title || "";
+      const bullets = [card.problem, card.whatWeDo, card.outcome].filter(Boolean) as string[];
+      return {
+        id: `sol-${card.slug}`,
+        type: "solution" as const,
+        slug: card.slug || "",
+        alternateSlug: alt.slug || card.slug || "",
+        title: card.title || "",
+        description,
+        bullets,
+        price: card.price || "",
+        seoTitle: card.title || "",
+        seoDescription: description,
+      };
+    });
+
+  return {
+    he: [...heServiceItems, ...heSolutionItems],
+    en: [...enServiceItems, ...enSolutionItems],
+  };
+}
+
+const fallbackLandingPages = buildFallbackLandingPages();
 
 function pickLocalized(value: LocalizedValue, locale: Locale): string {
   if (typeof value === "string") return value;
@@ -340,6 +375,22 @@ function mergeDeep(target: Record<string, unknown>, patch: Record<string, unknow
   return output;
 }
 
+function byOrder(
+  left: { order?: number; displayOrder?: number; _createdAt?: string },
+  right: { order?: number; displayOrder?: number; _createdAt?: string },
+) {
+  const leftOrder = left.order ?? left.displayOrder ?? 100;
+  const rightOrder = right.order ?? right.displayOrder ?? 100;
+  if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+  return String(left._createdAt ?? "").localeCompare(String(right._createdAt ?? ""));
+}
+
+function pickFeatured<T extends { isFeatured?: boolean }>(items: T[], limit: number) {
+  const featured = items.filter((item) => item.isFeatured);
+  const source = featured.length ? featured : items;
+  return source.slice(0, limit);
+}
+
 const getCmsSnapshot = cache(async (): Promise<CmsSnapshot | null> => {
   if (!isSanityConfigured()) return null;
   try {
@@ -350,13 +401,13 @@ const getCmsSnapshot = cache(async (): Promise<CmsSnapshot | null> => {
 });
 
 export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages> => {
-  const content = structuredClone(messageCatalog[locale]) as Messages & Record<string, unknown>;
+  const content = structuredClone(messageCatalog[locale]) as MutableMessages;
   const [snapshot, startStudio] = await Promise.all([getCmsSnapshot(), getStartStudioContent()]);
 
   if (snapshot) {
     if (snapshot.navigation?.items?.length) {
       content.nav.links = [...snapshot.navigation.items]
-        .sort((a, b) => (a.order ?? 100) - (b.order ?? 100))
+        .sort(byOrder)
         .map((item) => ({
           label: pickLocalized(item.label, locale),
           path: pickLocalized(item.href, locale) || "/",
@@ -367,7 +418,7 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
     nav.primaryCta = pickLocalized(snapshot.navigation?.primaryCtaLabel, locale) || "WhatsApp";
     nav.secondaryCta =
       pickLocalized(snapshot.navigation?.secondaryCtaLabel, locale) ||
-      (locale === "he" ? "בקשת הצעה" : "Get a quote");
+      "Get a quote";
     nav.secondaryCtaHref = pickLocalized(snapshot.navigation?.secondaryCtaHref, locale) || "/contact";
 
     if (snapshot.home) {
@@ -378,62 +429,95 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
         pickLocalized(snapshot.home.heroSecondaryCta, locale) || content.hero.secondaryCta;
     }
 
-    const services = (snapshot.services ?? []).map((service) => ({
-      title: pickLocalized(service.title, locale),
-      audience: pickLocalized(service.subtitle, locale),
-      description:
-        pickLocalized(service.shortValue, locale) || pickLocalized(service.shortDescription, locale),
-      features: pickLocalizedArray(service.deliverables, locale),
-      timeline: pickLocalized(service.deliveryTime, locale),
-      price: service.priceFrom || "",
-      slug: pickSlug(service.slug, locale),
-      cardType: service.cardType ?? "standard",
-    }));
+    const services = (snapshot.services ?? [])
+      .filter((service) => !service.isHidden && service.cardType !== "solution")
+      .sort(byOrder)
+      .map((service) => ({
+        title: pickLocalized(service.title, locale),
+        audience: pickLocalized(service.subtitle, locale),
+        description:
+          pickLocalized(service.shortValue, locale) || pickLocalized(service.shortDescription, locale),
+        features: pickLocalizedArray(service.deliverables, locale),
+        timeline: pickLocalized(service.deliveryTime, locale),
+        price: service.priceFrom || "",
+        slug: pickSlug(service.slug, locale),
+        isFeatured: service.isFeatured,
+      }))
+      .filter((service) => service.title && service.slug);
 
     if (services.length) {
-      content.services.items = services.slice(0, 8).map((service) => ({
+      const storefrontServices = pickFeatured(services, 6);
+      content.services.items = storefrontServices.map((service) => ({
         title: service.title,
         description: service.description,
       }));
-      content.servicesPage.standardCards = services
-        .filter((service) => service.cardType !== "solution")
-        .map((service) => ({
-          title: service.title,
-          audience: service.audience,
-          features: service.features.slice(0, 5),
-          timeline: service.timeline,
-          price: service.price,
-          slug: service.slug,
-        }));
+      content.servicesPage.standardCards = storefrontServices.map((service) => ({
+        title: service.title,
+        audience: service.audience,
+        features: service.features.slice(0, 5),
+        timeline: service.timeline,
+        price: service.price,
+        slug: service.slug,
+      }));
     }
 
-    const solutions = (snapshot.solutions ?? []).map((solution) => ({
-      title: pickLocalized(solution.title, locale),
-      fit: pickLocalized(solution.problem, locale),
-      include: pickLocalizedArray(solution.includedItems, locale),
-      price: solution.priceFrom || "",
-      slug: pickSlug(solution.slug, locale),
-    }));
+    const solutions = (snapshot.solutions ?? [])
+      .filter((solution) => !solution.isHidden)
+      .sort(byOrder)
+      .map((solution) => ({
+        title: pickLocalized(solution.title, locale),
+        problem: pickLocalized(solution.problem ?? solution.fit, locale),
+        whatWeDo: pickLocalized(solution.whatWeDo, locale),
+        outcome: pickLocalized(solution.outcome, locale),
+        include: pickLocalizedArray(solution.includedItems ?? solution.include, locale),
+        timeline: pickLocalized(solution.deliveryTime, locale),
+        price: solution.priceFrom || "",
+        slug: pickSlug(solution.slug, locale),
+        isFeatured: solution.isFeatured,
+      }))
+      .filter((solution) => solution.title && solution.slug);
+
     if (solutions.length) {
-      content.solutionsPage.cards = solutions;
+      const storefrontSolutions = pickFeatured(solutions, 5).map((solution) => ({
+        title: solution.title,
+        problem: solution.problem,
+        whatWeDo: solution.whatWeDo || solution.include.slice(0, 2).join(", "),
+        outcome: solution.outcome || solution.include.slice(0, 2).join(", "),
+        timeline: solution.timeline,
+        price: solution.price,
+        slug: solution.slug,
+      }));
+
+      content.solutionsPage.cards = storefrontSolutions;
+      content.servicesPage.solutionCards = storefrontSolutions.map((solution) => ({
+        title: solution.title,
+        audience: solution.problem,
+        features: [solution.whatWeDo, solution.outcome].filter(Boolean),
+        timeline: solution.timeline,
+        price: solution.price,
+        slug: solution.slug,
+      }));
     }
 
     const packages = (snapshot.packages ?? [])
-      .filter((item) => item.active !== false)
-      .sort((a, b) => (a.displayOrder ?? 100) - (b.displayOrder ?? 100))
+      .filter((item) => item.active !== false && !item.isHidden)
+      .sort(byOrder)
       .map((item) => ({
         title: pickLocalized(item.name, locale),
         audience: pickLocalized(item.whoFor, locale) || pickLocalized(item.summary, locale),
         features: pickLocalizedArray(item.features, locale),
         price: item.price || "",
-      }));
+        isFeatured: item.isFeatured,
+      }))
+      .filter((item) => item.title);
     if (packages.length) {
-      content.pricingPage.tiers = packages;
+      content.pricingPage.tiers = pickFeatured(packages, packages.length);
     }
 
     const fallbackVisuals = ["/portfolio/helix.svg", "/portfolio/nera.svg", "/portfolio/axis.svg"];
     const portfolioItems = [...(snapshot.portfolio ?? [])]
-      .sort((a, b) => (a.displayOrder ?? 100) - (b.displayOrder ?? 100))
+      .filter((item) => !item.isHidden)
+      .sort(byOrder)
       .map((item, index) => {
         const visual = item.media?.[0]?.asset?.url || fallbackVisuals[index % fallbackVisuals.length];
         return {
@@ -443,14 +527,17 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
           alt: pickLocalized(item.title, locale),
           visual,
           mediaType: visual.toLowerCase().includes(".mp4") ? "video" : "image",
+          isFeatured: item.isFeatured,
         };
-      });
+      })
+      .filter((item) => item.title);
     if (portfolioItems.length) {
-      content.portfolio.items = portfolioItems;
+      content.portfolio.items = pickFeatured(portfolioItems, portfolioItems.length);
     }
 
     const faqItems = [...(snapshot.faq ?? [])]
-      .sort((a, b) => (a.displayOrder ?? 100) - (b.displayOrder ?? 100))
+      .filter((item) => item.visible !== false && !item.isHidden)
+      .sort(byOrder)
       .map((item) => ({
         question: pickLocalized(item.question, locale),
         answer: pickLocalized(item.answer, locale),
@@ -460,10 +547,48 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
       content.faq.items = faqItems;
     }
 
+    const testimonials = [...(snapshot.testimonials ?? [])]
+      .filter((item) => item.visible !== false && !item.isHidden)
+      .sort(byOrder)
+      .map((item) => ({
+        name: item.name || "",
+        business: item.business || "",
+        quote: pickLocalized(item.quote, locale),
+        rating: item.rating ?? 5,
+      }))
+      .filter((item) => item.quote);
+    if (testimonials.length) {
+      const existingTestimonials =
+        ((content as Record<string, unknown>).testimonials as Record<string, unknown> | undefined) ?? {};
+      (content as Record<string, unknown>).testimonials = {
+        ...existingTestimonials,
+        items: testimonials,
+      };
+    }
+
+    const socialInstagram =
+      snapshot.global?.socialLinks?.find((item) =>
+        String(item.platform || "").toLowerCase().includes("instagram"),
+      )?.url ?? "";
+    const instagramValue = snapshot.global?.instagram || socialInstagram;
+    const fallbackGlobal = (content.global as {
+      whatsappNumber?: string;
+      phone?: string;
+      email?: string;
+      instagram?: string;
+    }) ?? {};
+    const whatsappValue = snapshot.global?.whatsappNumber || fallbackGlobal.whatsappNumber || "";
+    const phoneValue = snapshot.global?.phone || fallbackGlobal.phone || "";
+    const emailValue = snapshot.global?.email || fallbackGlobal.email || "";
+
     content.contact.channels = [
-      { label: "WhatsApp", value: snapshot.global?.whatsappNumber || content.contact.channels[0]?.value },
-      { label: locale === "he" ? "טלפון" : "Phone", value: snapshot.global?.phone || "" },
-      { label: "Email", value: snapshot.global?.email || "" },
+      { label: "WhatsApp", value: whatsappValue },
+      { label: "Phone", value: phoneValue },
+      {
+        label: "Instagram",
+        value: instagramValue || fallbackGlobal.instagram || "",
+      },
+      { label: "Email", value: emailValue },
     ].filter((channel) => channel.value);
 
     const pagesMap = {
@@ -486,8 +611,20 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
       section.description = pickLocalized(page.description, locale) || (section.description as string);
     }
 
-    const withGlobal = content as Messages & { global?: { whatsappNumber?: string } };
-    withGlobal.global = { whatsappNumber: snapshot.global?.whatsappNumber };
+    const withGlobal = content as Messages & {
+      global?: {
+        whatsappNumber?: string;
+        phone?: string;
+        email?: string;
+        instagram?: string;
+      };
+    };
+    withGlobal.global = {
+      whatsappNumber: whatsappValue || withGlobal.global?.whatsappNumber,
+      phone: phoneValue || withGlobal.global?.phone,
+      email: emailValue || withGlobal.global?.email,
+      instagram: instagramValue || withGlobal.global?.instagram,
+    };
   }
 
   const cmsStartStudioPatch = snapshot ? parseCmsStartStudioPatch(snapshot, locale) : null;
@@ -495,7 +632,6 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
     Object.assign(content, mergeDeep(content as Record<string, unknown>, cmsStartStudioPatch));
   }
 
-  // Legacy Blob fallback only when Sanity snapshot is unavailable.
   if (!snapshot) {
     const legacyPatch = startStudio?.locales?.[locale]?.messages;
     if (isRecord(legacyPatch)) {
@@ -503,7 +639,14 @@ export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages>
     }
 
     if (startStudio?.global?.whatsappNumber) {
-      const withGlobal = content as Messages & { global?: { whatsappNumber?: string } };
+      const withGlobal = content as Messages & {
+        global?: {
+          whatsappNumber?: string;
+          phone?: string;
+          email?: string;
+          instagram?: string;
+        };
+      };
       withGlobal.global = {
         ...(withGlobal.global ?? {}),
         whatsappNumber: startStudio.global.whatsappNumber,
@@ -546,7 +689,16 @@ export async function getSolutionLanding(locale: Locale, slug: string): Promise<
 
   if (match) {
     const title = pickLocalized(match.title, locale);
-    const description = pickLocalized(match.outcome, locale) || pickLocalized(match.problem, locale);
+    const description =
+      pickLocalized(match.outcome, locale) ||
+      pickLocalized(match.whatWeDo, locale) ||
+      pickLocalized(match.problem ?? match.fit, locale);
+    const bullets = pickLocalizedArray(match.includedItems ?? match.include, locale).slice(0, 6);
+    const fallbackBullets = [
+      pickLocalized(match.problem ?? match.fit, locale),
+      pickLocalized(match.whatWeDo, locale),
+      pickLocalized(match.outcome, locale),
+    ].filter(Boolean);
     return {
       id: match._id,
       type: "solution",
@@ -554,7 +706,7 @@ export async function getSolutionLanding(locale: Locale, slug: string): Promise<
       alternateSlug: pickAlternateSlug(match.slug, locale),
       title,
       description,
-      bullets: pickLocalizedArray(match.includedItems, locale).slice(0, 6),
+      bullets: bullets.length ? bullets : fallbackBullets,
       price: match.priceFrom || "",
       seoTitle: pickLocalized(match.seo?.title, locale) || title,
       seoDescription: pickLocalized(match.seo?.description, locale) || description,
@@ -578,6 +730,7 @@ export async function getServiceLandingParams() {
   }
 
   return snapshot.services
+    .filter((service) => !service.isHidden)
     .map((service) => ({ he: pickSlug(service.slug, "he"), en: pickSlug(service.slug, "en") }))
     .filter((item) => item.he && item.en)
     .flatMap((item) => [
@@ -598,6 +751,7 @@ export async function getSolutionLandingParams() {
   }
 
   return snapshot.solutions
+    .filter((solution) => !solution.isHidden)
     .map((solution) => ({ he: pickSlug(solution.slug, "he"), en: pickSlug(solution.slug, "en") }))
     .filter((item) => item.he && item.en)
     .flatMap((item) => [

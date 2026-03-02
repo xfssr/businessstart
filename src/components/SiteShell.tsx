@@ -21,6 +21,22 @@ type NavLink = {
   path: string;
 };
 
+function BrandMark() {
+  return (
+    <svg viewBox="0 0 64 64" className="h-9 w-9 shrink-0" aria-hidden>
+      <defs>
+        <linearGradient id="brandMarkGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stopColor="#6EA8FF" />
+          <stop offset="100%" stopColor="#4B8DF4" />
+        </linearGradient>
+      </defs>
+      <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#brandMarkGradient)" opacity="0.18" />
+      <path d="M17 44L32 16l15 28h-8l-7-13-7 13h-8z" fill="#6EA8FF" />
+      <circle cx="32" cy="31" r="3.5" fill="#F2F6FF" />
+    </svg>
+  );
+}
+
 function normalizeLink(path: string, locale: string) {
   if (path === "/") {
     return `/${locale}`;
@@ -48,13 +64,9 @@ export function SiteShell({ children }: SiteShellProps) {
     <div className="relative min-h-screen pb-24 md:pb-0">
       <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-base/85 backdrop-blur-md">
         <Container className="flex items-center gap-3 py-4 sm:py-5">
-          <Link href={`/${locale}`} className="space-y-1">
-            <p className="text-[0.62rem] font-semibold tracking-[0.25em] text-text-muted uppercase">
-              {t("brand.label")}
-            </p>
-            <p className="font-display text-lg leading-none text-text-primary sm:text-xl">
-              {t("brand.name")}
-            </p>
+          <Link href={`/${locale}`} className="flex items-center gap-2">
+            <BrandMark />
+            <p className="font-display text-lg leading-none text-text-primary sm:text-xl">{t("brand.name")}</p>
           </Link>
 
           <nav className="mx-auto hidden items-center gap-1 lg:flex">

@@ -64,7 +64,7 @@
         "value": "פניות ראשונות"
       }
     ],
-    "panelLabel": "Studio Focus"
+    "panelLabel": "מה כולל התהליך"
   },
   "whatWeDo": {
     "eyebrow": "מה אנחנו עושים",
@@ -223,21 +223,21 @@
       {
         "title": "Helix Dining",
         "subtitle": "תוכן והשקה למסעדה",
-        "metric": "Restaurant Launch",
+        "metric": "השקת מסעדה",
         "visual": "/portfolio/helix.svg",
         "alt": "Restaurant visual campaign"
       },
       {
         "title": "Nera Hospitality",
         "subtitle": "סט תוכן לעסק אירוח",
-        "metric": "Hospitality Assets",
+        "metric": "נכסי תוכן לאירוח",
         "visual": "/portfolio/nera.svg",
         "alt": "Hospitality content package"
       },
       {
         "title": "Axis Product Lab",
         "subtitle": "נראות מוצר + עמוד שירות",
-        "metric": "Product Presence",
+        "metric": "נראות מוצר",
         "visual": "/portfolio/axis.svg",
         "alt": "Product launch visuals"
       }
@@ -282,19 +282,19 @@
     "channels": [
       {
         "label": "WhatsApp",
-        "value": "+972-50-000-0000"
+        "value": "+972 50 9656366"
       },
       {
         "label": "טלפון",
-        "value": "+972-50-000-0000"
+        "value": "+972 50 9656366"
       },
       {
         "label": "אינסטגרם",
-        "value": "@businessstart.studio"
+        "value": "emil_nisenblatt"
       },
       {
         "label": "אימייל",
-        "value": "hello@businessstart.example"
+        "value": "nisenem98@gmail.com"
       }
     ],
     "form": {
@@ -323,19 +323,7 @@
     "cardCta": "פרטים",
     "standardCards": [
       {
-        "title": "יום רילס לעסק",
-        "audience": "למסעדות, ביוטי ושירותים מקומיים.",
-        "features": [
-          "צילום יום אחד",
-          "עריכת רילס קצרים",
-          "התאמה לרשתות",
-          "מסירת קבצים מסודרת"
-        ],
-        "timeline": "עד 7 ימי עבודה",
-        "price": "החל מ-1,500 ₪"
-      },
-      {
-        "title": "צילום אוכל ומוצר",
+        "title": "צילום",
         "audience": "לעסקים שצריכים ויזואל חזק למכירה.",
         "features": [
           "סטיילינג בסיסי",
@@ -344,10 +332,11 @@
           "חומרים לרשת ולאתר"
         ],
         "timeline": "עד 10 ימי עבודה",
-        "price": "החל מ-1,800 ₪"
+        "price": "החל מ-1,800 ₪",
+        "slug": "photography"
       },
       {
-        "title": "חבילת עריכת וידאו",
+        "title": "וידאו",
         "audience": "לעסקים עם חומר גלם קיים.",
         "features": [
           "עריכה קצרה לפלטפורמות",
@@ -356,19 +345,60 @@
           "התאמת פתיח וסיום"
         ],
         "timeline": "עד 6 ימי עבודה",
-        "price": "החל מ-1,200 ₪"
+        "price": "החל מ-1,200 ₪",
+        "slug": "video-production"
       },
       {
-        "title": "ערכת ויזואל לרשת",
-        "audience": "למי שצריך סדר בנראות הדיגיטלית.",
+        "title": "רילס",
+        "audience": "למסעדות, ביוטי ושירותים מקומיים.",
         "features": [
-          "תבניות בסיס",
-          "קאברים",
-          "באנרים",
-          "הנחיות שימוש"
+          "צילום יום אחד",
+          "עריכת רילס קצרים",
+          "התאמה לרשתות",
+          "מסירת קבצים מסודרת"
         ],
-        "timeline": "עד 8 ימי עבודה",
-        "price": "החל מ-1,400 ₪"
+        "timeline": "עד 7 ימי עבודה",
+        "price": "החל מ-1,500 ₪",
+        "slug": "reels-production"
+      },
+      {
+        "title": "עריכה",
+        "audience": "לעסקים עם חומר גלם קיים.",
+        "features": [
+          "עריכה קצרה לפלטפורמות",
+          "כתוביות",
+          "גרסאות אנכיות",
+          "התאמת פתיח וסיום"
+        ],
+        "timeline": "עד 6 ימי עבודה",
+        "price": "החל מ-1,200 ₪",
+        "slug": "editing-package"
+      },
+      {
+        "title": "יום תוכן",
+        "audience": "למסעדות, ביוטי ושירותים מקומיים.",
+        "features": [
+          "צילום יום אחד",
+          "עריכת רילס קצרים",
+          "התאמה לרשתות",
+          "מסירת קבצים מסודרת"
+        ],
+        "timeline": "עד 7 ימי עבודה",
+        "price": "החל מ-1,500 ₪",
+        "slug": "content-day"
+      },
+      {
+        "title": "צילום מוצר / אוכל",
+        "audience": "לעסקים שצריכים ויזואל חזק למכירה.",
+        "features": [
+          "סטיילינג בסיסי",
+          "צילום סטילס מקצועי",
+          "עיבוד צבע ותאורה",
+          "חומרים לרשת ולאתר"
+        ],
+        "timeline": "עד 10 ימי עבודה",
+        "price": "החל מ-1,800 ₪",
+        "slug": "product-food-photography"
       }
     ],
     "solutionCards": [
@@ -420,7 +450,8 @@
         "timeline": "10-20 ימים",
         "price": "החל מ-2,200 ₪"
       }
-    ]
+    ],
+    "orderCta": "בחירה ב-WhatsApp"
   },
   "solutionsPage": {
     "metaTitle": "פתרונות עסקיים | Business Start Studio",
@@ -430,72 +461,53 @@
     "description": "כל פתרון בנוי סביב תוצאה עסקית: יותר פניות והזמנות.",
     "cards": [
       {
-        "title": "פתרון למסעדות",
-        "fit": "לעסקים שרוצים להזיז תנועה להזמנות.",
-        "include": [
-          "צילום אוכל",
-          "QR תפריט",
-          "עמוד שירות",
-          "סט מודעות"
-        ],
-        "price": "2,500-5,000 ₪"
+        "title": "תפריט QR + מיני-אתר",
+        "problem": "לעסקים שרוצים להזיז תנועה להזמנות.",
+        "whatWeDo": "צילום אוכל, QR תפריט",
+        "outcome": "עמוד שירות",
+        "timeline": "14-21 ימים",
+        "price": "2,500-5,000 ₪",
+        "slug": "qr-menu-mini-site"
       },
       {
-        "title": "פתרון לברים",
-        "fit": "לחיזוק נראות אירועים ומיתוג מקום.",
-        "include": [
-          "תוכן וידאו קצר",
-          "לוח אירועים דיגיטלי",
-          "עמוד פנייה",
-          "קריאייטיב פרסומי"
-        ],
-        "price": "2,800-5,500 ₪"
+        "title": "תוכן + משפך WhatsApp",
+        "problem": "לעסקים שרוצים פניות איכותיות באזור שלהם.",
+        "whatWeDo": "מיני-אתר שירות, תוכן קצר",
+        "outcome": "קמפיין בסיס",
+        "timeline": "14-28 ימים",
+        "price": "2,200-4,500 ₪",
+        "slug": "content-whatsapp-funnel"
       },
       {
-        "title": "פתרון לביוטי",
-        "fit": "להגדלת הזמנות ותיאום תורים.",
-        "include": [
-          "תוכן לפני/אחרי",
-          "עמוד הזמנה",
-          "סט מודעות",
-          "הנעה ל-WhatsApp"
-        ],
-        "price": "2,500-4,800 ₪"
+        "title": "סט השקת עסק",
+        "problem": "למותגים עם מוצר חדש.",
+        "whatWeDo": "צילום מוצר, דף השקה",
+        "outcome": "באנרים לרשת",
+        "timeline": "16-28 ימים",
+        "price": "3,000-6,000 ₪",
+        "slug": "business-launch-setup"
       },
       {
-        "title": "פתרון לשירות מקומי",
-        "fit": "לעסקים שרוצים פניות איכותיות באזור שלהם.",
-        "include": [
-          "מיני-אתר שירות",
-          "תוכן קצר",
-          "קמפיין בסיס",
-          "הצעת מחיר ברורה"
-        ],
-        "price": "2,200-4,500 ₪"
+        "title": "מערך הזמנות לביוטי",
+        "problem": "להגדלת הזמנות ותיאום תורים.",
+        "whatWeDo": "תוכן לפני/אחרי, עמוד הזמנה",
+        "outcome": "סט מודעות",
+        "timeline": "14-24 ימים",
+        "price": "2,500-4,800 ₪",
+        "slug": "beauty-booking-flow"
       },
       {
-        "title": "עמוד השקת מוצר",
-        "fit": "למותגים עם מוצר חדש.",
-        "include": [
-          "צילום מוצר",
-          "דף השקה",
-          "באנרים לרשת",
-          "טקסט מכירתי"
-        ],
-        "price": "3,000-6,000 ₪"
-      },
-      {
-        "title": "מותג אישי לשף",
-        "fit": "לשפים שרוצים נראות מקצועית.",
-        "include": [
-          "יום צילום אישי",
-          "עמוד פרופיל",
-          "ערכת רילס",
-          "חבילת השקה"
-        ],
-        "price": "2,400-4,200 ₪"
+        "title": "מערכת התחלה מהירה",
+        "problem": "לשפים שרוצים נראות מקצועית.",
+        "whatWeDo": "יום צילום אישי, עמוד פרופיל",
+        "outcome": "ערכת רילס",
+        "timeline": "10-20 ימים",
+        "price": "2,400-4,200 ₪",
+        "slug": "quick-start-system"
       }
-    ]
+    ],
+    "cardCta": "פרטים",
+    "orderCta": "בחירה ב-WhatsApp"
   },
   "pricingPage": {
     "metaTitle": "מחירים | Business Start Studio",
@@ -704,6 +716,20 @@
     "note": "תוכן, אתר ופרסום לעסקים שרוצים תוצאה."
   },
   "whatsapp": {
-    "prefill": "היי, נשמח לבנות לעסק שלנו תוכן, עמוד שירות ופרסום שיביאו פניות ראשונות."
+    "prefill": "היי, נשמח לבנות לעסק שלנו תוכן, עמוד שירות ופרסום שיביאו פניות ראשונות.",
+    "serviceCardTemplate": "שלום, אני רוצה פרטים על השירות \"{title}\". למי מתאים: {audience}. זמן: {timeline}. מחיר: {price}.",
+    "solutionCardTemplate": "שלום, אני מתעניין בפתרון \"{title}\". בעיה: {problem}. תוצאה: {outcome}. זמן: {timeline}. מחיר: {price}."
+  },
+  "global": {
+    "whatsappNumber": "+972 50 9656366",
+    "phone": "+972 50 9656366",
+    "email": "nisenem98@gmail.com",
+    "instagram": "emil_nisenblatt"
+  },
+  "testimonials": {
+    "eyebrow": "משוב מלקוחות",
+    "title": "מה אומרים אלינו",
+    "description": "קטעים קצרים מעסקים שעבדו איתנו.",
+    "items": []
   }
 }

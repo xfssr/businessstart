@@ -36,7 +36,7 @@ exports[`RTL layout > keeps rtl as default and matches the header snapshot 1`] =
         >
           <a
             class="inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base border border-accent bg-accent text-white shadow-panel hover:bg-accent-strong hover:border-accent-strong min-w-52"
-            href="https://wa.me/972500000000?text=%D7%94%D7%99%D7%99%2C%20%D7%A0%D7%A9%D7%9E%D7%97%20%D7%9C%D7%91%D7%A0%D7%95%D7%AA%20%D7%9C%D7%A2%D7%A1%D7%A7%20%D7%A9%D7%9C%D7%A0%D7%95%20%D7%AA%D7%95%D7%9B%D7%9F%2C%20%D7%A2%D7%9E%D7%95%D7%93%20%D7%A9%D7%99%D7%A8%D7%95%D7%AA%20%D7%95%D7%A4%D7%A8%D7%A1%D7%95%D7%9D%20%D7%A9%D7%99%D7%91%D7%99%D7%90%D7%95%20%D7%A4%D7%A0%D7%99%D7%95%D7%AA%20%D7%A8%D7%90%D7%A9%D7%95%D7%A0%D7%95%D7%AA."
+            href="https://wa.me/972509656366?text=%D7%94%D7%99%D7%99%2C%20%D7%A0%D7%A9%D7%9E%D7%97%20%D7%9C%D7%91%D7%A0%D7%95%D7%AA%20%D7%9C%D7%A2%D7%A1%D7%A7%20%D7%A9%D7%9C%D7%A0%D7%95%20%D7%AA%D7%95%D7%9B%D7%9F%2C%20%D7%A2%D7%9E%D7%95%D7%93%20%D7%A9%D7%99%D7%A8%D7%95%D7%AA%20%D7%95%D7%A4%D7%A8%D7%A1%D7%95%D7%9D%20%D7%A9%D7%99%D7%91%D7%99%D7%90%D7%95%20%D7%A4%D7%A0%D7%99%D7%95%D7%AA%20%D7%A8%D7%90%D7%A9%D7%95%D7%A0%D7%95%D7%AA."
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -61,7 +61,7 @@ exports[`RTL layout > keeps rtl as default and matches the header snapshot 1`] =
         <p
           class="text-xs font-semibold tracking-[0.2em] text-text-muted uppercase"
         >
-          Studio Focus
+          מה כולל התהליך
         </p>
         <div
           class="mt-5 space-y-4"

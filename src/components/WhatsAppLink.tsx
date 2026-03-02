@@ -26,7 +26,7 @@ export function WhatsAppLink({
   variant = "primary",
 }: WhatsAppLinkProps) {
   const { get } = useLocale();
-  const configuredPhone = get<string>("global.whatsappNumber");
+  const configuredPhone = get<string>("global.whatsappNumber") || get<string>("global.phone");
   const targetPhone = phone || configuredPhone || WHATSAPP_PHONE;
 
   return (

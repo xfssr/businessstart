@@ -65,6 +65,7 @@ const globalSettings = defineType({
     defineField({ name: "whatsappNumber", type: "string" }),
     defineField({ name: "phone", type: "string" }),
     defineField({ name: "email", type: "string" }),
+    defineField({ name: "instagram", type: "string" }),
     defineField({
       name: "socialLinks",
       type: "array",
@@ -180,6 +181,7 @@ const service = defineType({
     defineField({ name: "faq", type: "array", of: [defineArrayMember({ type: "reference", to: [{ type: "faqItem" }] })] }),
     defineField({ name: "seo", type: "localizedSeo" }),
     defineField({ name: "isFeatured", type: "boolean", initialValue: false }),
+    defineField({ name: "isHidden", type: "boolean", initialValue: false }),
     defineField({ name: "order", type: "number", initialValue: 100 }),
   ],
 });
@@ -192,6 +194,7 @@ const solution = defineType({
     defineField({ name: "title", type: "localizedString", validation: (rule) => rule.required() }),
     defineField({ name: "slug", type: "localizedSlug", validation: (rule) => rule.required() }),
     defineField({ name: "problem", type: "localizedText" }),
+    defineField({ name: "whatWeDo", type: "localizedText" }),
     defineField({ name: "outcome", type: "localizedText" }),
     defineField({ name: "includedItems", type: "array", of: [defineArrayMember({ type: "localizedString" })] }),
     defineField({ name: "deliveryTime", type: "localizedString" }),
@@ -199,6 +202,7 @@ const solution = defineType({
     defineField({ name: "visuals", type: "array", of: [defineArrayMember({ type: "image" })] }),
     defineField({ name: "seo", type: "localizedSeo" }),
     defineField({ name: "isFeatured", type: "boolean", initialValue: false }),
+    defineField({ name: "isHidden", type: "boolean", initialValue: false }),
     defineField({ name: "order", type: "number", initialValue: 100 }),
   ],
 });
@@ -216,6 +220,9 @@ const packageType = defineType({
     defineField({ name: "price", type: "string" }),
     defineField({ name: "ctaLabel", type: "localizedString" }),
     defineField({ name: "active", type: "boolean", initialValue: true }),
+    defineField({ name: "isFeatured", type: "boolean", initialValue: false }),
+    defineField({ name: "isHidden", type: "boolean", initialValue: false }),
+    defineField({ name: "order", type: "number", initialValue: 100 }),
     defineField({ name: "displayOrder", type: "number", initialValue: 100 }),
     defineField({ name: "seo", type: "localizedSeo" }),
   ],
@@ -236,6 +243,9 @@ const portfolioProject = defineType({
     }),
     defineField({ name: "shortDescription", type: "localizedText" }),
     defineField({ name: "tags", type: "array", of: [defineArrayMember({ type: "localizedString" })] }),
+    defineField({ name: "isFeatured", type: "boolean", initialValue: false }),
+    defineField({ name: "isHidden", type: "boolean", initialValue: false }),
+    defineField({ name: "order", type: "number", initialValue: 100 }),
     defineField({ name: "displayOrder", type: "number", initialValue: 100 }),
   ],
 });
@@ -250,6 +260,10 @@ const testimonial = defineType({
     defineField({ name: "quote", type: "localizedText" }),
     defineField({ name: "rating", type: "number", validation: (rule) => rule.min(1).max(5) }),
     defineField({ name: "visible", type: "boolean", initialValue: true }),
+    defineField({ name: "isFeatured", type: "boolean", initialValue: false }),
+    defineField({ name: "isHidden", type: "boolean", initialValue: false }),
+    defineField({ name: "order", type: "number", initialValue: 100 }),
+    defineField({ name: "displayOrder", type: "number", initialValue: 100 }),
   ],
 });
 
@@ -261,6 +275,9 @@ const faqItem = defineType({
     defineField({ name: "question", type: "localizedString", validation: (rule) => rule.required() }),
     defineField({ name: "answer", type: "localizedText", validation: (rule) => rule.required() }),
     defineField({ name: "category", type: "string" }),
+    defineField({ name: "visible", type: "boolean", initialValue: true }),
+    defineField({ name: "isHidden", type: "boolean", initialValue: false }),
+    defineField({ name: "order", type: "number", initialValue: 100 }),
     defineField({ name: "displayOrder", type: "number", initialValue: 100 }),
   ],
 });

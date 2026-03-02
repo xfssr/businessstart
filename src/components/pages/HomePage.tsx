@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { Accordion } from "@/components/Accordion";
 import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { CardModule } from "@/components/CardModule";
+import { CatalogDetailsModal } from "@/components/CatalogDetailsModal";
 import { Divider } from "@/components/Divider";
 import { Grid } from "@/components/Grid";
 import { LeadForm } from "@/components/LeadForm";
@@ -13,6 +14,7 @@ import { PortfolioGallery } from "@/components/PortfolioGallery";
 import { Section } from "@/components/Section";
 import { WhatsAppLink } from "@/components/WhatsAppLink";
 import { useLocale } from "@/components/LocaleProvider";
+import { DEFAULT_SITE_URL } from "@/lib/constants";
 
 type Metric = {
   label: string;
@@ -41,11 +43,38 @@ type PortfolioItem = {
   subtitle: string;
   title: string;
   visual: string;
+  mediaType?: "image" | "video";
 };
 
 type FaqItem = {
   answer: string;
   question: string;
+};
+
+type ServiceCard = {
+  audience: string;
+  features: string[];
+  price: string;
+  slug: string;
+  timeline: string;
+  title: string;
+};
+
+type SolutionCard = {
+  outcome: string;
+  price: string;
+  problem: string;
+  slug: string;
+  timeline: string;
+  title: string;
+  whatWeDo: string;
+};
+
+type TestimonialItem = {
+  business: string;
+  name: string;
+  quote: string;
+  rating: number;
 };
 
 type ContactFormLabels = {
@@ -57,20 +86,51 @@ type ContactFormLabels = {
   title: string;
 };
 
+type GlobalContact = {
+  email?: string;
+  instagram?: string;
+  phone?: string;
+  whatsappNumber?: string;
+};
+
+function interpolateTemplate(template: string, values: Record<string, string>) {
+  return template.replace(/\{(\w+)\}/g, (_, key: string) => values[key] || "");
+}
+
+function normalizeInstagram(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
+  return `https://instagram.com/${trimmed.replace(/^@/, "")}`;
+}
+
+type ModalState =
+  | { type: "service"; card: ServiceCard }
+  | { type: "solution"; card: SolutionCard }
+  | null;
+
 export function HomePage() {
   const { get, locale, t } = useLocale();
+  const [modalState, setModalState] = useState<ModalState>(null);
 
   const metrics = get<Metric[]>("hero.metrics");
   const whatWeDoPillars = get<ListItem[]>("whatWeDo.pillars");
   const processSteps = get<Step[]>("process.steps");
   const audienceCategories = get<string[]>("audience.categories");
   const differencePoints = get<string[]>("difference.points");
-  const services = get<ListItem[]>("services.items");
   const outcomes = get<string[]>("outcomes.items");
   const portfolioItems = get<PortfolioItem[]>("portfolio.items");
   const faqItems = get<FaqItem[]>("faq.items");
   const contactChannels = get<ContactChannel[]>("contact.channels");
   const contactForm = get<ContactFormLabels>("contact.form");
+  const services = get<ServiceCard[]>("servicesPage.standardCards").slice(0, 6);
+  const solutions = get<SolutionCard[]>("solutionsPage.cards").slice(0, 5);
+  const testimonials = (get<TestimonialItem[]>("testimonials.items") || []).filter((item) => item.quote);
+  const globalContact = get<GlobalContact>("global");
+
+  const serviceTemplate = get<string>("whatsapp.serviceCardTemplate") || t("whatsapp.prefill");
+  const solutionTemplate = get<string>("whatsapp.solutionCardTemplate") || t("whatsapp.prefill");
+
   const faqSchema = useMemo(
     () => ({
       "@context": "https://schema.org",
@@ -87,19 +147,24 @@ export function HomePage() {
     [faqItems],
   );
 
-  const businessSchema = useMemo(
-    () => ({
+  const businessSchema = useMemo(() => {
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL).replace(/\/$/, "");
+    const telephone = globalContact.phone || globalContact.whatsappNumber || "";
+    const email = globalContact.email || "";
+    const instagram = normalizeInstagram(globalContact.instagram || "");
+
+    return {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       name: t("brand.name"),
       description: t("meta.description"),
       areaServed: locale === "he" ? "Israel" : "Israel, Europe",
-      telephone: "+972-50-000-0000",
-      email: "hello@businessstart.example",
-      url: `https://businessstart.vercel.app/${locale}`,
-    }),
-    [locale, t],
-  );
+      telephone,
+      email,
+      url: `${siteUrl}/${locale}`,
+      sameAs: instagram ? [instagram] : undefined,
+    };
+  }, [globalContact.email, globalContact.instagram, globalContact.phone, globalContact.whatsappNumber, locale, t]);
 
   return (
     <>
@@ -244,18 +309,103 @@ export function HomePage() {
       <Divider />
 
       <Section
-        id="solutions"
+        id="services"
         eyebrow={t("services.eyebrow")}
         title={t("services.title")}
         description={t("services.description")}
       >
-        <Grid cols={4}>
-          {services.map((service) => (
-            <CardModule key={service.title} className="flex h-full flex-col">
-              <h3 className="font-display text-2xl text-text-primary">{service.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-text-secondary">{service.description}</p>
-            </CardModule>
-          ))}
+        <Grid cols={3}>
+          {services.map((service) => {
+            const message = interpolateTemplate(serviceTemplate, {
+              title: service.title,
+              audience: service.audience,
+              timeline: service.timeline,
+              price: service.price,
+            });
+            return (
+              <CardModule key={service.slug} className="flex h-full flex-col">
+                <h3 className="font-display text-2xl text-text-primary">{service.title}</h3>
+                <p className="mt-2 text-sm text-text-secondary">{service.audience}</p>
+                <ul className="mt-4 space-y-2 text-sm text-text-secondary">
+                  {service.features.slice(0, 4).map((feature) => (
+                    <li key={feature} className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-5 border-t border-border-subtle pt-4">
+                  <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{service.timeline}</p>
+                  <p className="mt-2 text-lg font-semibold text-text-primary">{service.price}</p>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => setModalState({ type: "service", card: service })}
+                  >
+                    {t("servicesPage.cardCta")}
+                  </Button>
+                  <WhatsAppLink label={t("servicesPage.orderCta")} message={message} className="w-full" />
+                </div>
+              </CardModule>
+            );
+          })}
+        </Grid>
+      </Section>
+
+      <Divider />
+
+      <Section
+        id="solutions"
+        eyebrow={t("solutionsPage.eyebrow")}
+        title={t("solutionsPage.title")}
+        description={t("solutionsPage.description")}
+      >
+        <Grid cols={3}>
+          {solutions.map((solution) => {
+            const message = interpolateTemplate(solutionTemplate, {
+              title: solution.title,
+              problem: solution.problem,
+              outcome: solution.outcome,
+              timeline: solution.timeline,
+              price: solution.price,
+            });
+            return (
+              <CardModule key={solution.slug} className="flex h-full flex-col">
+                <h3 className="font-display text-2xl text-text-primary">{solution.title}</h3>
+                <p className="mt-2 text-sm text-text-secondary">{solution.problem}</p>
+                <div className="mt-4 space-y-2 text-sm text-text-secondary">
+                  <p>
+                    <span className="font-semibold text-text-primary">
+                      {locale === "he" ? "מה עושים:" : "What we do:"}
+                    </span>{" "}
+                    {solution.whatWeDo}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-text-primary">
+                      {locale === "he" ? "תוצאה:" : "Outcome:"}
+                    </span>{" "}
+                    {solution.outcome}
+                  </p>
+                </div>
+                <div className="mt-5 border-t border-border-subtle pt-4">
+                  <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{solution.timeline}</p>
+                  <p className="mt-2 text-lg font-semibold text-text-primary">{solution.price}</p>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => setModalState({ type: "solution", card: solution })}
+                  >
+                    {t("solutionsPage.cardCta")}
+                  </Button>
+                  <WhatsAppLink label={t("solutionsPage.orderCta")} message={message} className="w-full" />
+                </div>
+              </CardModule>
+            );
+          })}
         </Grid>
       </Section>
 
@@ -287,6 +437,28 @@ export function HomePage() {
         <PortfolioGallery items={portfolioItems} />
       </Section>
 
+      {testimonials.length ? (
+        <>
+          <Divider />
+          <Section
+            id="testimonials"
+            eyebrow={t("testimonials.eyebrow")}
+            title={t("testimonials.title")}
+            description={t("testimonials.description")}
+          >
+            <Grid cols={3}>
+              {testimonials.map((item) => (
+                <CardModule key={`${item.name}-${item.quote}`}>
+                  <p className="text-sm leading-relaxed text-text-secondary">{item.quote}</p>
+                  <p className="mt-4 text-sm font-semibold text-text-primary">{item.name}</p>
+                  <p className="text-xs tracking-[0.14em] text-text-muted uppercase">{item.business}</p>
+                </CardModule>
+              ))}
+            </Grid>
+          </Section>
+        </>
+      ) : null}
+
       <Divider />
 
       <Section
@@ -308,11 +480,7 @@ export function HomePage() {
       >
         <CardModule className="border-border-strong bg-surface-overlay">
           <div className="flex flex-wrap items-center gap-3">
-            <WhatsAppLink
-              label={t("cta.primaryCta")}
-              message={t("whatsapp.prefill")}
-              className="min-w-52"
-            />
+            <WhatsAppLink label={t("cta.primaryCta")} message={t("whatsapp.prefill")} className="min-w-52" />
             <Button href={`/${locale}/contact`} variant="secondary" className="min-w-44">
               {t("cta.secondaryCta")}
             </Button>
@@ -331,18 +499,12 @@ export function HomePage() {
         <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
           <CardModule className="space-y-6">
             <div className="flex flex-wrap gap-3">
-              <WhatsAppLink
-                label={t("contact.primaryCta")}
-                message={t("whatsapp.prefill")}
-                className="min-w-52"
-              />
+              <WhatsAppLink label={t("contact.primaryCta")} message={t("whatsapp.prefill")} className="min-w-52" />
               <Button href={`/${locale}/services`} variant="secondary" className="min-w-44">
                 {t("contact.secondaryCta")}
               </Button>
             </div>
-            <p className="max-w-xl text-sm leading-relaxed text-text-secondary">
-              {t("contact.description")}
-            </p>
+            <p className="max-w-xl text-sm leading-relaxed text-text-secondary">{t("contact.description")}</p>
             <LeadForm labels={contactForm} />
           </CardModule>
           <CardModule>
@@ -360,6 +522,52 @@ export function HomePage() {
           </CardModule>
         </div>
       </Section>
+
+      <CatalogDetailsModal
+        open={Boolean(modalState)}
+        onClose={() => setModalState(null)}
+        title={modalState?.card.title || ""}
+        closeLabel={t("ui.close")}
+      >
+        {modalState?.type === "service" ? (
+          <div className="space-y-4 text-sm leading-relaxed text-text-secondary">
+            <p>{modalState.card.audience}</p>
+            <ul className="space-y-2">
+              {modalState.card.features.map((feature) => (
+                <li key={feature} className="flex items-start gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t border-border-subtle pt-4">
+              <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{modalState.card.timeline}</p>
+              <p className="mt-2 text-base font-semibold text-text-primary">{modalState.card.price}</p>
+            </div>
+          </div>
+        ) : null}
+        {modalState?.type === "solution" ? (
+          <div className="space-y-4 text-sm leading-relaxed text-text-secondary">
+            <p>{modalState.card.problem}</p>
+            <p>
+              <span className="font-semibold text-text-primary">
+                {locale === "he" ? "מה עושים:" : "What we do:"}
+              </span>{" "}
+              {modalState.card.whatWeDo}
+            </p>
+            <p>
+              <span className="font-semibold text-text-primary">
+                {locale === "he" ? "תוצאה:" : "Outcome:"}
+              </span>{" "}
+              {modalState.card.outcome}
+            </p>
+            <div className="border-t border-border-subtle pt-4">
+              <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{modalState.card.timeline}</p>
+              <p className="mt-2 text-base font-semibold text-text-primary">{modalState.card.price}</p>
+            </div>
+          </div>
+        ) : null}
+      </CatalogDetailsModal>
     </>
   );
 }

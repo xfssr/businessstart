@@ -15,10 +15,12 @@ type ServiceCard = {
 };
 
 type SolutionCard = {
+  problem: string;
+  whatWeDo: string;
+  outcome: string;
+  timeline: string;
   title: string;
-  fit: string;
   price: string;
-  include: string[];
   slug?: string;
 };
 
@@ -75,6 +77,9 @@ type AdminState = SeoFields & {
   heroPrimaryCta: string;
   heroSecondaryCta: string;
   whatsappNumber: string;
+  phone: string;
+  email: string;
+  instagram: string;
   navStickyCta: string;
   navPrimaryCta: string;
   navSecondaryCta: string;
@@ -201,6 +206,9 @@ function createInitialState(messages: Record<string, unknown>): AdminState {
     heroPrimaryCta: String(hero.primaryCta ?? ""),
     heroSecondaryCta: String(hero.secondaryCta ?? ""),
     whatsappNumber: String(global.whatsappNumber ?? ""),
+    phone: String(global.phone ?? ""),
+    email: String(global.email ?? ""),
+    instagram: String(global.instagram ?? ""),
     navStickyCta: String(nav.stickyCta ?? ""),
     navPrimaryCta: String(nav.primaryCta ?? ""),
     navSecondaryCta: String(nav.secondaryCta ?? ""),
@@ -238,8 +246,13 @@ function createInitialState(messages: Record<string, unknown>): AdminState {
       features: card.features ?? [],
     })),
     solutionCards: ((solutionsPage.cards as SolutionCard[]) ?? []).map((card) => ({
-      ...card,
-      include: card.include ?? [],
+      title: String(card.title ?? ""),
+      problem: String((card as { problem?: string; fit?: string }).problem ?? (card as { fit?: string }).fit ?? ""),
+      whatWeDo: String((card as { whatWeDo?: string }).whatWeDo ?? ""),
+      outcome: String((card as { outcome?: string }).outcome ?? ""),
+      timeline: String((card as { timeline?: string }).timeline ?? ""),
+      price: String(card.price ?? ""),
+      slug: card.slug,
     })),
     pricingTiers: ((pricingPage.tiers as PricingTier[]) ?? []).map((tier) => ({
       ...tier,
@@ -330,7 +343,15 @@ function mapStateToPatch(state: AdminState) {
     solutionsPage: {
       metaTitle: state.solutionsMetaTitle,
       metaDescription: state.solutionsMetaDescription,
-      cards: state.solutionCards,
+      cards: state.solutionCards.map((card) => ({
+        title: card.title,
+        problem: card.problem,
+        whatWeDo: card.whatWeDo,
+        outcome: card.outcome,
+        timeline: card.timeline,
+        price: card.price,
+        slug: card.slug,
+      })),
     },
     pricingPage: {
       metaTitle: state.pricingMetaTitle,
@@ -355,6 +376,9 @@ function mapStateToPatch(state: AdminState) {
     },
     global: {
       whatsappNumber: state.whatsappNumber,
+      phone: state.phone,
+      email: state.email,
+      instagram: state.instagram,
     },
   };
 }
@@ -510,7 +534,6 @@ export function StartStudioAdmin() {
   function updateSolutionCard(index: number, key: keyof SolutionCard, value: string) {
     if (!state) return;
     const updated = [...state.solutionCards];
-    if (key === "include") return;
     updated[index] = { ...updated[index], [key]: value };
     setState({ ...state, solutionCards: updated });
   }
@@ -657,6 +680,26 @@ export function StartStudioAdmin() {
               className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
               placeholder="WhatsApp number (972...)"
             />
+            <div className="grid gap-3 sm:grid-cols-3">
+              <input
+                value={state.phone}
+                onChange={(event) => setState({ ...state, phone: event.target.value })}
+                className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+                placeholder="Phone"
+              />
+              <input
+                value={state.email}
+                onChange={(event) => setState({ ...state, email: event.target.value })}
+                className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+                placeholder="Email"
+              />
+              <input
+                value={state.instagram}
+                onChange={(event) => setState({ ...state, instagram: event.target.value })}
+                className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+                placeholder="Instagram username or URL"
+              />
+            </div>
           </section>
 
           <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
@@ -700,6 +743,12 @@ export function StartStudioAdmin() {
               <input value={state.solutionsMetaDescription} onChange={(event) => setState({ ...state, solutionsMetaDescription: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Solutions meta description" />
               <input value={state.pricingMetaTitle} onChange={(event) => setState({ ...state, pricingMetaTitle: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Pricing meta title" />
               <input value={state.pricingMetaDescription} onChange={(event) => setState({ ...state, pricingMetaDescription: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Pricing meta description" />
+              <input value={state.portfolioMetaTitle} onChange={(event) => setState({ ...state, portfolioMetaTitle: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Portfolio meta title" />
+              <input value={state.portfolioMetaDescription} onChange={(event) => setState({ ...state, portfolioMetaDescription: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Portfolio meta description" />
+              <input value={state.aboutMetaTitle} onChange={(event) => setState({ ...state, aboutMetaTitle: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="About meta title" />
+              <input value={state.aboutMetaDescription} onChange={(event) => setState({ ...state, aboutMetaDescription: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="About meta description" />
+              <input value={state.contactMetaTitle} onChange={(event) => setState({ ...state, contactMetaTitle: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact meta title" />
+              <input value={state.contactMetaDescription} onChange={(event) => setState({ ...state, contactMetaDescription: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact meta description" />
             </div>
           </section>
 
@@ -717,7 +766,10 @@ export function StartStudioAdmin() {
             {state.solutionCards.map((card, index) => (
               <div key={`${card.title}-${index}`} className="grid gap-2 rounded-lg border border-border-subtle p-3">
                 <input value={card.title} onChange={(event) => updateSolutionCard(index, "title", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Solution title" />
-                <input value={card.fit} onChange={(event) => updateSolutionCard(index, "fit", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Problem / fit" />
+                <input value={card.problem} onChange={(event) => updateSolutionCard(index, "problem", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Problem" />
+                <input value={card.whatWeDo} onChange={(event) => updateSolutionCard(index, "whatWeDo", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="What we do" />
+                <input value={card.outcome} onChange={(event) => updateSolutionCard(index, "outcome", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Outcome" />
+                <input value={card.timeline} onChange={(event) => updateSolutionCard(index, "timeline", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Timeline" />
                 <input value={card.price} onChange={(event) => updateSolutionCard(index, "price", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Price" />
                 <input value={card.slug ?? ""} onChange={(event) => updateSolutionCard(index, "slug", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Slug" />
               </div>
@@ -743,6 +795,7 @@ export function StartStudioAdmin() {
             <textarea value={state.faqItemsText} onChange={(event) => setState({ ...state, faqItemsText: event.target.value })} rows={6} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="FAQ: question | answer" />
             <textarea value={state.contactChannelsText} onChange={(event) => setState({ ...state, contactChannelsText: event.target.value })} rows={5} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact channels: label | value" />
             <input value={state.footerNote} onChange={(event) => setState({ ...state, footerNote: event.target.value })} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Footer note" />
+            <input value={state.footerCopyright} onChange={(event) => setState({ ...state, footerCopyright: event.target.value })} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Footer copyright" />
           </section>
 
           <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
