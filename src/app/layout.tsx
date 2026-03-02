@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Rubik, Suez_One } from "next/font/google";
 
+import { AssistLoopWidget } from "@/components/AssistLoopWidget";
 import { DEFAULT_SITE_URL } from "@/lib/constants";
 
 import "./globals.css";
@@ -39,6 +40,7 @@ export default function RootLayout({
         className={`${uiFont.variable} ${headingFont.variable} min-h-screen bg-surface-base font-sans text-text-primary antialiased`}
       >
         {children}
+        <AssistLoopWidget />
       </body>
     </html>
   );
