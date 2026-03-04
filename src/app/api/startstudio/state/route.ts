@@ -23,13 +23,13 @@ export async function GET(request: Request) {
   ]);
 
   const mediaLibrary = content.mediaLibrary
-    .filter((item) => item.locale === locale)
+    .filter((item) => item.locale === locale || item.locale === "all")
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   return NextResponse.json({
     locale,
     messages,
-    source: "sanity",
+    source: "blob",
     legacyPatch: content.locales[locale]?.messages ?? null,
     mediaLibrary,
     updatedAt: content.updatedAt,

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-import { sanityWriteClient } from "@/sanity/lib/client";
+import { put } from "@vercel/blob";
 
 type LeadBody = {
   name?: string;
@@ -36,21 +35,32 @@ export async function POST(request: Request) {
   }
 
   try {
-    if (process.env.SANITY_API_WRITE_TOKEN) {
-      await sanityWriteClient.create({
-        _type: "lead",
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const createdAt = new Date().toISOString();
+      const payload = {
+        id: crypto.randomUUID(),
         name,
         phone,
         business,
         message,
         locale,
         sourcePath,
-        createdAt: new Date().toISOString(),
+        createdAt,
+      };
+
+      const day = createdAt.slice(0, 10);
+      const pathname = `startstudio/leads/${day}/${payload.id}.json`;
+      await put(pathname, JSON.stringify(payload, null, 2), {
+        access: "private",
+        addRandomSuffix: false,
+        allowOverwrite: false,
+        contentType: "application/json; charset=utf-8",
       });
-      return NextResponse.json({ ok: true, stored: "sanity" }, { status: 201 });
+
+      return NextResponse.json({ ok: true, stored: "blob" }, { status: 201 });
     }
 
-    return NextResponse.json({ ok: true, stored: "skipped_no_write_token" }, { status: 202 });
+    return NextResponse.json({ ok: true, stored: "skipped_no_blob_token" }, { status: 202 });
   } catch {
     return NextResponse.json({ error: "Could not store lead" }, { status: 500 });
   }

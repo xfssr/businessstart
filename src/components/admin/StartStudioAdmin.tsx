@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import Image from "next/image";
 
 import { cn } from "@/lib/cn";
 import { type Locale } from "@/lib/constants";
@@ -44,7 +45,7 @@ type MediaItem = {
   id: string;
   title: string;
   url: string;
-  locale: Locale;
+  locale: Locale | "all";
   type: "image" | "video";
   createdAt: string;
 };
@@ -109,6 +110,24 @@ type MediaFormState = {
   portfolioIdsText: string;
 };
 
+type MediaAssetDraft = {
+  title: string;
+  caption: string;
+  category: string;
+  locale: Locale | "all";
+  alt: string;
+  linkUrl: string;
+  includeHome: boolean;
+  serviceIdsText: string;
+  solutionIdsText: string;
+  portfolioIdsText: string;
+};
+
+type MediaDimensions = {
+  width: number;
+  height: number;
+};
+
 const MEDIA_CATEGORY_OPTIONS = [
   "restaurant",
   "bar",
@@ -121,6 +140,29 @@ const MEDIA_CATEGORY_OPTIONS = [
   "socialContent",
   "general",
 ] as const;
+
+const MAX_VIDEO_FILE_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
+const MAX_IMAGE_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
+const MIN_SHORT_SIDE_PX = 720;
+const MAX_SHORT_SIDE_PX = 1080;
+const MAX_LONG_SIDE_PX = 1920;
+
+type AdminTabId =
+  | "foundation"
+  | "sections"
+  | "seo"
+  | "offers"
+  | "portfolio"
+  | "media";
+
+const ADMIN_TABS: Array<{ id: AdminTabId; label: string }> = [
+  { id: "foundation", label: "Foundation" },
+  { id: "sections", label: "Sections" },
+  { id: "seo", label: "SEO" },
+  { id: "offers", label: "Offers" },
+  { id: "portfolio", label: "Portfolio" },
+  { id: "media", label: "Media" },
+];
 
 type SeoFields = {
   servicesMetaTitle: string;
@@ -244,6 +286,174 @@ function createInitialMediaForm(locale: Locale): MediaFormState {
     solutionIdsText: "",
     portfolioIdsText: "",
   };
+}
+
+function createEmptyServiceCard(): ServiceCard {
+  return {
+    title: "",
+    audience: "",
+    timeline: "",
+    price: "",
+    slug: "",
+    features: [],
+  };
+}
+
+function createEmptySolutionCard(): SolutionCard {
+  return {
+    title: "",
+    problem: "",
+    whatWeDo: "",
+    outcome: "",
+    timeline: "",
+    price: "",
+    slug: "",
+  };
+}
+
+function createEmptyPricingTier(): PricingTier {
+  return {
+    title: "",
+    audience: "",
+    price: "",
+    features: [],
+  };
+}
+
+function createEmptyPortfolioItem(): PortfolioItem {
+  return {
+    title: "",
+    subtitle: "",
+    metric: "",
+    visual: "",
+    alt: "",
+    mediaType: "image",
+  };
+}
+
+function moveArrayItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
+  const nextIndex = index + direction;
+  if (index < 0 || index >= items.length) return items;
+  if (nextIndex < 0 || nextIndex >= items.length) return items;
+  const next = [...items];
+  const [item] = next.splice(index, 1);
+  next.splice(nextIndex, 0, item);
+  return next;
+}
+
+function createMediaAssetDraft(asset: LibraryMediaItem): MediaAssetDraft {
+  return {
+    title: asset.title,
+    caption: asset.caption,
+    category: asset.category || "general",
+    locale: asset.locale,
+    alt: asset.alt,
+    linkUrl: asset.linkUrl,
+    includeHome: asset.assignments.home || asset.linkedTo.includes("home"),
+    serviceIdsText: asset.assignments.serviceIds.join(","),
+    solutionIdsText: asset.assignments.solutionIds.join(","),
+    portfolioIdsText: asset.assignments.portfolioIds.join(","),
+  };
+}
+
+function isLikelyVideoFile(file: File) {
+  return file.type.startsWith("video/") || /\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(file.name);
+}
+
+function isLikelyImageFile(file: File) {
+  return file.type.startsWith("image/") || /\.(png|jpe?g|gif|webp|svg|avif|bmp|tiff?)$/i.test(file.name);
+}
+
+function formatMegabytes(bytes: number) {
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+function isResolutionInAllowedRange({ width, height }: MediaDimensions) {
+  const shortSide = Math.min(width, height);
+  const longSide = Math.max(width, height);
+  return (
+    shortSide >= MIN_SHORT_SIDE_PX &&
+    shortSide <= MAX_SHORT_SIDE_PX &&
+    longSide <= MAX_LONG_SIDE_PX
+  );
+}
+
+function getResolutionHint() {
+  return `short side ${MIN_SHORT_SIDE_PX}-${MAX_SHORT_SIDE_PX}px, long side up to ${MAX_LONG_SIDE_PX}px`;
+}
+
+function readImageDimensions(file: File): Promise<MediaDimensions> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new window.Image();
+    image.onload = () => {
+      resolve({
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+      });
+      URL.revokeObjectURL(objectUrl);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Could not read image metadata"));
+    };
+    image.src = objectUrl;
+  });
+}
+
+function readVideoDimensions(file: File): Promise<MediaDimensions> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const cleanup = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      video.removeAttribute("src");
+      video.load();
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      resolve({
+        width: video.videoWidth,
+        height: video.videoHeight,
+      });
+      cleanup();
+    };
+    video.onerror = () => {
+      cleanup();
+      reject(new Error("Could not read video metadata"));
+    };
+
+    timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error("Timed out while reading video metadata"));
+    }, 8000);
+
+    video.src = objectUrl;
+  });
+}
+
+async function validateUploadFile(file: File, mediaType: "image" | "video", label: "Image" | "Video" | "Poster") {
+  const maxBytes = mediaType === "video" ? MAX_VIDEO_FILE_SIZE_BYTES : MAX_IMAGE_FILE_SIZE_BYTES;
+  if (file.size > maxBytes) {
+    throw new Error(`${label} file is too large. Max ${formatMegabytes(maxBytes)}.`);
+  }
+
+  const dimensions =
+    mediaType === "video" ? await readVideoDimensions(file) : await readImageDimensions(file);
+
+  if (!isResolutionInAllowedRange(dimensions)) {
+    throw new Error(
+      `${label} resolution ${dimensions.width}x${dimensions.height} is outside allowed range (${getResolutionHint()}).`,
+    );
+  }
+
+  return dimensions;
 }
 
 function createInitialState(messages: Record<string, unknown>): AdminState {
@@ -484,8 +694,9 @@ export function StartStudioAdmin() {
   const [saving, setSaving] = useState(false);
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
-  const [migrating, setMigrating] = useState(false);
   const [state, setState] = useState<AdminState | null>(null);
+  const [activeTab, setActiveTab] = useState<AdminTabId>("foundation");
+  const [editMode, setEditMode] = useState(false);
   const [legacyMediaLibrary, setLegacyMediaLibrary] = useState<MediaItem[]>([]);
   const [mediaLibrary, setMediaLibrary] = useState<LibraryMediaItem[]>([]);
   const [mediaTargets, setMediaTargets] = useState<MediaLibraryTargets>({
@@ -497,9 +708,36 @@ export function StartStudioAdmin() {
   const [mediaForm, setMediaForm] = useState<MediaFormState>(() => createInitialMediaForm(locale));
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPosterFile, setMediaPosterFile] = useState<File | null>(null);
+  const [mediaDrafts, setMediaDrafts] = useState<Record<string, MediaAssetDraft>>({});
+  const mediaFileInputRef = useRef<HTMLInputElement | null>(null);
+  const mediaPosterInputRef = useRef<HTMLInputElement | null>(null);
   const [status, setStatus] = useState("");
 
   const localeLabel = useMemo(() => (locale === "he" ? "עברית" : "English"), [locale]);
+  const contentLocked = !editMode || saving || loading;
+  const mediaLocked = !editMode || uploadingMedia || loadingMedia;
+
+  function resetMediaUploadSelection() {
+    setMediaFile(null);
+    setMediaPosterFile(null);
+    if (mediaFileInputRef.current) mediaFileInputRef.current.value = "";
+    if (mediaPosterInputRef.current) mediaPosterInputRef.current.value = "";
+  }
+
+  function handleMediaTypeChange(nextType: "image" | "video") {
+    setMediaForm((current) => ({ ...current, type: nextType }));
+    resetMediaUploadSelection();
+  }
+
+  function updateMediaDraft(id: string, patch: Partial<MediaAssetDraft>, fallback?: MediaAssetDraft) {
+    setMediaDrafts((current) => ({
+      ...current,
+      [id]: {
+        ...(current[id] ?? fallback),
+        ...patch,
+      },
+    }));
+  }
 
   async function loadMediaLibrary(nextLocale: Locale, key: string) {
     setLoadingMedia(true);
@@ -516,7 +754,14 @@ export function StartStudioAdmin() {
       }
 
       const data = (await response.json()) as MediaLibraryResponse;
-      setMediaLibrary(data.media ?? []);
+      const nextMedia = data.media ?? [];
+      setMediaLibrary(nextMedia);
+      setMediaDrafts(
+        nextMedia.reduce<Record<string, MediaAssetDraft>>((accumulator, item) => {
+          accumulator[item.id] = createMediaAssetDraft(item);
+          return accumulator;
+        }, {}),
+      );
       setMediaTargets(
         data.targets ?? {
           homePageId: null,
@@ -551,14 +796,16 @@ export function StartStudioAdmin() {
       setLegacyMediaLibrary(data.mediaLibrary ?? []);
       await loadMediaLibrary(nextLocale, key);
       setMediaForm(createInitialMediaForm(nextLocale));
-      setMediaFile(null);
-      setMediaPosterFile(null);
+      resetMediaUploadSelection();
+      setActiveTab("foundation");
+      setEditMode(false);
       setConnected(true);
-      setStatus("Loaded from Sanity");
+      setStatus("Loaded from Blob");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to load";
       setStatus(message);
       setConnected(false);
+      setEditMode(false);
     } finally {
       setLoading(false);
     }
@@ -589,7 +836,7 @@ export function StartStudioAdmin() {
         throw new Error(payload?.error || "Save failed");
       }
 
-      setStatus("Saved to Sanity (legacy Blob fallback synced if available)");
+      setStatus("Saved to Blob");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Save failed";
       setStatus(message);
@@ -598,37 +845,46 @@ export function StartStudioAdmin() {
     }
   }
 
-  async function migrateLegacyContent() {
-    setMigrating(true);
-    setStatus("");
-    try {
-      const response = await fetch("/api/startstudio/migrate", {
-        method: "POST",
-        headers: {
-          "x-startstudio-key": secretKey,
-        },
-      });
-      const payload = (await response.json().catch(() => null)) as
-        | { ok?: boolean; migratedLocales?: number; error?: string }
-        | null;
-
-      if (!response.ok || !payload?.ok) {
-        throw new Error(payload?.error || "Migration failed");
-      }
-
-      setStatus(`Legacy blob content imported. Locales migrated: ${payload.migratedLocales ?? 0}`);
-      await loadState(locale);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Migration failed";
-      setStatus(message);
-    } finally {
-      setMigrating(false);
-    }
-  }
-
   async function createMediaAsset() {
     if (!mediaFile) {
       setStatus("Select a media file first");
+      return;
+    }
+
+    if (mediaForm.type === "image" && !isLikelyImageFile(mediaFile)) {
+      setStatus("Selected file is not an image. Switch type to Video or choose an image.");
+      return;
+    }
+
+    if (mediaForm.type === "video" && !isLikelyVideoFile(mediaFile)) {
+      setStatus("Selected file is not a video. Switch type to Image or choose a video.");
+      return;
+    }
+
+    if (mediaPosterFile && !isLikelyImageFile(mediaPosterFile)) {
+      setStatus("Poster file must be an image.");
+      return;
+    }
+
+    let mediaDimensions: MediaDimensions | null = null;
+    let posterDimensions: MediaDimensions | null = null;
+    try {
+      mediaDimensions = await validateUploadFile(
+        mediaFile,
+        mediaForm.type,
+        mediaForm.type === "video" ? "Video" : "Image",
+      );
+      if (mediaPosterFile) {
+        posterDimensions = await validateUploadFile(mediaPosterFile, "image", "Poster");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Invalid media file";
+      setStatus(message);
+      return;
+    }
+
+    if (!mediaDimensions) {
+      setStatus("Could not validate media file dimensions.");
       return;
     }
 
@@ -664,8 +920,14 @@ export function StartStudioAdmin() {
       formData.append("solutionIds", solutionIds.join(","));
       formData.append("portfolioIds", portfolioIds.join(","));
       formData.append("file", mediaFile);
+      formData.append("mediaWidth", String(mediaDimensions.width));
+      formData.append("mediaHeight", String(mediaDimensions.height));
       if (mediaPosterFile) {
         formData.append("posterFile", mediaPosterFile);
+      }
+      if (posterDimensions) {
+        formData.append("posterWidth", String(posterDimensions.width));
+        formData.append("posterHeight", String(posterDimensions.height));
       }
 
       const response = await fetch("/api/startstudio/media-library", {
@@ -683,8 +945,7 @@ export function StartStudioAdmin() {
 
       await loadMediaLibrary(locale, secretKey);
       setMediaForm(createInitialMediaForm(locale));
-      setMediaFile(null);
-      setMediaPosterFile(null);
+      resetMediaUploadSelection();
       setStatus("Media asset created");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Media upload failed";
@@ -742,11 +1003,64 @@ export function StartStudioAdmin() {
     }
   }
 
+  async function saveMediaAssetDraft(asset: LibraryMediaItem) {
+    const draft = mediaDrafts[asset.id] ?? createMediaAssetDraft(asset);
+    const serviceIds = parseIdList(draft.serviceIdsText);
+    const solutionIds = parseIdList(draft.solutionIdsText);
+    const portfolioIds = parseIdList(draft.portfolioIdsText);
+
+    const linkedTo = new Set<string>();
+    if (draft.includeHome) linkedTo.add("home");
+    if (serviceIds.length) linkedTo.add("service");
+    if (solutionIds.length) linkedTo.add("solution");
+    if (portfolioIds.length) linkedTo.add("portfolio");
+    if (!linkedTo.size) linkedTo.add("general");
+
+    await patchMediaAsset(asset.id, {
+      title: draft.title.trim(),
+      caption: draft.caption.trim(),
+      category: draft.category,
+      locale: draft.locale,
+      alt: draft.alt.trim(),
+      linkUrl: draft.linkUrl.trim(),
+      linkedTo: Array.from(linkedTo),
+      placement: {
+        includeHome: draft.includeHome,
+        serviceIds,
+        solutionIds,
+        portfolioIds,
+      },
+    });
+  }
+
   function updateServiceCard(index: number, key: keyof ServiceCard, value: string) {
     if (!state) return;
     const updated = [...state.standardCards];
     if (key === "features") return;
     updated[index] = { ...updated[index], [key]: value };
+    setState({ ...state, standardCards: updated });
+  }
+
+  function moveServiceCard(index: number, direction: -1 | 1) {
+    if (!state) return;
+    setState({ ...state, standardCards: moveArrayItem(state.standardCards, index, direction) });
+  }
+
+  function removeServiceCard(index: number) {
+    if (!state) return;
+    const updated = state.standardCards.filter((_, itemIndex) => itemIndex !== index);
+    setState({ ...state, standardCards: updated });
+  }
+
+  function addServiceCard() {
+    if (!state) return;
+    setState({ ...state, standardCards: [...state.standardCards, createEmptyServiceCard()] });
+  }
+
+  function updateServiceCardFeatures(index: number, value: string) {
+    if (!state) return;
+    const updated = [...state.standardCards];
+    updated[index] = { ...updated[index], features: parseLines(value) };
     setState({ ...state, standardCards: updated });
   }
 
@@ -757,11 +1071,50 @@ export function StartStudioAdmin() {
     setState({ ...state, solutionCards: updated });
   }
 
+  function moveSolutionCard(index: number, direction: -1 | 1) {
+    if (!state) return;
+    setState({ ...state, solutionCards: moveArrayItem(state.solutionCards, index, direction) });
+  }
+
+  function removeSolutionCard(index: number) {
+    if (!state) return;
+    const updated = state.solutionCards.filter((_, itemIndex) => itemIndex !== index);
+    setState({ ...state, solutionCards: updated });
+  }
+
+  function addSolutionCard() {
+    if (!state) return;
+    setState({ ...state, solutionCards: [...state.solutionCards, createEmptySolutionCard()] });
+  }
+
   function updatePricingTier(index: number, key: keyof PricingTier, value: string) {
     if (!state) return;
     const updated = [...state.pricingTiers];
     if (key === "features") return;
     updated[index] = { ...updated[index], [key]: value };
+    setState({ ...state, pricingTiers: updated });
+  }
+
+  function movePricingTier(index: number, direction: -1 | 1) {
+    if (!state) return;
+    setState({ ...state, pricingTiers: moveArrayItem(state.pricingTiers, index, direction) });
+  }
+
+  function removePricingTier(index: number) {
+    if (!state) return;
+    const updated = state.pricingTiers.filter((_, itemIndex) => itemIndex !== index);
+    setState({ ...state, pricingTiers: updated });
+  }
+
+  function addPricingTier() {
+    if (!state) return;
+    setState({ ...state, pricingTiers: [...state.pricingTiers, createEmptyPricingTier()] });
+  }
+
+  function updatePricingTierFeatures(index: number, value: string) {
+    if (!state) return;
+    const updated = [...state.pricingTiers];
+    updated[index] = { ...updated[index], features: parseLines(value) };
     setState({ ...state, pricingTiers: updated });
   }
 
@@ -772,15 +1125,31 @@ export function StartStudioAdmin() {
     setState({ ...state, portfolioItems: updated });
   }
 
+  function movePortfolioItem(index: number, direction: -1 | 1) {
+    if (!state) return;
+    setState({ ...state, portfolioItems: moveArrayItem(state.portfolioItems, index, direction) });
+  }
+
+  function removePortfolioItem(index: number) {
+    if (!state) return;
+    const updated = state.portfolioItems.filter((_, itemIndex) => itemIndex !== index);
+    setState({ ...state, portfolioItems: updated });
+  }
+
+  function addPortfolioItem() {
+    if (!state) return;
+    setState({ ...state, portfolioItems: [...state.portfolioItems, createEmptyPortfolioItem()] });
+  }
+
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-5 py-10 text-text-primary sm:px-8">
       <h1 className="font-display text-4xl">StartStudio Admin v2</h1>
       <p className="text-sm text-text-secondary">
-        Sanity-first editor for copy, product cards, pricing, SEO snippets, and media library assets.
+        Blob-first editor for copy, product cards, pricing, SEO snippets, and media library assets.
       </p>
 
       <div className="rounded-xl border border-border-subtle bg-surface-elevated p-4">
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto_auto_auto]">
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto_auto]">
           <input
             value={secretKey}
             onChange={(event) => setSecretKey(event.target.value)}
@@ -808,16 +1177,8 @@ export function StartStudioAdmin() {
           </button>
           <button
             type="button"
-            onClick={migrateLegacyContent}
-            disabled={!connected || migrating}
-            className="rounded-lg border border-border-strong bg-surface-base px-4 py-2 text-sm font-semibold"
-          >
-            {migrating ? "Migrating..." : "Import Legacy Blob"}
-          </button>
-          <button
-            type="button"
             onClick={saveState}
-            disabled={!connected || saving || !state}
+            disabled={!connected || saving || !state || !editMode}
             className={cn(
               "rounded-lg px-4 py-2 text-sm font-semibold",
               connected ? "border border-accent bg-accent text-white" : "border border-border-subtle bg-surface-base",
@@ -826,13 +1187,50 @@ export function StartStudioAdmin() {
             {saving ? "Saving..." : "Save"}
           </button>
         </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <label className="inline-flex items-center gap-2 text-xs font-semibold text-text-secondary">
+            <input
+              type="checkbox"
+              checked={editMode}
+              onChange={(event) => setEditMode(event.target.checked)}
+              disabled={!connected || !state}
+            />
+            Edit mode
+          </label>
+          <p className="text-xs text-text-muted">
+            {editMode
+              ? "Editing enabled. Review and press Save to publish changes."
+              : "Editing locked. Turn on Edit mode to modify content."}
+          </p>
+        </div>
         <p className="mt-2 text-xs text-text-muted">{status}</p>
       </div>
 
       {state ? (
         <>
-          <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
+          <section className="rounded-xl border border-border-subtle bg-surface-elevated p-4">
+            <div className="flex flex-wrap gap-2">
+              {ADMIN_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "rounded-lg border px-3 py-1.5 text-xs font-semibold",
+                    activeTab === tab.id
+                      ? "border-accent bg-accent text-white"
+                      : "border-border-subtle bg-surface-base text-text-secondary",
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className={cn("space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "foundation" && "hidden")}>
             <h2 className="font-display text-2xl">Navigation / Hero</h2>
+            <fieldset disabled={contentLocked} className={cn("space-y-3", contentLocked && "opacity-80")}>
             <div className="grid gap-3 sm:grid-cols-2">
               <input
                 value={state.navStickyCta}
@@ -879,6 +1277,12 @@ export function StartStudioAdmin() {
               className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
               placeholder="Hero description"
             />
+            <input
+              value={state.heroTrust}
+              onChange={(event) => setState({ ...state, heroTrust: event.target.value })}
+              className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+              placeholder="Hero trust line"
+            />
             <div className="grid gap-3 sm:grid-cols-2">
               <input
                 value={state.heroPrimaryCta}
@@ -919,10 +1323,26 @@ export function StartStudioAdmin() {
                 placeholder="Instagram username or URL"
               />
             </div>
+            </fieldset>
           </section>
 
-          <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
+          <section className={cn("space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "sections" && "hidden")}>
             <h2 className="font-display text-2xl">Business Flow Blocks</h2>
+            <fieldset disabled={contentLocked} className={cn("space-y-3", contentLocked && "opacity-80")}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input
+                value={state.processTitle}
+                onChange={(event) => setState({ ...state, processTitle: event.target.value })}
+                className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+                placeholder="Process title"
+              />
+              <input
+                value={state.processDescription}
+                onChange={(event) => setState({ ...state, processDescription: event.target.value })}
+                className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+                placeholder="Process description"
+              />
+            </div>
             <textarea
               value={state.processStepsText}
               onChange={(event) => setState({ ...state, processStepsText: event.target.value })}
@@ -944,6 +1364,12 @@ export function StartStudioAdmin() {
               className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
               placeholder="Difference points (one per line)"
             />
+            <input
+              value={state.differenceCallout}
+              onChange={(event) => setState({ ...state, differenceCallout: event.target.value })}
+              className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+              placeholder="Difference callout"
+            />
             <textarea
               value={state.outcomesItemsText}
               onChange={(event) => setState({ ...state, outcomesItemsText: event.target.value })}
@@ -951,10 +1377,12 @@ export function StartStudioAdmin() {
               className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
               placeholder="Outcome items (one per line)"
             />
+            </fieldset>
           </section>
 
-          <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
+          <section className={cn("space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "seo" && "hidden")}>
             <h2 className="font-display text-2xl">SEO Snippets</h2>
+            <fieldset disabled={contentLocked} className={cn("space-y-3", contentLocked && "opacity-80")}>
             <div className="grid gap-3 sm:grid-cols-2">
               <input value={state.servicesMetaTitle} onChange={(event) => setState({ ...state, servicesMetaTitle: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Services meta title" />
               <input value={state.servicesMetaDescription} onChange={(event) => setState({ ...state, servicesMetaDescription: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Services meta description" />
@@ -969,21 +1397,95 @@ export function StartStudioAdmin() {
               <input value={state.contactMetaTitle} onChange={(event) => setState({ ...state, contactMetaTitle: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact meta title" />
               <input value={state.contactMetaDescription} onChange={(event) => setState({ ...state, contactMetaDescription: event.target.value })} className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact meta description" />
             </div>
+            </fieldset>
           </section>
 
-          <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
+          <section className={cn("space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "offers" && "hidden")}>
             <h2 className="font-display text-2xl">Cards & Pricing</h2>
+            <fieldset disabled={contentLocked} className={cn("space-y-3", contentLocked && "opacity-80")}>
+            <p className="text-xs font-semibold tracking-[0.12em] text-text-muted uppercase">Services</p>
             {state.standardCards.map((card, index) => (
               <div key={`${card.title}-${index}`} className="grid gap-2 rounded-lg border border-border-subtle p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-text-muted">Service #{index + 1}</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => moveServiceCard(index, -1)}
+                      disabled={index === 0}
+                      className="rounded border border-border-subtle px-2 py-1 text-xs disabled:opacity-50"
+                    >
+                      Up
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveServiceCard(index, 1)}
+                      disabled={index === state.standardCards.length - 1}
+                      className="rounded border border-border-subtle px-2 py-1 text-xs disabled:opacity-50"
+                    >
+                      Down
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeServiceCard(index)}
+                      className="rounded border border-red-300 px-2 py-1 text-xs text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
                 <input value={card.title} onChange={(event) => updateServiceCard(index, "title", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Service title" />
                 <input value={card.audience} onChange={(event) => updateServiceCard(index, "audience", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Audience" />
                 <input value={card.timeline} onChange={(event) => updateServiceCard(index, "timeline", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Timeline" />
                 <input value={card.price} onChange={(event) => updateServiceCard(index, "price", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Price" />
                 <input value={card.slug ?? ""} onChange={(event) => updateServiceCard(index, "slug", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Slug" />
+                <textarea
+                  value={toLines(card.features)}
+                  onChange={(event) => updateServiceCardFeatures(index, event.target.value)}
+                  rows={4}
+                  className="w-full rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm"
+                  placeholder="Features (one per line)"
+                />
               </div>
             ))}
+            <button
+              type="button"
+              onClick={addServiceCard}
+              className="rounded border border-border-subtle bg-surface-base px-3 py-2 text-xs font-semibold"
+            >
+              Add service card
+            </button>
+            <p className="pt-2 text-xs font-semibold tracking-[0.12em] text-text-muted uppercase">Solutions</p>
             {state.solutionCards.map((card, index) => (
               <div key={`${card.title}-${index}`} className="grid gap-2 rounded-lg border border-border-subtle p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-text-muted">Solution #{index + 1}</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => moveSolutionCard(index, -1)}
+                      disabled={index === 0}
+                      className="rounded border border-border-subtle px-2 py-1 text-xs disabled:opacity-50"
+                    >
+                      Up
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveSolutionCard(index, 1)}
+                      disabled={index === state.solutionCards.length - 1}
+                      className="rounded border border-border-subtle px-2 py-1 text-xs disabled:opacity-50"
+                    >
+                      Down
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeSolutionCard(index)}
+                      className="rounded border border-red-300 px-2 py-1 text-xs text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
                 <input value={card.title} onChange={(event) => updateSolutionCard(index, "title", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Solution title" />
                 <input value={card.problem} onChange={(event) => updateSolutionCard(index, "problem", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Problem" />
                 <input value={card.whatWeDo} onChange={(event) => updateSolutionCard(index, "whatWeDo", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="What we do" />
@@ -993,13 +1495,63 @@ export function StartStudioAdmin() {
                 <input value={card.slug ?? ""} onChange={(event) => updateSolutionCard(index, "slug", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Slug" />
               </div>
             ))}
+            <button
+              type="button"
+              onClick={addSolutionCard}
+              className="rounded border border-border-subtle bg-surface-base px-3 py-2 text-xs font-semibold"
+            >
+              Add solution card
+            </button>
+            <p className="pt-2 text-xs font-semibold tracking-[0.12em] text-text-muted uppercase">Pricing tiers</p>
             {state.pricingTiers.map((tier, index) => (
               <div key={`${tier.title}-${index}`} className="grid gap-2 rounded-lg border border-border-subtle p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-text-muted">Tier #{index + 1}</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => movePricingTier(index, -1)}
+                      disabled={index === 0}
+                      className="rounded border border-border-subtle px-2 py-1 text-xs disabled:opacity-50"
+                    >
+                      Up
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => movePricingTier(index, 1)}
+                      disabled={index === state.pricingTiers.length - 1}
+                      className="rounded border border-border-subtle px-2 py-1 text-xs disabled:opacity-50"
+                    >
+                      Down
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removePricingTier(index)}
+                      className="rounded border border-red-300 px-2 py-1 text-xs text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
                 <input value={tier.title} onChange={(event) => updatePricingTier(index, "title", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Tier title" />
                 <input value={tier.audience} onChange={(event) => updatePricingTier(index, "audience", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Audience" />
                 <input value={tier.price} onChange={(event) => updatePricingTier(index, "price", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Price" />
+                <textarea
+                  value={toLines(tier.features)}
+                  onChange={(event) => updatePricingTierFeatures(index, event.target.value)}
+                  rows={4}
+                  className="w-full rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm"
+                  placeholder="Tier features (one per line)"
+                />
               </div>
             ))}
+            <button
+              type="button"
+              onClick={addPricingTier}
+              className="rounded border border-border-subtle bg-surface-base px-3 py-2 text-xs font-semibold"
+            >
+              Add pricing tier
+            </button>
             <textarea
               value={state.pricingAddonsText}
               onChange={(event) => setState({ ...state, pricingAddonsText: event.target.value })}
@@ -1007,27 +1559,83 @@ export function StartStudioAdmin() {
               className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
               placeholder="Add-ons: title | price"
             />
+            </fieldset>
           </section>
 
-          <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
+          <section className={cn("space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "sections" && "hidden")}>
             <h2 className="font-display text-2xl">FAQ / Contact / Footer</h2>
+            <fieldset disabled={contentLocked} className={cn("space-y-3", contentLocked && "opacity-80")}>
+            <textarea value={state.contactDescription} onChange={(event) => setState({ ...state, contactDescription: event.target.value })} rows={3} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact section description" />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input value={state.contactPrimaryCta} onChange={(event) => setState({ ...state, contactPrimaryCta: event.target.value })} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact primary CTA" />
+              <input value={state.contactSecondaryCta} onChange={(event) => setState({ ...state, contactSecondaryCta: event.target.value })} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact secondary CTA" />
+            </div>
             <textarea value={state.faqItemsText} onChange={(event) => setState({ ...state, faqItemsText: event.target.value })} rows={6} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="FAQ: question | answer" />
             <textarea value={state.contactChannelsText} onChange={(event) => setState({ ...state, contactChannelsText: event.target.value })} rows={5} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact channels: label | value" />
             <input value={state.footerNote} onChange={(event) => setState({ ...state, footerNote: event.target.value })} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Footer note" />
             <input value={state.footerCopyright} onChange={(event) => setState({ ...state, footerCopyright: event.target.value })} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Footer copyright" />
+            </fieldset>
           </section>
 
-          <section className="space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4">
+          <section className={cn("space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "portfolio" && "hidden")}>
             <h2 className="font-display text-2xl">Portfolio</h2>
+            <fieldset disabled={contentLocked} className={cn("space-y-3", contentLocked && "opacity-80")}>
             {state.portfolioItems.map((item, index) => (
-              <div key={`${item.title}-${index}`} className="grid gap-2 rounded-lg border border-border-subtle p-3">
+              <div key={`${item.title}-${index}`} className="grid gap-2 rounded-lg border border-border-subtle p-3 sm:grid-cols-2">
+                <div className="sm:col-span-2 flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-text-muted">Portfolio #{index + 1}</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => movePortfolioItem(index, -1)}
+                      disabled={index === 0}
+                      className="rounded border border-border-subtle px-2 py-1 text-xs disabled:opacity-50"
+                    >
+                      Up
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => movePortfolioItem(index, 1)}
+                      disabled={index === state.portfolioItems.length - 1}
+                      className="rounded border border-border-subtle px-2 py-1 text-xs disabled:opacity-50"
+                    >
+                      Down
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removePortfolioItem(index)}
+                      className="rounded border border-red-300 px-2 py-1 text-xs text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
                 <input value={item.title} onChange={(event) => updatePortfolioItem(index, "title", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Title" />
+                <input value={item.subtitle} onChange={(event) => updatePortfolioItem(index, "subtitle", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Subtitle" />
+                <input value={item.metric} onChange={(event) => updatePortfolioItem(index, "metric", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Metric / category" />
+                <input value={item.alt} onChange={(event) => updatePortfolioItem(index, "alt", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Alt text" />
+                <select
+                  value={item.mediaType ?? "image"}
+                  onChange={(event) => updatePortfolioItem(index, "mediaType", event.target.value)}
+                  className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm"
+                >
+                  <option value="image">image</option>
+                  <option value="video">video</option>
+                </select>
                 <input value={item.visual} onChange={(event) => updatePortfolioItem(index, "visual", event.target.value)} className="rounded border border-border-subtle bg-surface-base px-2 py-1 text-sm" placeholder="Media URL" />
               </div>
             ))}
+            <button
+              type="button"
+              onClick={addPortfolioItem}
+              className="rounded border border-border-subtle bg-surface-base px-3 py-2 text-xs font-semibold"
+            >
+              Add portfolio item
+            </button>
+            </fieldset>
           </section>
 
-          <section className="space-y-4 rounded-xl border border-border-subtle bg-surface-elevated p-4">
+          <section className={cn("space-y-4 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "media" && "hidden")}>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="font-display text-2xl">Media Library</h2>
               <button
@@ -1040,9 +1648,10 @@ export function StartStudioAdmin() {
               </button>
             </div>
             <p className="text-sm text-text-secondary">
-              Sanity-first media management with locale/category metadata and placement assignments.
+              Blob-based media management with locale/category metadata and placement assignments.
             </p>
 
+            <fieldset disabled={mediaLocked} className={cn("space-y-3", mediaLocked && "opacity-80")}>
             <div className="grid gap-3 rounded-lg border border-border-subtle bg-surface-base p-3 sm:grid-cols-2">
               <input
                 value={mediaForm.title}
@@ -1052,9 +1661,7 @@ export function StartStudioAdmin() {
               />
               <select
                 value={mediaForm.type}
-                onChange={(event) =>
-                  setMediaForm({ ...mediaForm, type: event.target.value as "image" | "video" })
-                }
+                onChange={(event) => handleMediaTypeChange(event.target.value as "image" | "video")}
                 className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
               >
                 <option value="image">Image</option>
@@ -1100,7 +1707,10 @@ export function StartStudioAdmin() {
               />
               <input
                 value={mediaForm.order}
-                onChange={(event) => setMediaForm({ ...mediaForm, order: Number(event.target.value) || 100 })}
+                onChange={(event) => {
+                  const nextOrder = Number(event.target.value);
+                  setMediaForm({ ...mediaForm, order: Number.isFinite(nextOrder) ? nextOrder : 100 });
+                }}
                 type="number"
                 className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-sm"
                 placeholder="Order"
@@ -1150,13 +1760,15 @@ export function StartStudioAdmin() {
               />
               <div />
               <input
+                ref={mediaFileInputRef}
                 type="file"
-                accept="image/*,video/*"
+                accept={mediaForm.type === "video" ? "video/*" : "image/*"}
                 onChange={(event) => setMediaFile(event.target.files?.[0] ?? null)}
                 className="block w-full text-sm text-text-secondary"
               />
               {mediaForm.type === "video" ? (
                 <input
+                  ref={mediaPosterInputRef}
                   type="file"
                   accept="image/*"
                   onChange={(event) => setMediaPosterFile(event.target.files?.[0] ?? null)}
@@ -1168,12 +1780,28 @@ export function StartStudioAdmin() {
               <button
                 type="button"
                 onClick={createMediaAsset}
-                disabled={!connected || uploadingMedia}
+                disabled={!connected || mediaLocked}
                 className="rounded border border-accent bg-accent px-4 py-2 text-sm font-semibold text-white"
               >
                 {uploadingMedia ? "Uploading..." : "Create media asset"}
               </button>
+              <p className="text-xs text-text-muted">
+                {mediaFile
+                  ? `Selected media: ${mediaFile.name}`
+                  : `Choose a ${mediaForm.type} file`}
+              </p>
+              {mediaForm.type === "video" ? (
+                <p className="text-xs text-text-muted">
+                  {mediaPosterFile ? `Poster: ${mediaPosterFile.name}` : "Optional poster image"}
+                </p>
+              ) : (
+                <div />
+              )}
+              <p className="text-xs text-text-muted sm:col-span-2">
+                Upload policy: video up to 50MB, image/poster up to 20MB, resolution range {getResolutionHint()}.
+              </p>
             </div>
+            </fieldset>
 
             <details className="rounded border border-border-subtle bg-surface-base p-3 text-xs text-text-muted">
               <summary className="cursor-pointer font-semibold">Available target IDs</summary>
@@ -1186,49 +1814,179 @@ export function StartStudioAdmin() {
 
             <div className="grid gap-2">
               {mediaLibrary.map((asset) => (
-                <div key={asset.id} className="grid gap-2 rounded border border-border-subtle bg-surface-base p-3 sm:grid-cols-[1fr_auto_auto_auto] sm:items-center">
-                  <div>
-                    <p className="truncate text-sm font-semibold text-text-primary">{asset.title || asset.id}</p>
-                    <p className="text-xs text-text-muted">
-                      {asset.mediaType} | {asset.category} | {asset.locale} | order {asset.order}
-                    </p>
-                    <p className="truncate text-xs text-text-muted">
-                      linked: {asset.linkedTo.join(", ") || "general"}
-                    </p>
-                  </div>
-                  <input
-                    type="number"
-                    defaultValue={asset.order}
-                    className="w-20 rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
-                    onBlur={(event) => {
-                      const nextOrder = Number(event.target.value);
-                      if (Number.isFinite(nextOrder) && nextOrder !== asset.order) {
-                        void patchMediaAsset(asset.id, { order: nextOrder });
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => patchMediaAsset(asset.id, { isFeatured: !asset.isFeatured })}
-                    className="rounded border border-border-subtle px-2 py-1 text-xs"
-                  >
-                    {asset.isFeatured ? "Unfeature" : "Feature"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => patchMediaAsset(asset.id, { isHidden: !asset.isHidden })}
-                    className="rounded border border-border-subtle px-2 py-1 text-xs"
-                  >
-                    {asset.isHidden ? "Unhide" : "Hide"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => navigator.clipboard?.writeText(asset.url || asset.imageUrl || asset.videoUrl)}
-                    className="rounded border border-border-subtle px-2 py-1 text-xs sm:col-span-4 sm:justify-self-start"
-                    disabled={uploadingMedia}
-                  >
-                    Copy URL
-                  </button>
+                <div key={asset.id} className="grid gap-3 rounded border border-border-subtle bg-surface-base p-3">
+                  {(() => {
+                    const draft = mediaDrafts[asset.id] ?? createMediaAssetDraft(asset);
+                    const previewUrl = asset.url || asset.imageUrl || asset.videoUrl;
+
+                    return (
+                      <div className="grid gap-3 sm:grid-cols-[12rem_1fr]">
+                        <div className="overflow-hidden rounded border border-border-subtle bg-surface-elevated">
+                          {asset.mediaType === "video" ? (
+                            <video
+                              src={previewUrl}
+                              poster={asset.posterUrl || undefined}
+                              className="h-40 w-full object-cover"
+                              controls
+                              muted
+                              playsInline
+                            />
+                          ) : (
+                            <Image
+                              src={previewUrl}
+                              alt={asset.alt || asset.title || "Media preview"}
+                              width={320}
+                              height={160}
+                              className="h-40 w-full object-cover"
+                            />
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <div>
+                            <p className="truncate text-sm font-semibold text-text-primary">{asset.title || asset.id}</p>
+                            <p className="truncate text-xs text-text-muted">
+                              {asset.mediaType} | order {asset.order} | linked: {asset.linkedTo.join(", ") || "general"}
+                            </p>
+                          </div>
+
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            <input
+                              value={draft.title}
+                              onChange={(event) => updateMediaDraft(asset.id, { title: event.target.value }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              placeholder="Title"
+                              disabled={mediaLocked}
+                            />
+                            <input
+                              value={draft.caption}
+                              onChange={(event) => updateMediaDraft(asset.id, { caption: event.target.value }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              placeholder="Caption"
+                              disabled={mediaLocked}
+                            />
+                            <select
+                              value={draft.category}
+                              onChange={(event) => updateMediaDraft(asset.id, { category: event.target.value }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              disabled={mediaLocked}
+                            >
+                              {(MEDIA_CATEGORY_OPTIONS as readonly string[]).includes(draft.category) ? null : (
+                                <option value={draft.category}>{draft.category}</option>
+                              )}
+                              {MEDIA_CATEGORY_OPTIONS.map((category) => (
+                                <option key={category} value={category}>
+                                  {category}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              value={draft.locale}
+                              onChange={(event) => updateMediaDraft(asset.id, { locale: event.target.value as Locale | "all" }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              disabled={mediaLocked}
+                            >
+                              <option value="all">all</option>
+                              <option value="he">he</option>
+                              <option value="en">en</option>
+                            </select>
+                            <input
+                              value={draft.alt}
+                              onChange={(event) => updateMediaDraft(asset.id, { alt: event.target.value }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              placeholder="Alt text"
+                              disabled={mediaLocked}
+                            />
+                            <input
+                              value={draft.linkUrl}
+                              onChange={(event) => updateMediaDraft(asset.id, { linkUrl: event.target.value }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              placeholder="Link URL"
+                              disabled={mediaLocked}
+                            />
+                            <input
+                              value={draft.serviceIdsText}
+                              onChange={(event) => updateMediaDraft(asset.id, { serviceIdsText: event.target.value }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              placeholder="Service IDs"
+                              disabled={mediaLocked}
+                            />
+                            <input
+                              value={draft.solutionIdsText}
+                              onChange={(event) => updateMediaDraft(asset.id, { solutionIdsText: event.target.value }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              placeholder="Solution IDs"
+                              disabled={mediaLocked}
+                            />
+                            <input
+                              value={draft.portfolioIdsText}
+                              onChange={(event) => updateMediaDraft(asset.id, { portfolioIdsText: event.target.value }, draft)}
+                              className="rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              placeholder="Portfolio IDs"
+                              disabled={mediaLocked}
+                            />
+                            <label className="flex items-center gap-2 text-xs text-text-secondary">
+                              <input
+                                type="checkbox"
+                                checked={draft.includeHome}
+                                onChange={(event) => updateMediaDraft(asset.id, { includeHome: event.target.checked }, draft)}
+                                disabled={mediaLocked}
+                              />
+                              Home gallery
+                            </label>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            <input
+                              type="number"
+                              defaultValue={asset.order}
+                              className="w-20 rounded border border-border-subtle bg-surface-elevated px-2 py-1 text-xs"
+                              disabled={mediaLocked}
+                              onBlur={(event) => {
+                                if (mediaLocked) return;
+                                const nextOrder = Number(event.target.value);
+                                if (Number.isFinite(nextOrder) && nextOrder !== asset.order) {
+                                  void patchMediaAsset(asset.id, { order: nextOrder });
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => void patchMediaAsset(asset.id, { isFeatured: !asset.isFeatured })}
+                              className="rounded border border-border-subtle px-2 py-1 text-xs"
+                              disabled={mediaLocked}
+                            >
+                              {asset.isFeatured ? "Unfeature" : "Feature"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void patchMediaAsset(asset.id, { isHidden: !asset.isHidden })}
+                              className="rounded border border-border-subtle px-2 py-1 text-xs"
+                              disabled={mediaLocked}
+                            >
+                              {asset.isHidden ? "Unhide" : "Hide"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void saveMediaAssetDraft(asset)}
+                              className="rounded border border-accent bg-accent px-3 py-1 text-xs font-semibold text-white"
+                              disabled={mediaLocked}
+                            >
+                              Save details
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => navigator.clipboard?.writeText(previewUrl)}
+                              className="rounded border border-border-subtle px-2 py-1 text-xs"
+                              disabled={uploadingMedia}
+                            >
+                              Copy URL
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               ))}
             </div>

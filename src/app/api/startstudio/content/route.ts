@@ -2,10 +2,6 @@ import { NextResponse } from "next/server";
 
 import { SUPPORTED_LOCALES, type Locale } from "@/lib/constants";
 import {
-  isSanityWriteConfigured,
-  saveStartStudioLocaleToSanity,
-} from "@/lib/startstudio-sanity";
-import {
   ensureStartStudioContent,
   isAdminAuthorized,
   saveStartStudioContent,
@@ -42,41 +38,25 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Invalid locale" }, { status: 400 });
   }
 
-  if (!isSanityWriteConfigured()) {
-    return NextResponse.json(
-      {
-        error: "Sanity write is not configured (missing project/dataset or SANITY_API_WRITE_TOKEN)",
-      },
-      { status: 500 },
-    );
-  }
-
   const messages = isRecord(body.messages) ? body.messages : {};
 
   try {
-    const { updatedAt } = await saveStartStudioLocaleToSanity({
-      locale: localeParam,
-      messages,
-      whatsappNumber: body.whatsappNumber,
-    });
+    const content = await ensureStartStudioContent();
+    const updatedAt = new Date().toISOString();
 
-    // Keep legacy Blob patch in sync as a fallback source if Sanity becomes unavailable.
-    let legacyUrl: string | null = null;
-    try {
-      const legacy = await ensureStartStudioContent();
-      legacy.locales[localeParam] = { messages };
-      if (typeof body.whatsappNumber === "string") {
-        legacy.global = {
-          ...(legacy.global ?? {}),
-          whatsappNumber: body.whatsappNumber.trim(),
-        };
-      }
-      legacyUrl = await saveStartStudioContent(legacy);
-    } catch {
-      // Blob may be intentionally disabled; Sanity is the primary source of truth.
+    content.locales[localeParam] = { messages };
+    if (typeof body.whatsappNumber === "string") {
+      const normalized = body.whatsappNumber.trim();
+      content.global = {
+        ...(content.global ?? {}),
+        whatsappNumber: normalized,
+      };
     }
+    content.updatedAt = updatedAt;
 
-    return NextResponse.json({ ok: true, updatedAt, legacyUrl });
+    const blobUrl = await saveStartStudioContent(content);
+
+    return NextResponse.json({ ok: true, updatedAt, blobUrl });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: reason }, { status: 500 });

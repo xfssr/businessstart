@@ -1,11 +1,11 @@
 # Admin Layer Model
 
-This project is structured for a headless CMS integration (Sanity / Payload / Strapi).
+This project currently runs with a Blob-first admin model (no external CMS required).
 
 Current implementation:
-- `StartStudio` (`/startstudio`) is an admin layer that writes locale message patches into Sanity (`startStudioLocale` docs).
+- `StartStudio` (`/startstudio`) writes locale message patches into private Blob JSON (`startstudio/content.json`).
 - Uploaded media is stored in private Vercel Blob and served via `/api/startstudio/media`.
-- Legacy Blob JSON content can be imported once via `POST /api/startstudio/migrate`.
+- Media metadata is managed via `/api/startstudio/media-library` and persisted in Blob.
 
 ## Editable Collections
 
@@ -62,9 +62,9 @@ Current implementation:
 - canonical
 - open graph fields
 
-## Recommended First CMS Integration
+## Optional Future CMS Integration
 
-1. Start with `global_settings`, `services`, `faq_items`, and `seo_entries`.
-2. Keep page layout in code, move content fields to CMS.
+1. Keep Blob as fallback source of truth while introducing CMS.
+2. Migrate `global_settings`, `services`, `faq_items`, and `seo_entries` first.
 3. Add preview mode and draft/publish workflow.
 4. Add role-based access for editor vs admin.

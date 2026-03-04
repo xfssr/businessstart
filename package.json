@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:studio": "sanity dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,13 +12,12 @@
   },
   "dependencies": {
     "@vercel/blob": "^2.3.0",
-    "groq": "^5.12.0",
+    "lodash": "^4.17.21",
     "next": "16.1.6",
     "next-intl": "^4.8.3",
-    "next-sanity": "^12.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "sanity": "^5.12.0"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -4,14 +4,36 @@ import { list, put } from "@vercel/blob";
 
 import { type Locale } from "@/lib/constants";
 
+export type StartStudioMediaLocale = Locale | "all";
+
+export type StartStudioMediaAssignments = {
+  home: boolean;
+  serviceIds: string[];
+  solutionIds: string[];
+  portfolioIds: string[];
+};
+
 export type StartStudioMediaItem = {
   id: string;
-  locale: Locale;
+  locale: StartStudioMediaLocale;
   type: "image" | "video";
   title: string;
   url: string;
   rawUrl?: string;
   pathname?: string;
+  caption?: string;
+  category?: string;
+  alt?: string;
+  order?: number;
+  isFeatured?: boolean;
+  isHidden?: boolean;
+  linkUrl?: string;
+  linkedTo?: string[];
+  assignments?: StartStudioMediaAssignments;
+  imageUrl?: string;
+  videoUrl?: string;
+  posterUrl?: string;
+  updatedAt?: string;
   createdAt: string;
 };
 
@@ -141,7 +163,7 @@ export async function uploadStartStudioMedia({
   title,
 }: {
   file: File;
-  locale: Locale;
+  locale: StartStudioMediaLocale;
   title?: string;
 }) {
   if (!hasBlobToken()) {

@@ -1,12 +1,10 @@
 import "server-only";
 
 import { cache } from "react";
-import { groq } from "next-sanity";
 
 import { DEFAULT_LOCALE, type Locale } from "@/lib/constants";
 import { messageCatalog, type Messages } from "@/lib/i18n";
 import { getStartStudioContent } from "@/lib/startstudio";
-import { isSanityConfigured, sanityClient } from "@/sanity/lib/client";
 
 type LocalizedValue = string | null | undefined | { he?: string | null; en?: string | null };
 type LocalizedSlug = {
@@ -241,26 +239,6 @@ export type SolutionsPromptCard = {
   outcome: string;
   slug: string;
 };
-
-const CMS_QUERY = groq`{
-  "global": *[_type == "globalSettings"][0],
-  "navigation": *[_type == "navigation"][0],
-  "home": *[_type == "homePage"][0],
-  "pages": *[_type == "pageContent"],
-  "services": *[_type == "service"] | order(order asc, _createdAt asc),
-  "solutions": *[_type == "solution"] | order(order asc, _createdAt asc),
-  "packages": *[_type == "package"] | order(displayOrder asc, _createdAt asc),
-  "portfolio": *[_type == "portfolioProject"] | order(displayOrder asc, _createdAt asc),
-  "faq": *[_type == "faqItem"] | order(displayOrder asc, _createdAt asc),
-  "testimonials": *[_type == "testimonial"] | order(displayOrder asc, _createdAt asc),
-  "mediaAssets": *[_type == "mediaAsset"] | order(order asc, _createdAt asc){
-    _id, title, caption, category, locale, mediaType, alt, order, isFeatured, isHidden, linkUrl,
-    "imageFile": imageFile{asset->{url}},
-    "videoFile": videoFile{asset->{url}},
-    "videoPoster": videoPoster{asset->{url}}
-  },
-  "startStudioLocales": *[_type == "startStudioLocale"] | order(updatedAt desc, _updatedAt desc)
-}`;
 
 type MessageServiceCard = {
   title?: string;
@@ -560,12 +538,7 @@ function buildResolvedMediaMap(snapshot: CmsSnapshot | null) {
 }
 
 const getCmsSnapshot = cache(async (): Promise<CmsSnapshot | null> => {
-  if (!isSanityConfigured()) return null;
-  try {
-    return await sanityClient.fetch<CmsSnapshot>(CMS_QUERY, {}, { next: { revalidate: 120 } });
-  } catch {
-    return null;
-  }
+  return null;
 });
 
 export const getLocaleMessages = cache(async (locale: Locale): Promise<Messages> => {
