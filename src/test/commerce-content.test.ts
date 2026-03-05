@@ -1,4 +1,4 @@
-import en from "@/messages/en.json";
+﻿import en from "@/messages/en.json";
 import he from "@/messages/he.json";
 
 const REQUIRED_SERVICE_SLUGS = [
@@ -108,7 +108,8 @@ describe("commerce content integrity", () => {
       expect(locale.solutionsPrompt.cards.length).toBeLessThanOrEqual(5);
     }
 
-    expect(he.solutionsPrompt.title).toBe("צריכים יותר מתוכן?");
+    expect(he.solutionsPrompt.title).toBe("בחרו מסלול פתרון לעסק");
     expect(JSON.stringify(he.examplesGallery)).not.toContain("Need more than just content?");
   });
 });
+

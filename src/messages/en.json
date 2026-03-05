@@ -45,12 +45,14 @@
     "stickyCta": "Chat on WhatsApp"
   },
   "hero": {
-    "eyebrow": "Content. Website. Promotion. Real Inquiries.",
-    "title": "Build a business presence that brings inquiries, not just impressions",
-    "description": "We combine content production, service pages, and promotion into one practical execution system.",
-    "trust": "Built for local businesses that need clear positioning and faster inquiry flow.",
-    "primaryCta": "Chat on WhatsApp",
-    "secondaryCta": "View Services",
+    "eyebrow": "Business Solution System",
+    "title": "Business solutions for content, site, and ads",
+    "description": "We create content, build conversion-ready pages, and run focused promotion to generate qualified inquiries and new clients.",
+    "trust": "Not isolated services. One connected business flow from content to clients.",
+    "primaryCta": "View Solutions",
+    "secondaryCta": "Examples & Pricing",
+    "collageLabel": "Content Mix",
+    "collageTags": ["Social Media", "Video", "Photo", "Ads"],
     "metrics": [
       {
         "label": "Typical Delivery Window",
@@ -68,71 +70,43 @@
     "panelLabel": "Execution Focus"
   },
   "whatWeDo": {
-    "eyebrow": "What We Do",
-    "title": "A commercial content system, not isolated production",
-    "description": "One operating model for content, offer clarity, service pages, and promotional execution.",
+    "eyebrow": "How It Works Together",
+    "title": "Need more than separate services for your business?",
+    "description": "We build one connected system that combines content, digital presence, and promotion to generate client inquiries.",
     "pillars": [
       {
-        "title": "Business Content Production",
-        "description": "Photo and video assets aligned to your real offer."
+        "title": "Content foundation",
+        "description": "Create clear business content and assets around your offer."
       },
       {
-        "title": "Short-Form Social Content",
-        "description": "Reels and clips prepared for reach and response."
+        "title": "Site / service-page conversion layer",
+        "description": "Turn those assets into a page or site that explains value and drives action."
       },
       {
-        "title": "Product and Food Visuals",
-        "description": "Clean visuals that improve trust and conversion."
-      },
-      {
-        "title": "Service Page / Mini Site",
-        "description": "A clear page that explains value and directs action."
-      },
-      {
-        "title": "Ad Creatives and Rollout",
-        "description": "Campaign-ready assets for paid and organic channels."
+        "title": "Promotion and client flow",
+        "description": "Run targeted campaigns and route the right audience to qualified inquiries."
       }
     ]
   },
   "process": {
     "eyebrow": "How It Works",
-    "title": "Seven practical steps",
-    "description": "From business brief to measurable inquiry flow.",
+    "title": "Three steps to a working growth flow",
+    "description": "From business need to inquiries with one connected execution path.",
     "steps": [
       {
         "marker": "01",
-        "title": "Business Discovery",
-        "description": "Offer, audience, and growth bottleneck."
+        "title": "Define business need and target",
+        "description": "We sharpen your offer, audience, and the result your funnel should produce."
       },
       {
         "marker": "02",
-        "title": "Offer and Message",
-        "description": "Positioning, value statement, and CTA logic."
+        "title": "Build content and conversion layer",
+        "description": "We produce content and set up the page/site structure that is ready to convert."
       },
       {
         "marker": "03",
-        "title": "Content Production",
-        "description": "Photo/video execution based on your sales path."
-      },
-      {
-        "marker": "04",
-        "title": "Visual Packaging",
-        "description": "Consistent look across social and website."
-      },
-      {
-        "marker": "05",
-        "title": "Service Page Setup",
-        "description": "A page that explains and converts clearly."
-      },
-      {
-        "marker": "06",
-        "title": "Promotion Assets",
-        "description": "Creatives for ads, social, and WhatsApp flow."
-      },
-      {
-        "marker": "07",
-        "title": "Launch and Optimization",
-        "description": "Publish, measure, and refine by response."
+        "title": "Launch promotion to attract clients",
+        "description": "We run focused promotion and turn views and clicks into qualified business inquiries."
       }
     ]
   },
@@ -267,11 +241,11 @@
     "secondaryCta": "Go to Contact"
   },
   "contact": {
-    "eyebrow": "Contact",
-    "title": "Start your business launch with clarity",
-    "description": "Message us on WhatsApp or leave a short brief and we will respond quickly.",
+    "eyebrow": "Start Here",
+    "title": "Start with one focused conversation",
+    "description": "Message us on WhatsApp or send a short brief and we will map the next move.",
     "primaryCta": "Chat on WhatsApp",
-    "secondaryCta": "Go to Services",
+    "secondaryCta": "Go to Contact",
     "channels": [
       {
         "label": "WhatsApp",
@@ -744,8 +718,8 @@
   },
   "examplesGallery": {
     "eyebrow": "Examples",
-    "title": "Photos and videos that show the work",
-    "description": "See real examples of content, visuals, and business-facing creative work.",
+    "title": "Visual examples of the studio work",
+    "description": "See photo and video outputs first, then choose the right business path.",
     "items": [
       {
         "title": "Local restaurant launch",
@@ -791,9 +765,9 @@
   },
   "solutionsPrompt": {
     "eyebrow": "Solutions",
-    "title": "Need more than just content?",
-    "description": "If you need a clearer path to inquiries, explore the solution that can fit your business.",
-    "cta": "View all solutions",
+    "title": "Choose a business solution path",
+    "description": "Select the package that connects content, page/site, and promotion around your business goal.",
+    "cta": "Explore all solutions",
     "cards": [
       {
         "title": "QR Menu + Mini Site",

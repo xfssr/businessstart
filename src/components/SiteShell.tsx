@@ -62,7 +62,7 @@ export function SiteShell({ children }: SiteShellProps) {
       : `/${locale}${normalizedSecondaryHref}`;
 
   return (
-    <div className="premium-page-bg relative min-h-screen pb-24 md:pb-0">
+    <div className="premium-page-bg relative min-h-screen pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
       <GlowBackground className="fixed inset-0 -z-10" />
 
       <header className="glass-surface-strong sticky top-0 z-30 border-b border-border-subtle bg-surface-base/65 backdrop-blur-md">

@@ -1,27 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
-import { Accordion } from "@/components/Accordion";
 import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { CardModule } from "@/components/CardModule";
-import { CatalogDetailsModal } from "@/components/CatalogDetailsModal";
+import { Container } from "@/components/Container";
 import { Divider } from "@/components/Divider";
 import { type ExamplesGalleryItem, ExamplesGallery } from "@/components/ExamplesGallery";
 import { Grid } from "@/components/Grid";
 import { LeadForm } from "@/components/LeadForm";
-import { PortfolioGallery } from "@/components/PortfolioGallery";
 import { Section } from "@/components/Section";
 import { HeroBackdrop } from "@/components/visual/HeroBackdrop";
 import { WhatsAppLink } from "@/components/WhatsAppLink";
 import { useLocale } from "@/components/LocaleProvider";
 import { DEFAULT_SITE_URL } from "@/lib/constants";
-
-type Metric = {
-  label: string;
-  value: string;
-};
 
 type Step = {
   description: string;
@@ -39,44 +32,9 @@ type ContactChannel = {
   value: string;
 };
 
-type PortfolioItem = {
-  alt: string;
-  metric: string;
-  subtitle: string;
-  title: string;
-  visual: string;
-  mediaType?: "image" | "video";
-};
-
 type FaqItem = {
   answer: string;
   question: string;
-};
-
-type ServiceCard = {
-  audience: string;
-  features: string[];
-  price: string;
-  slug: string;
-  timeline: string;
-  title: string;
-};
-
-type SolutionCard = {
-  outcome: string;
-  price: string;
-  problem: string;
-  slug: string;
-  timeline: string;
-  title: string;
-  whatWeDo: string;
-};
-
-type TestimonialItem = {
-  business: string;
-  name: string;
-  quote: string;
-  rating: number;
 };
 
 type ContactFormLabels = {
@@ -93,6 +51,13 @@ type GlobalContact = {
   instagram?: string;
   phone?: string;
   whatsappNumber?: string;
+};
+
+type SolutionCard = {
+  outcome: string;
+  problem: string;
+  slug: string;
+  title: string;
 };
 
 type SolutionsPromptCard = {
@@ -117,10 +82,6 @@ type ExamplesGallerySection = {
   title?: string;
 };
 
-function interpolateTemplate(template: string, values: Record<string, string>) {
-  return template.replace(/\{(\w+)\}/g, (_, key: string) => values[key] || "");
-}
-
 function normalizeInstagram(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return "";
@@ -128,48 +89,105 @@ function normalizeInstagram(value: string) {
   return `https://instagram.com/${trimmed.replace(/^@/, "")}`;
 }
 
-type ModalState =
-  | { type: "service"; card: ServiceCard }
-  | { type: "solution"; card: SolutionCard }
-  | null;
+function sanitizeHeroCtaLabel(label: string, fallback: string) {
+  const trimmed = label.trim();
+  if (!trimmed) return fallback;
+  if (/whats\s*app|whatsapp|וואטסאפ|ווטסאפ|ואטסאפ/i.test(trimmed)) return fallback;
+  return trimmed;
+}
 
 export function HomePage() {
   const { get, locale, t } = useLocale();
-  const [modalState, setModalState] = useState<ModalState>(null);
 
-  const metrics = get<Metric[]>("hero.metrics");
-  const whatWeDoPillars = get<ListItem[]>("whatWeDo.pillars");
-  const processSteps = get<Step[]>("process.steps");
-  const audienceCategories = get<string[]>("audience.categories");
-  const differencePoints = get<string[]>("difference.points");
-  const outcomes = get<string[]>("outcomes.items");
-  const portfolioItems = get<PortfolioItem[]>("portfolio.items");
+  const whatWeDoPillars = (get<ListItem[]>("whatWeDo.pillars") || []).slice(0, 3);
+  const processSteps = (get<Step[]>("process.steps") || []).slice(0, 3);
   const faqItems = get<FaqItem[]>("faq.items");
-  const contactChannels = get<ContactChannel[]>("contact.channels");
+  const contactChannels = get<ContactChannel[]>("contact.channels") || [];
   const contactForm = get<ContactFormLabels>("contact.form");
-  const services = get<ServiceCard[]>("servicesPage.standardCards").slice(0, 6);
-  const solutions = get<SolutionCard[]>("solutionsPage.cards").slice(0, 5);
-  const testimonials = (get<TestimonialItem[]>("testimonials.items") || []).filter((item) => item.quote);
-  const globalContact = get<GlobalContact>("global");
+  const solutions = get<SolutionCard[]>("solutionsPage.cards") || [];
+  const globalContact = get<GlobalContact>("global") || {};
   const examplesGallery = get<ExamplesGallerySection>("examplesGallery");
   const mediaCategories = get<Record<string, string>>("mediaCategories") || {};
+  const heroCollageLabel = get<string>("hero.collageLabel") || "";
+  const heroCollageTags = get<string[]>("hero.collageTags") || [];
   const solutionsPrompt = get<SolutionsPromptSection>("solutionsPrompt");
 
   const examplesGalleryItems = (examplesGallery?.items ?? [])
     .filter((item) => item.src)
     .sort((left, right) => (left.order ?? 100) - (right.order ?? 100));
+  const heroCollageFallbackItems: ExamplesGalleryItem[] = [
+    {
+      title: "Social content flow",
+      subtitle: "",
+      category: "socialContent",
+      mediaType: "image",
+      src: "/portfolio/helix.svg",
+      alt: "Social media content",
+      order: 1,
+    },
+    {
+      title: "Video production",
+      subtitle: "",
+      category: "",
+      mediaType: "video",
+      src: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+      poster: "/portfolio/nera.svg",
+      alt: "Video content",
+      order: 2,
+    },
+    {
+      title: "Photo assets",
+      subtitle: "",
+      category: "",
+      mediaType: "image",
+      src: "/portfolio/axis.svg",
+      alt: "Photo assets",
+      order: 3,
+    },
+    {
+      title: "Ad creatives",
+      subtitle: "",
+      category: "",
+      mediaType: "image",
+      src: "/portfolio/nera.svg",
+      alt: "Ad creatives",
+      order: 4,
+    },
+    {
+      title: "Campaign launch",
+      subtitle: "",
+      category: "",
+      mediaType: "image",
+      src: "/portfolio/helix.svg",
+      alt: "Campaign launch visuals",
+      order: 5,
+    },
+  ];
+  const heroCollageItems = [...examplesGalleryItems, ...heroCollageFallbackItems].slice(0, 5);
+  const heroCollageEntryOffset = locale === "he" ? "-34px" : "34px";
+  const heroCopyEntryOffset = locale === "he" ? "34px" : "-34px";
+  const isHebrew = locale === "he";
+  const heroTextClass = locale === "he" ? "text-right" : "text-left";
+  const heroButtonsClass = "justify-start";
+  const heroCopyWidthClass = isHebrew ? "max-w-[22rem] sm:max-w-2xl" : "max-w-[22rem] sm:max-w-2xl";
+  const heroHeadlineMobileClass = isHebrew ? "text-[1.55rem] leading-[1.22]" : "text-[1.6rem] leading-[1.22]";
+  const heroBodyMobileClass = isHebrew ? "text-[0.88rem]" : "text-[0.9rem]";
+  const heroButtonsTopClass = isHebrew ? "mt-4" : "mt-4";
+  const heroPrimaryLabel = sanitizeHeroCtaLabel(t("hero.primaryCta"), isHebrew ? "לפתרונות" : "View Solutions");
+  const heroSecondaryLabel = sanitizeHeroCtaLabel(
+    t("hero.secondaryCta"),
+    isHebrew ? "דוגמאות ומחירים" : "Examples & Pricing",
+  );
 
-  const serviceTemplate = get<string>("whatsapp.serviceCardTemplate") || t("whatsapp.prefill");
-  const solutionTemplate = get<string>("whatsapp.solutionCardTemplate") || t("whatsapp.prefill");
-  const promptCards = (solutionsPrompt?.cards ?? solutions)
+  const promptCards = (solutionsPrompt?.cards?.length ? solutionsPrompt.cards : solutions)
     .filter((item) => item.slug)
-    .slice(0, 5);
+    .slice(0, 3);
 
   const faqSchema = useMemo(
     () => ({
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: faqItems.map((item) => ({
+      mainEntity: (faqItems ?? []).map((item) => ({
         "@type": "Question",
         name: item.question,
         acceptedAnswer: {
@@ -210,58 +228,167 @@ export function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-      <Section id="home" className="pt-14 sm:pt-20" size="large">
-        <HeroBackdrop className="p-6 sm:p-8 lg:p-10">
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-            <div>
-              <Badge>{t("hero.eyebrow")}</Badge>
-              <h1 className="mt-5 font-display text-4xl leading-tight text-text-primary sm:text-6xl">
-                {t("hero.title")}
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-xl">
-                {t("hero.description")}
-              </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <WhatsAppLink
-                  label={t("hero.primaryCta")}
-                  message={t("whatsapp.prefill")}
-                  className="min-w-52"
-                />
-                <Button href={`/${locale}/services`} variant="secondary" className="min-w-44">
-                  {t("hero.secondaryCta")}
-                </Button>
-              </div>
-              <p className="mt-4 border-s-2 border-accent ps-3 text-sm text-text-muted">{t("hero.trust")}</p>
-            </div>
 
-            <CardModule className="relative overflow-hidden border-border-strong bg-surface-overlay p-7">
-              <p className="text-xs font-semibold tracking-[0.2em] text-text-muted uppercase">
-                {t("hero.panelLabel")}
-              </p>
-              <div className="mt-5 space-y-4">
-                {whatWeDoPillars.slice(0, 3).map((pillar, index) => (
-                  <div key={pillar.title} className="border-b border-border-subtle pb-3 last:border-none">
-                    <p className="text-xs font-semibold tracking-[0.16em] text-accent">{`0${index + 1}`}</p>
-                    <p className="mt-1 text-sm font-semibold text-text-primary">{pillar.title}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-text-secondary">{pillar.description}</p>
-                  </div>
-                ))}
-              </div>
-            </CardModule>
-          </div>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            {metrics.map((metric) => (
-              <CardModule key={metric.label} className="border-border-subtle bg-surface-elevated/70 p-5">
-                <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{metric.label}</p>
-                <p dir="ltr" className="mt-3 font-display text-3xl text-text-primary">
-                  {metric.value}
+      <section id="home" className="relative overflow-x-clip overflow-y-visible">
+        <HeroBackdrop className="hero-viewport-block">
+          <Container className="hero-safe-padding relative z-10 flex items-start max-w-none !px-0 sm:!px-0 lg:h-full lg:max-w-[1160px] lg:!px-8">
+            <div className="grid w-full gap-4 sm:gap-7 lg:h-full lg:grid-cols-[1.06fr_0.94fr] lg:items-start lg:gap-8">
+              <div
+                className={`hero-copy-enter ${heroCopyWidthClass} ${heroTextClass} flex w-full min-w-0 flex-col px-5 sm:px-8 lg:h-full lg:block lg:px-0`}
+                dir={locale === "he" ? "rtl" : "ltr"}
+                style={{ ["--hero-copy-enter-x" as string]: heroCopyEntryOffset }}
+              >
+                <Badge>{t("hero.eyebrow")}</Badge>
+                <h1
+                  className={`mt-3 break-words [overflow-wrap:anywhere] font-display ${heroHeadlineMobileClass} text-text-primary sm:mt-5 sm:text-6xl sm:leading-tight`}
+                >
+                  {t("hero.title")}
+                </h1>
+                <p
+                  className={`mt-3 max-w-xl break-words [overflow-wrap:anywhere] ${heroBodyMobileClass} leading-relaxed text-text-secondary sm:mt-5 sm:text-xl`}
+                >
+                  {t("hero.description")}
                 </p>
-              </CardModule>
-            ))}
-          </div>
+                <div
+                  className={`${heroButtonsTopClass} sm:mt-8 lg:mt-20 flex flex-wrap items-center gap-2.5 sm:gap-3 ${heroButtonsClass}`}
+                >
+                  <Button
+                    href={`/${locale}/solutions`}
+                    className="min-h-11 shrink-0 px-4 text-[13px] leading-tight min-[420px]:px-4.5 sm:min-w-52 sm:min-h-12 sm:px-6 sm:text-sm"
+                  >
+                    {heroPrimaryLabel}
+                  </Button>
+                  <Button
+                    href={`/${locale}/pricing`}
+                    variant="secondary"
+                    className="min-h-11 shrink-0 px-4 text-[13px] leading-tight min-[420px]:px-4.5 sm:min-w-44 sm:min-h-12 sm:px-6 sm:text-sm"
+                  >
+                    {heroSecondaryLabel}
+                  </Button>
+                </div>
+                {heroCollageItems.length ? (
+                  <div className="-mx-5 mt-3 sm:-mx-8 sm:mt-6 lg:hidden">
+                    {heroCollageLabel ? (
+                      <p className="mb-2 px-5 text-[11px] tracking-[0.14em] text-text-label uppercase sm:px-8">{heroCollageLabel}</p>
+                    ) : null}
+                    <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 sm:px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                      {heroCollageItems.map((item, index) => {
+                        const isVideo = item.mediaType === "video" || item.src.toLowerCase().includes(".mp4");
+                        const tagLabel =
+                          heroCollageTags[index] ||
+                          (item.category ? mediaCategories[item.category] || item.category : "") ||
+                          (isVideo ? "Video" : "Photo");
+                        const tileWidthClass =
+                          index === 0
+                            ? "w-[calc(100vw-3rem)] max-w-[26rem] h-[54vw] max-h-[15rem]"
+                            : "w-[calc(100vw-5rem)] max-w-[22rem] h-[47vw] max-h-[13rem]";
+
+                        return (
+                          <figure
+                            key={`mobile-${item.title}-${index}`}
+                            data-testid="hero-mobile-example-item"
+                            className={`hero-collage-item relative shrink-0 snap-start overflow-hidden rounded-2xl border border-white/14 bg-black/20 ${tileWidthClass}`}
+                            style={{
+                              ["--hero-collage-delay" as string]: `${index * 0.16}s`,
+                              ["--hero-collage-enter-x" as string]: heroCollageEntryOffset,
+                            }}
+                          >
+                            {isVideo ? (
+                              <video
+                                src={item.src}
+                                poster={item.poster}
+                                className="h-full w-full object-cover"
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                              />
+                            ) : (
+                              // Using native img keeps support for admin-provided image URLs without remote loader config.
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={item.src} alt={item.alt} className="h-full w-full object-cover" loading="lazy" />
+                            )}
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/72 via-black/18 to-transparent" />
+                            {tagLabel ? (
+                              <span className="absolute top-2 start-2 rounded-full border border-white/18 bg-black/40 px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] text-white/90 uppercase">
+                                {tagLabel}
+                              </span>
+                            ) : null}
+                          </figure>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {heroCollageItems.length ? (
+                <div className="mt-8 hidden lg:block xl:mt-10">
+                  <div className="ms-auto max-w-[430px]">
+                    {heroCollageLabel ? (
+                      <p className="mb-3 text-[11px] tracking-[0.14em] text-text-label uppercase">{heroCollageLabel}</p>
+                    ) : null}
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {heroCollageItems.map((item, index) => {
+                        const isVideo = item.mediaType === "video" || item.src.toLowerCase().includes(".mp4");
+                        const tagLabel =
+                          heroCollageTags[index] ||
+                          (item.category ? mediaCategories[item.category] || item.category : "") ||
+                          (isVideo ? "Video" : "Photo");
+                        const tileClass =
+                          index === 0
+                            ? "col-span-2 h-40"
+                            : index === 1
+                              ? "h-36"
+                              : "h-28";
+
+                        return (
+                          <figure
+                            key={`${item.title}-${index}`}
+                            data-testid="hero-collage-item"
+                            className={`hero-collage-item group relative overflow-hidden rounded-[18px] border border-white/14 bg-black/20 ${tileClass}`}
+                            style={{
+                              ["--hero-collage-delay" as string]: `${index * 0.26}s`,
+                              ["--hero-collage-enter-x" as string]: heroCollageEntryOffset,
+                            }}
+                          >
+                            {isVideo ? (
+                              <video
+                                src={item.src}
+                                poster={item.poster}
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                              />
+                            ) : (
+                              // Using native img keeps support for admin-provided image URLs without remote loader config.
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={item.src}
+                                alt={item.alt}
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                                loading="lazy"
+                              />
+                            )}
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+                            {tagLabel ? (
+                              <span className="absolute top-2 start-2 rounded-full border border-white/18 bg-black/40 px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] text-white/90 uppercase">
+                                {tagLabel}
+                              </span>
+                            ) : null}
+                          </figure>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </Container>
         </HeroBackdrop>
-      </Section>
+      </section>
 
       <Divider />
 
@@ -330,7 +457,7 @@ export function HomePage() {
         title={t("process.title")}
         description={t("process.description")}
       >
-        <Grid cols={4}>
+        <Grid cols={3}>
           {processSteps.map((step) => (
             <CardModule key={step.marker}>
               <p className="text-xs font-semibold tracking-[0.2em] text-accent">{step.marker}</p>
@@ -344,307 +471,35 @@ export function HomePage() {
       <Divider />
 
       <Section
-        id="audience"
-        eyebrow={t("audience.eyebrow")}
-        title={t("audience.title")}
-        description={t("audience.description")}
-      >
-        <Grid cols={4}>
-          {audienceCategories.map((category) => (
-            <CardModule key={category} className="py-5">
-              <p className="text-sm font-semibold tracking-[0.12em] text-text-primary uppercase">{category}</p>
-            </CardModule>
-          ))}
-        </Grid>
-      </Section>
-
-      <Divider />
-
-      <Section
-        id="difference"
-        eyebrow={t("difference.eyebrow")}
-        title={t("difference.title")}
-        description={t("difference.description")}
-      >
-        <div className="grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
-          <CardModule>
-            <ul className="space-y-3">
-              {differencePoints.map((point) => (
-                <li key={point} className="flex items-start gap-2 text-sm leading-relaxed text-text-secondary">
-                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </CardModule>
-          <CardModule className="flex items-center">
-            <p className="font-display text-3xl leading-tight text-text-primary">{t("difference.callout")}</p>
-          </CardModule>
-        </div>
-      </Section>
-
-      <Divider />
-
-      <Section
-        id="services"
-        eyebrow={t("services.eyebrow")}
-        title={t("services.title")}
-        description={t("services.description")}
-      >
-        <Grid cols={3}>
-          {services.map((service) => {
-            const message = interpolateTemplate(serviceTemplate, {
-              title: service.title,
-              audience: service.audience,
-              timeline: service.timeline,
-              price: service.price,
-            });
-            return (
-              <CardModule key={service.slug} className="flex h-full flex-col">
-                <h3 className="font-display text-2xl text-text-primary">{service.title}</h3>
-                <p className="mt-2 text-sm text-text-secondary">{service.audience}</p>
-                <ul className="mt-4 space-y-2 text-sm text-text-secondary">
-                  {service.features.slice(0, 4).map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-5 border-t border-border-subtle pt-4">
-                  <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{service.timeline}</p>
-                  <p className="mt-2 text-lg font-semibold text-text-primary">{service.price}</p>
-                </div>
-                <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => setModalState({ type: "service", card: service })}
-                  >
-                    {t("servicesPage.cardCta")}
-                  </Button>
-                  <WhatsAppLink label={t("servicesPage.orderCta")} message={message} className="w-full" />
-                </div>
-              </CardModule>
-            );
-          })}
-        </Grid>
-      </Section>
-
-      <Divider />
-
-      <Section
-        id="solutions"
-        eyebrow={t("solutionsPage.eyebrow")}
-        title={t("solutionsPage.title")}
-        description={t("solutionsPage.description")}
-      >
-        <Grid cols={3}>
-          {solutions.map((solution) => {
-            const message = interpolateTemplate(solutionTemplate, {
-              title: solution.title,
-              problem: solution.problem,
-              outcome: solution.outcome,
-              timeline: solution.timeline,
-              price: solution.price,
-            });
-            return (
-              <CardModule key={solution.slug} className="flex h-full flex-col">
-                <h3 className="font-display text-2xl text-text-primary">{solution.title}</h3>
-                <p className="mt-2 text-sm text-text-secondary">{solution.problem}</p>
-                <div className="mt-4 space-y-2 text-sm text-text-secondary">
-                  <p>
-                    <span className="font-semibold text-text-primary">
-                      {locale === "he" ? "מה עושים:" : "What we do:"}
-                    </span>{" "}
-                    {solution.whatWeDo}
-                  </p>
-                  <p>
-                    <span className="font-semibold text-text-primary">
-                      {locale === "he" ? "תוצאה:" : "Outcome:"}
-                    </span>{" "}
-                    {solution.outcome}
-                  </p>
-                </div>
-                <div className="mt-5 border-t border-border-subtle pt-4">
-                  <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{solution.timeline}</p>
-                  <p className="mt-2 text-lg font-semibold text-text-primary">{solution.price}</p>
-                </div>
-                <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => setModalState({ type: "solution", card: solution })}
-                  >
-                    {t("solutionsPage.cardCta")}
-                  </Button>
-                  <WhatsAppLink label={t("solutionsPage.orderCta")} message={message} className="w-full" />
-                </div>
-              </CardModule>
-            );
-          })}
-        </Grid>
-      </Section>
-
-      <Divider />
-
-      <Section
-        id="outcomes"
-        eyebrow={t("outcomes.eyebrow")}
-        title={t("outcomes.title")}
-        description={t("outcomes.description")}
-      >
-        <Grid cols={2}>
-          {outcomes.map((outcome) => (
-            <CardModule key={outcome} className="py-5">
-              <p className="text-sm leading-relaxed text-text-primary">{outcome}</p>
-            </CardModule>
-          ))}
-        </Grid>
-      </Section>
-
-      <Divider />
-
-      <Section
-        id="work"
-        eyebrow={t("portfolio.eyebrow")}
-        title={t("portfolio.title")}
-        description={t("portfolio.description")}
-      >
-        <PortfolioGallery items={portfolioItems} />
-      </Section>
-
-      {testimonials.length ? (
-        <>
-          <Divider />
-          <Section
-            id="testimonials"
-            eyebrow={t("testimonials.eyebrow")}
-            title={t("testimonials.title")}
-            description={t("testimonials.description")}
-          >
-            <Grid cols={3}>
-              {testimonials.map((item) => (
-                <CardModule key={`${item.name}-${item.quote}`}>
-                  <p className="text-sm leading-relaxed text-text-secondary">{item.quote}</p>
-                  <p className="mt-4 text-sm font-semibold text-text-primary">{item.name}</p>
-                  <p className="text-xs tracking-[0.14em] text-text-muted uppercase">{item.business}</p>
-                </CardModule>
-              ))}
-            </Grid>
-          </Section>
-        </>
-      ) : null}
-
-      <Divider />
-
-      <Section
-        id="faq"
-        eyebrow={t("faq.eyebrow")}
-        title={t("faq.title")}
-        description={t("faq.description")}
-      >
-        <Accordion items={faqItems} />
-      </Section>
-
-      <Divider />
-
-      <Section
-        id="start"
-        eyebrow={t("cta.eyebrow")}
-        title={t("cta.title")}
-        description={t("cta.description")}
-      >
-        <CardModule className="border-border-strong bg-surface-overlay">
-          <div className="flex flex-wrap items-center gap-3">
-            <WhatsAppLink label={t("cta.primaryCta")} message={t("whatsapp.prefill")} className="min-w-52" />
-            <Button href={`/${locale}/contact`} variant="secondary" className="min-w-44">
-              {t("cta.secondaryCta")}
-            </Button>
-          </div>
-        </CardModule>
-      </Section>
-
-      <Divider />
-
-      <Section
         id="contact"
         eyebrow={t("contact.eyebrow")}
         title={t("contact.title")}
         description={t("contact.description")}
       >
         <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <CardModule className="space-y-6">
+          <CardModule className="space-y-5">
             <div className="flex flex-wrap gap-3">
               <WhatsAppLink label={t("contact.primaryCta")} message={t("whatsapp.prefill")} className="min-w-52" />
-              <Button href={`/${locale}/services`} variant="secondary" className="min-w-44">
-                {t("contact.secondaryCta")}
-              </Button>
             </div>
-            <p className="max-w-xl text-sm leading-relaxed text-text-secondary">{t("contact.description")}</p>
             <LeadForm labels={contactForm} />
           </CardModule>
-          <CardModule>
-            <ul className="space-y-4">
-              {contactChannels.map((channel) => (
-                <li
-                  key={channel.label}
-                  className="border-b border-border-subtle pb-3 last:border-none last:pb-0"
-                >
-                  <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{channel.label}</p>
-                  <p className="mt-1 text-sm font-semibold text-text-primary">{channel.value}</p>
-                </li>
-              ))}
-            </ul>
-          </CardModule>
+          {contactChannels.length ? (
+            <CardModule>
+              <ul className="space-y-4">
+                {contactChannels.map((channel) => (
+                  <li
+                    key={channel.label}
+                    className="border-b border-border-subtle pb-3 last:border-none last:pb-0"
+                  >
+                    <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{channel.label}</p>
+                    <p className="mt-1 text-sm font-semibold text-text-primary">{channel.value}</p>
+                  </li>
+                ))}
+              </ul>
+            </CardModule>
+          ) : null}
         </div>
       </Section>
-
-      <CatalogDetailsModal
-        open={Boolean(modalState)}
-        onClose={() => setModalState(null)}
-        title={modalState?.card.title || ""}
-        closeLabel={t("ui.close")}
-      >
-        {modalState?.type === "service" ? (
-          <div className="space-y-4 text-sm leading-relaxed text-text-secondary">
-            <p>{modalState.card.audience}</p>
-            <ul className="space-y-2">
-              {modalState.card.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2">
-                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="border-t border-border-subtle pt-4">
-              <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{modalState.card.timeline}</p>
-              <p className="mt-2 text-base font-semibold text-text-primary">{modalState.card.price}</p>
-            </div>
-          </div>
-        ) : null}
-        {modalState?.type === "solution" ? (
-          <div className="space-y-4 text-sm leading-relaxed text-text-secondary">
-            <p>{modalState.card.problem}</p>
-            <p>
-              <span className="font-semibold text-text-primary">
-                {locale === "he" ? "מה עושים:" : "What we do:"}
-              </span>{" "}
-              {modalState.card.whatWeDo}
-            </p>
-            <p>
-              <span className="font-semibold text-text-primary">
-                {locale === "he" ? "תוצאה:" : "Outcome:"}
-              </span>{" "}
-              {modalState.card.outcome}
-            </p>
-            <div className="border-t border-border-subtle pt-4">
-              <p className="text-xs tracking-[0.16em] text-text-muted uppercase">{modalState.card.timeline}</p>
-              <p className="mt-2 text-base font-semibold text-text-primary">{modalState.card.price}</p>
-            </div>
-          </div>
-        ) : null}
-      </CatalogDetailsModal>
     </>
   );
 }

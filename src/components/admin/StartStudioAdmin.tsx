@@ -185,6 +185,12 @@ type AdminState = SeoFields & {
   heroTrust: string;
   heroPrimaryCta: string;
   heroSecondaryCta: string;
+  whatWeDoTitle: string;
+  whatWeDoDescription: string;
+  whatWeDoPillarsText: string;
+  solutionsPromptTitle: string;
+  solutionsPromptDescription: string;
+  solutionsPromptCta: string;
   whatsappNumber: string;
   phone: string;
   email: string;
@@ -203,6 +209,7 @@ type AdminState = SeoFields & {
   outcomesItemsText: string;
   faqItemsText: string;
   contactChannelsText: string;
+  contactTitle: string;
   contactDescription: string;
   contactPrimaryCta: string;
   contactSecondaryCta: string;
@@ -459,6 +466,8 @@ async function validateUploadFile(file: File, mediaType: "image" | "video", labe
 function createInitialState(messages: Record<string, unknown>): AdminState {
   const hero = asRecord(messages.hero);
   const nav = asRecord(messages.nav);
+  const whatWeDo = asRecord(messages.whatWeDo);
+  const solutionsPrompt = asRecord(messages.solutionsPrompt);
   const process = asRecord(messages.process);
   const audience = asRecord(messages.audience);
   const difference = asRecord(messages.difference);
@@ -501,6 +510,12 @@ function createInitialState(messages: Record<string, unknown>): AdminState {
     left: String(item.title ?? ""),
     right: String(item.price ?? ""),
   }));
+  const whatWeDoPillars = ((whatWeDo.pillars as Array<{ title?: string; description?: string }>) ?? []).map(
+    (item) => ({
+      left: String(item.title ?? ""),
+      right: String(item.description ?? ""),
+    }),
+  );
 
   return {
     heroTitle: String(hero.title ?? ""),
@@ -508,6 +523,12 @@ function createInitialState(messages: Record<string, unknown>): AdminState {
     heroTrust: String(hero.trust ?? ""),
     heroPrimaryCta: String(hero.primaryCta ?? ""),
     heroSecondaryCta: String(hero.secondaryCta ?? ""),
+    whatWeDoTitle: String(whatWeDo.title ?? ""),
+    whatWeDoDescription: String(whatWeDo.description ?? ""),
+    whatWeDoPillarsText: toPairLines(whatWeDoPillars),
+    solutionsPromptTitle: String(solutionsPrompt.title ?? ""),
+    solutionsPromptDescription: String(solutionsPrompt.description ?? ""),
+    solutionsPromptCta: String(solutionsPrompt.cta ?? ""),
     whatsappNumber: String(global.whatsappNumber ?? ""),
     phone: String(global.phone ?? ""),
     email: String(global.email ?? ""),
@@ -526,6 +547,7 @@ function createInitialState(messages: Record<string, unknown>): AdminState {
     outcomesItemsText: toLines((outcomes.items as string[]) ?? []),
     faqItemsText: toPairLines(faqItems),
     contactChannelsText: toPairLines(contactChannels),
+    contactTitle: String(contact.title ?? ""),
     contactDescription: String(contact.description ?? ""),
     contactPrimaryCta: String(contact.primaryCta ?? ""),
     contactSecondaryCta: String(contact.secondaryCta ?? ""),
@@ -594,6 +616,10 @@ function mapStateToPatch(state: AdminState) {
     title: line.left,
     price: line.right,
   }));
+  const whatWeDoPillars = parsePairLines(state.whatWeDoPillarsText).map((line) => ({
+    title: line.left,
+    description: line.right,
+  }));
 
   return {
     nav: {
@@ -609,6 +635,16 @@ function mapStateToPatch(state: AdminState) {
       trust: state.heroTrust,
       primaryCta: state.heroPrimaryCta,
       secondaryCta: state.heroSecondaryCta,
+    },
+    whatWeDo: {
+      title: state.whatWeDoTitle,
+      description: state.whatWeDoDescription,
+      pillars: whatWeDoPillars,
+    },
+    solutionsPrompt: {
+      title: state.solutionsPromptTitle,
+      description: state.solutionsPromptDescription,
+      cta: state.solutionsPromptCta,
     },
     process: {
       title: state.processTitle,
@@ -629,6 +665,7 @@ function mapStateToPatch(state: AdminState) {
       items: faqItems,
     },
     contact: {
+      title: state.contactTitle,
       description: state.contactDescription,
       primaryCta: state.contactPrimaryCta,
       secondaryCta: state.contactSecondaryCta,
@@ -1329,6 +1366,47 @@ export function StartStudioAdmin() {
           <section className={cn("space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "sections" && "hidden")}>
             <h2 className="font-display text-2xl">Business Flow Blocks</h2>
             <fieldset disabled={contentLocked} className={cn("space-y-3", contentLocked && "opacity-80")}>
+            <input
+              value={state.whatWeDoTitle}
+              onChange={(event) => setState({ ...state, whatWeDoTitle: event.target.value })}
+              className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+              placeholder="What We Do title"
+            />
+            <textarea
+              value={state.whatWeDoDescription}
+              onChange={(event) => setState({ ...state, whatWeDoDescription: event.target.value })}
+              rows={3}
+              className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+              placeholder="What We Do description"
+            />
+            <textarea
+              value={state.whatWeDoPillarsText}
+              onChange={(event) => setState({ ...state, whatWeDoPillarsText: event.target.value })}
+              rows={5}
+              className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+              placeholder="What We Do pillars: title | description"
+            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input
+                value={state.solutionsPromptTitle}
+                onChange={(event) => setState({ ...state, solutionsPromptTitle: event.target.value })}
+                className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+                placeholder="Solutions prompt title"
+              />
+              <input
+                value={state.solutionsPromptCta}
+                onChange={(event) => setState({ ...state, solutionsPromptCta: event.target.value })}
+                className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+                placeholder="Solutions prompt CTA"
+              />
+            </div>
+            <textarea
+              value={state.solutionsPromptDescription}
+              onChange={(event) => setState({ ...state, solutionsPromptDescription: event.target.value })}
+              rows={3}
+              className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm"
+              placeholder="Solutions prompt description"
+            />
             <div className="grid gap-3 sm:grid-cols-2">
               <input
                 value={state.processTitle}
@@ -1565,6 +1643,7 @@ export function StartStudioAdmin() {
           <section className={cn("space-y-3 rounded-xl border border-border-subtle bg-surface-elevated p-4", activeTab !== "sections" && "hidden")}>
             <h2 className="font-display text-2xl">FAQ / Contact / Footer</h2>
             <fieldset disabled={contentLocked} className={cn("space-y-3", contentLocked && "opacity-80")}>
+            <input value={state.contactTitle} onChange={(event) => setState({ ...state, contactTitle: event.target.value })} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact section title" />
             <textarea value={state.contactDescription} onChange={(event) => setState({ ...state, contactDescription: event.target.value })} rows={3} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact section description" />
             <div className="grid gap-3 sm:grid-cols-2">
               <input value={state.contactPrimaryCta} onChange={(event) => setState({ ...state, contactPrimaryCta: event.target.value })} className="w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm" placeholder="Contact primary CTA" />
